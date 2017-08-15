@@ -1,0 +1,10 @@
+.css-RowContainer-1bv98jv { position: fixed;
+  left: 0;
+  right: 0;
+  height: 80px;
+  padding: 0 40px;
+  top: 65px;
+  background-color: rgba(255,255,255,0.9);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 300; }
+.css-StyledRow-z3mcgc { margin: -5px 0; }
