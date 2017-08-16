@@ -135,6 +135,8 @@ class ManagerGrid extends Component {
               height={this.props.items[bucketKey].rowHeight}
               minimize={this.toggleRow}
               layout={itemLayout}
+              moveItem={this.props.moveItem}
+              equipItem={this.props.equipItem}
               characterLayout={characterLayout}
               render={this.state.hiddenRows[bucketKey]}
               vaultColumns={this.props.vaultColumns}

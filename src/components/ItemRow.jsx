@@ -158,12 +158,12 @@ class ItemRow extends Component {
       }).length;
 
       if (characterID === 'vault' ? proposedDestinationItemCount > 100 : proposedDestinationItemCount > 9) {
-        const update = this.state.error && (this.state.errorMessage === 'This Guardian does not have enough inventory space')
-          ? {errorMessage: 'This Guardian does not have enough inventory space'}
-          : {
-            error: true,
-            errorMessage: 'This Guardian does not have enough inventory space'
-          };
+        // const update = this.state.error && (this.state.errorMessage === 'This Guardian does not have enough inventory space')
+        //   ? {errorMessage: 'This Guardian does not have enough inventory space'}
+        //   : {
+        //     error: true,
+        //     errorMessage: 'This Guardian does not have enough inventory space'
+        //   };
 
         return this.setState(Object.assign({mouseXY}, update));
       }
@@ -201,6 +201,7 @@ class ItemRow extends Component {
   handleMouseDown = (key, characterID, lastItem, index, [pressX, pressY], {pageX, pageY}) => {
     this.setState({
       lastPress: key,
+      initialCharacter: characterID,
       lastCharacter: characterID,
       lastItemIndex: index,
       lastItem,
@@ -218,6 +219,25 @@ class ItemRow extends Component {
       isPressed: false,
       mouseCircleDelta: [0, 0]
     });
+    if (!this.state.lastItem) return
+    const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
+
+    const shouldEquip = this.state.order.filter((item) => {
+      return item.characterID === this.state.lastCharacter;
+    }).indexOf(this.state.lastItem) === 0;
+
+    const toVault = this.state.lastCharacter === 'vault';
+    const fromVault = this.state.initialCharacter === 'vault';
+    if (toVault || fromVault) {
+      return this.props.moveItem(itemHash.toString(), itemId, toVault ? this.state.initialCharacter : this.state.lastCharacter, toVault);
+    } else {
+      return this.props.moveItem(itemHash.toString(), itemId, this.state.initialCharacter, true).then(() => {
+        return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter).then(() => {
+          return shouldEquip ? 
+            this.props.equipItem(itemId, this.state.lastCharacter) : '';
+        })
+      });
+    }
   }
 
   returnQuery(itemDef, query) {

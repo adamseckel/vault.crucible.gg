@@ -48,6 +48,7 @@ function orderByRarity(bucketItems) {
 
 export default function(bungieRequestService) {
   function service(rawMembership) {
+    console.log(rawMembership)
     return {
       buckets: {},
       rawMembership,
@@ -57,6 +58,14 @@ export default function(bungieRequestService) {
 
       getCachedItems() {
         return store.get('Vault::Cache');
+      },
+
+      moveItem(itemReferenceHash, itemID, characterId, vault) {
+        return bungieRequestService.moveItem(itemReferenceHash, itemID, characterId, vault);
+      },
+
+      equipItem(itemId, characterId) {
+        return bungieRequestService.equipItem(itemId, characterId);
       },
 
       filterItems(query, filteredItems) {
@@ -117,7 +126,10 @@ export default function(bungieRequestService) {
     }
   };
 
-  return bungieRequestService.getMembershipById().then((data) => {
-    return service(data.data.Response);
+  return bungieRequestService.getMembershipById().then(({data}) => {
+    if (data.ErrorCode === 1618) {
+      return false;
+    }
+    return service(data.Response);
   });
 };

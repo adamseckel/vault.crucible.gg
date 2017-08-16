@@ -26,6 +26,18 @@ export default function(authorization, apiKey, membershipType) {
 
     getManifest() {
       return bungieRequest.get('/D1/Platform/Destiny/Manifest/')
+    },
+
+    moveItem(itemReferenceHash, itemId, characterId, transferToVault = false, membershipType = 1) {
+      return bungieRequest.post(`/D1/Platform/Destiny/TransferItem/`, {
+        itemReferenceHash, itemId, membershipType, characterId, transferToVault, stackSize: 1
+      });
+    },
+
+    equipItem(itemId, characterId, membershipType = 1) {
+      return bungieRequest.post(`D1/Platform/Destiny/EquipItem`, {
+        characterId, itemId
+      });
     }
   };
 

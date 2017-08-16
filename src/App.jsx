@@ -8,7 +8,7 @@ import {palette, muiThemeDeclaration, Row} from './components/styleguide';
 import {SearchBar, ManagerGrid} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
 import BungieRequestService from './services/BungieRequest';
-import InitStores from './services/initStores';
+import ItemService from './services/ItemService';
 
 injectTapEventPlugin();
 
@@ -67,28 +67,37 @@ class App extends Component {
         bungieRequestService: BungieRequestService(authorization, apiKey.key, 1)
       });
 
-      InitStores(this.state.bungieRequestService).then((storeService) => {
-        const membership = storeService.rawMembership;
-        const authenticated = true;
-        this.setState({storeService, membership, authenticated});
-        console.log(this.state.membership)
-        window.addEventListener("resize", () => this.updateWidth());
-        const characters = storeService.getCharacters();
-        const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
+      ItemService(this.state.bungieRequestService).then((itemService) => {
+        if (itemService) {
+          const membership = itemService.rawMembership;
+          const authenticated = true;
+          this.setState({itemService, membership, authenticated});
+          window.addEventListener("resize", this.updateWidth);
+          const characters = itemService.getCharacters();
+          const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
 
-        storeService.getItems(this.state.clientWidth).then((items) => {
-          this.setState({
-            characters,
-            items,
-            vaultColumns
+          return itemService.getItems(this.state.clientWidth).then((items) => {
+            this.setState({
+              characters,
+              items,
+              vaultColumns
+            });
           });
-        });
+        }
       });
     });
   }
 
   searchForItem = (event, query) => {
     this.setState({query});
+  }
+
+  moveItem = (itemReferenceHash, itemId, characterId, vault) => {
+    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterId, vault);
+  }
+
+  equipItem = (itemId, characterId) => {
+    return this.state.itemService.equipItem(itemId, characterId);
   }
 
   updateWidth = () => {
@@ -104,10 +113,10 @@ class App extends Component {
 
   onReload = () => {
     this.setState({reloading: true})
-    return this.state.storeService.getItems(this.state.clientWidth)
+    return this.state.itemService.getItems(this.state.clientWidth)
       .then((characterItems) => {
         this.setState({
-          characters: this.state.storeService.getCharacters(),
+          characters: this.state.itemService.getCharacters(),
           items: characterItems,
           reloading: false
         });
@@ -119,7 +128,7 @@ class App extends Component {
       authenticated: false,
       characters: undefined,
       items: undefined,
-      storeService: undefined,
+      itemService: undefined,
       bungieRequestService: undefined
     })
   }
@@ -155,13 +164,14 @@ class App extends Component {
           </TopBar>
           {this.state.authenticated ? 
             <ManagerGrid 
+              moveItem={this.moveItem}
+              equipItem={this.equipItem}
               vaultColumns={this.state.vaultColumns}
               characters={this.state.characters}
               items={this.state.items}
               query={this.state.query}/>
             : ''
           }
-
         </div>
       </MuiThemeProvider>
     );
