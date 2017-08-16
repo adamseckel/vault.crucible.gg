@@ -10,6 +10,15 @@ export default function(authorization, apiKey, membershipType) {
     withCredentials: true
   });
 
+  const httpBungieRequest = axios.create({
+    baseURL: 'http://www.bungie.net',
+    headers: {
+      'X-API-Key': apiKey,
+      Authorization: `Bearer ${authorization.access_token}`
+    },
+    withCredentials: true
+  });
+
   const service = {
 
     getMembershipById() {
@@ -35,8 +44,8 @@ export default function(authorization, apiKey, membershipType) {
     },
 
     equipItem(itemId, characterId, membershipType = 1) {
-      return bungieRequest.post(`D1/Platform/Destiny/EquipItem`, {
-        characterId, itemId
+      return bungieRequest.post(`D1/Platform/Destiny/EquipItem/`, {
+        characterId, itemId, membershipType
       });
     }
   };

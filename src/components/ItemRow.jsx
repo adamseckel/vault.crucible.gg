@@ -230,6 +230,8 @@ class ItemRow extends Component {
     const fromVault = this.state.initialCharacter === 'vault';
     if (toVault || fromVault) {
       return this.props.moveItem(itemHash.toString(), itemId, toVault ? this.state.initialCharacter : this.state.lastCharacter, toVault);
+    } else if (this.state.initialCharacter === this.state.lastCharacter) {
+      return shouldEquip ? this.props.equipItem(itemId, this.state.lastCharacter) : '';
     } else {
       return this.props.moveItem(itemHash.toString(), itemId, this.state.initialCharacter, true).then(() => {
         return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter).then(() => {
