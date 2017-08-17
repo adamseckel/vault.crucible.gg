@@ -5,7 +5,7 @@ import keyframes from 'emotion';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
 import {AppBar, FontIcon, IconButton, FlatButton} from 'material-ui';
 import {palette, muiThemeDeclaration, Row} from './components/styleguide';
-import {SearchBar, ManagerGrid} from './components';
+import {SearchBar, ManagerGrid, SnackbarContainer} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
 import BungieRequestService from './services/BungieRequest';
 import ItemService from './services/ItemService';
@@ -19,6 +19,13 @@ const TopBar = styled(AppBar)`
   padding-left: 50px !important;
   position: fixed !important;
   top: 0 !important;
+`;
+
+const StyledSnackbarContainer = styled(SnackbarContainer)`
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 300;
 `;
 
 const SignInButton = styled(FlatButton)`
@@ -51,7 +58,8 @@ class App extends Component {
       authenticated: false,
       membership: {},
       characters: [],
-      items: {}
+      items: {},
+      notifications: {}
     }
   }
 
@@ -74,11 +82,18 @@ class App extends Component {
           this.setState({itemService, membership, authenticated});
           window.addEventListener("resize", this.updateWidth);
           const characters = itemService.getCharacters();
+          const charactersByID = characters.map((character) => {
+            return [character.characterId, character];
+          }).reduce((o, [k, val]) => {
+            o[k] = val;
+            return o;
+          }, {});
           const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
 
           return itemService.getItems(this.state.clientWidth).then((items) => {
             this.setState({
               characters,
+              charactersByID,
               items,
               vaultColumns
             });
@@ -93,11 +108,51 @@ class App extends Component {
   }
 
   moveItem = (itemReferenceHash, itemId, characterId, vault) => {
-    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterId, vault);
+    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterId, vault).then(({status, statusText, data}) => {
+      const stamp = Date.now();
+      this.setState({
+        notifications: Object.assign({}, this.state.notifications, {
+          [stamp]: {status, statusText, message: data.ErrorStatus, timestamp: Date.now()}
+        })
+      });
+      
+      setImmediate(() => {
+        this.setState({
+          notifications: Object.assign({}, this.state.notifications, {
+            [stamp]: Object.assign(this.state.notifications[stamp], {
+              rendered: true
+            })
+          })
+        });
+      })
+
+      setTimeout(() => {
+        this.setState({
+          notifications: Object.assign({}, this.state.notifications, {
+            [stamp]: Object.assign(this.state.notifications[stamp], {
+              rendered: false
+            })
+          })
+        })
+      }, 3000);
+    })
   }
 
   equipItem = (itemId, characterId) => {
-    return this.state.itemService.equipItem(itemId, characterId);
+    return this.state.itemService.equipItem(itemId, characterId).then(this.updateCharacters);
+  }
+
+  updateCharacters = (characterID) => {
+    const {characterId, membershipId} = this.state.charactersByID[characterID];
+    return this.state.itemService.updateCharacter(characterId, membershipId).then((character) => {
+      console.log(character.powerLevel)
+      this.setState({
+        charactersByID: Object.assign(this.state.charactersByID, {
+          [characterID]: character
+        })
+      });
+      console.log(this.state.charactersByID[characterID].powerLevel)
+    });
   }
 
   updateWidth = () => {
@@ -167,11 +222,12 @@ class App extends Component {
               moveItem={this.moveItem}
               equipItem={this.equipItem}
               vaultColumns={this.state.vaultColumns}
-              characters={this.state.characters}
+              characters={this.state.charactersByID}
               items={this.state.items}
               query={this.state.query}/>
-            : ''
+            : undefined
           }
+          <StyledSnackbarContainer messages={this.state.notifications}/>
         </div>
       </MuiThemeProvider>
     );

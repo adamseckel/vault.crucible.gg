@@ -65,7 +65,13 @@ export default function(bungieRequestService) {
       },
 
       equipItem(itemId, characterId) {
-        return bungieRequestService.equipItem(itemId, characterId);
+        return bungieRequestService.equipItem(itemId, characterId).then(() => characterId);
+      },
+
+      updateCharacter(characterID, characterMembershipID) {
+        return bungieRequestService.getCharacterSummaryById(characterID, characterMembershipID).then(({data}) => {
+          return data.Response.data.characterBase;
+        });
       },
 
       filterItems(query, filteredItems) {

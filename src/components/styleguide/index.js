@@ -10,7 +10,8 @@ const palette = {
   lightText: '#FFFFFF',
   highlight: '#FFCE1F',
   shadow: '#000000',
-  lightLevel: '#F5DC56'
+  lightLevel: '#F5DC56',
+  snack: '#303030'
 };
 
 const variables = {

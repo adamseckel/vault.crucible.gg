@@ -7,6 +7,7 @@ import ItemRow from './ItemRow';
 import LocationsRow from './LocationsRow';
 import ManagerGrid from './ManagerGrid';
 import SearchBar from './SearchBar';
+import SnackbarContainer from './SnackbarContainer';
 
 export {
   Cell,
@@ -17,5 +18,6 @@ export {
   ItemRow,
   LocationsRow,
   ManagerGrid,
-  SearchBar
+  SearchBar,
+  SnackbarContainer
 };

@@ -16,12 +16,10 @@ const Grid = styled.div `
   margin-top: 139px;
 `;
 
-const [width,
-  height,
-  cellWidth] = [52, 52, 270];
+const [width, height, cellWidth] = [52, 52, 270];
 
 function calculateLayout(characters, vaultColumns) {
-  return characters.concat([{characterId: 'vault'}]).map(({characterId}, index) => {
+  return Object.keys(characters).concat(['vault']).map((characterId, index) => {
     const layout = characterId === 'vault'
       ? []
       : [[(index * cellWidth) + 11, 0]];
@@ -45,19 +43,10 @@ function calculateLayout(characters, vaultColumns) {
 }
 
 function calculateCharacterLayout(characters) {
-  return characters
-    .concat([
-    {
-      characterId: 'vault'
-    }
-  ])
-    .map(({
-      characterId
-    }, index) => {
-      return [
-        cellWidth * index,
-        0
-      ];
+  return Object.keys(characters)
+    .concat(['vault'])
+    .map((characterId, index) => {
+      return [cellWidth * index, 0];
     });
 }
 
@@ -145,6 +134,10 @@ class ManagerGrid extends Component {
           </Motion>
         );
       });
+  }
+
+  componentWillRecieveProps(nextProps) {
+    console.log(nextProps.characters)
   }
 
   render() {

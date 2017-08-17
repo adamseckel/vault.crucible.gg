@@ -147,8 +147,8 @@ class ItemRow extends Component {
         .characterLayout
         .indexOf(column);
 
-      const characterID = this.props.characters[characterIndex]
-        ? this.props.characters[characterIndex].characterId
+      const characterID = this.props.characters[Object.keys(this.props.characters)[characterIndex]]
+        ? this.props.characters[Object.keys(this.props.characters)[characterIndex]].characterId
         : 'vault';
 
       const proposedDestinationItemCount = order.filter((item) => {
@@ -168,9 +168,9 @@ class ItemRow extends Component {
         return this.setState(Object.assign({mouseXY}, update));
       }
 
-      const col = clamp(Math.floor(mouseXY[0] / width), 0, (this.props.characters.length * 4 + this.props.vaultColumns));
-      const row = clamp(Math.floor(mouseXY[1] / height), 0, Math.floor(this.state.order.length / (this.props.characters.length * 4 + this.props.vaultColumns)));
-      let index = row * (this.props.characters.length * 4 + this.props.vaultColumns) + col;
+      const col = clamp(Math.floor(mouseXY[0] / width), 0, (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns));
+      const row = clamp(Math.floor(mouseXY[1] / height), 0, Math.floor(this.state.order.length / (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns)));
+      let index = row * (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns) + col;
 
       let newOrder = true;
       let proposedOrder = reinsert(order, characterID, order.indexOf(lastItem), index);
@@ -221,7 +221,7 @@ class ItemRow extends Component {
     });
     if (!this.state.lastItem) return
     const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
-
+    console.log(this.state.items[this.state.lastItem.id])
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
     }).indexOf(this.state.lastItem) === 0;
@@ -289,21 +289,13 @@ class ItemRow extends Component {
   }
 
   renderCells() {
-    return this
-      .props
-      .characters
-      .concat([
-        {
-          characterId: 'vault'
-        }
-      ])
-      .map(({characterId}) => {
-        return (
-          <Cell key={characterId} vault={characterId === 'vault'}>
-            {this.renderBucket(this.state.items, characterId, this.props.layout[characterId], this.state.order, this.props.query)}
-          </Cell>
-        )
-      });
+    return Object.keys(this.props.characters).concat(['vault']).map((characterId) => {
+      return (
+        <Cell key={characterId} vault={characterId === 'vault'}>
+          {this.renderBucket(this.state.items, characterId, this.props.layout[characterId], this.state.order, this.props.query)}
+        </Cell>
+      )
+    });
   }
 
   renderRow(visible) {

@@ -9,16 +9,7 @@ export default function(authorization, apiKey, membershipType) {
     },
     withCredentials: true
   });
-
-  const httpBungieRequest = axios.create({
-    baseURL: 'http://www.bungie.net',
-    headers: {
-      'X-API-Key': apiKey,
-      Authorization: `Bearer ${authorization.access_token}`
-    },
-    withCredentials: true
-  });
-
+  
   const service = {
 
     getMembershipById() {
@@ -37,16 +28,20 @@ export default function(authorization, apiKey, membershipType) {
       return bungieRequest.get('/D1/Platform/Destiny/Manifest/')
     },
 
-    moveItem(itemReferenceHash, itemId, characterId, transferToVault = false, membershipType = 1) {
+    moveItem(itemReferenceHash, itemId, characterId, transferToVault = false) {
       return bungieRequest.post(`/D1/Platform/Destiny/TransferItem/`, {
         itemReferenceHash, itemId, membershipType, characterId, transferToVault, stackSize: 1
       });
     },
 
-    equipItem(itemId, characterId, membershipType = 1) {
+    equipItem(itemId, characterId) {
       return bungieRequest.post(`D1/Platform/Destiny/EquipItem/`, {
         characterId, itemId, membershipType
       });
+    },
+
+    getCharacterSummaryById(characterID, destinyMembershipID) {
+      return bungieRequest.get(`/D1/Platform/Destiny//${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Complete/`);
     }
   };
 

@@ -21,10 +21,11 @@ const StyledRow = styled(Row)`
   margin: -5px 0;
 `;
 
-const Header = ({characters, vault}) => {
+const Header = ({characters = [], vault}) => {
+  console.log(characters[1])
   function renderRows(characters) {
-    return characters.map((character) => <Cell key={character.characterId}>
-      <CharacterCard character={character}/>
+    return Object.keys(characters).map((characterID) => <Cell key={characters[characterID].characterId}>
+      <CharacterCard character={characters[characterID]}/>
     </Cell>);
   }
 
