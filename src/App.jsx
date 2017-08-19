@@ -3,9 +3,9 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import styled from 'emotion/react';
 import keyframes from 'emotion';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
-import {AppBar, FontIcon, IconButton, FlatButton} from 'material-ui';
+import {AppBar, FontIcon, IconButton, FlatButton, Menu, MenuItem, Popover} from 'material-ui';
 import {palette, muiThemeDeclaration, Row} from './components/styleguide';
-import {SearchBar, ManagerGrid, SnackbarContainer} from './components';
+import {SearchBar, ManagerGrid, SnackbarContainer, UserMenu} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
 import BungieRequestService from './services/BungieRequest';
 import ItemService from './services/ItemService';
@@ -59,7 +59,8 @@ class App extends Component {
       membership: {},
       characters: [],
       items: {},
-      notifications: {}
+      notifications: {},
+      platform: 'xb1'
     }
   }
 
@@ -209,9 +210,7 @@ class App extends Component {
                     <IconButton onTouchTap={this.onReload}>
                       <ReloadIcon color={palette.secondaryText} className='material-icons'>refresh</ReloadIcon>
                     </IconButton>
-                    <IconButton onTouchTap={this.onLogout}>
-                      <FontIcon color={palette.secondaryText} className='material-icons'> exit_to_app </FontIcon>
-                    </IconButton>
+                    <UserMenu/>
                   </Row>
                 : <SignInButton label='Sign In' onTouchTap={this.onAuthorize}/>
               }
