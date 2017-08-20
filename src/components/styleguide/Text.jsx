@@ -1,14 +1,15 @@
 import styled from 'emotion/react';
-import {palette} from './index';
+import muiThemeable from 'material-ui/styles/muiThemeable';
+import {palette, font} from './styleguide';
 
 const sizes = {
   1: '1rem',
   0: '.8rem'
-}
+};
 
-export default styled.p `
+const Text = styled.p `
   margin: 0;
-  font-family: Gill Sans, sans-serif;
+  font-family: ${font.fontFamily};
   text-transform: ${props => props.uppercase
   ? 'uppercase'
   : 'none'};
@@ -17,7 +18,9 @@ export default styled.p `
     ? palette.lightText
     : props.lightLevel
       ? palette.lightLevel
-      : palette.darkText};
+      : props.gray 
+        ? palette.secondaryText
+        : props.muiTheme.palette.textColor};
   font-weight: ${props => props.bold
         ? 500
         : props.light
@@ -25,3 +28,5 @@ export default styled.p `
           : 400};
   transition: color .3s ease;
 `;
+
+export default muiThemeable()(Text);

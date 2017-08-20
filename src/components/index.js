@@ -9,6 +9,7 @@ import ManagerGrid from './ManagerGrid';
 import SearchBar from './SearchBar';
 import SnackbarContainer from './SnackbarContainer';
 import UserMenu from './UserMenu';
+import TopBar from './TopBar';
 
 export {
   Cell,
@@ -21,5 +22,6 @@ export {
   ManagerGrid,
   SearchBar,
   SnackbarContainer,
-  UserMenu
+  UserMenu,
+  TopBar
 };

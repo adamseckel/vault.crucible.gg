@@ -4,25 +4,28 @@ import styled from 'emotion/react';
 import {Row} from './styleguide';
 import CharacterCard from './CharacterCard';
 import Cell from './Cell';
+import {fade} from 'material-ui/utils/colorManipulator';
 
-const RowContainer = styled.div `
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 80px;
-  padding: 0 40px;
-  top: 65px;
-  background-color: rgba(255,255,255,0.9);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 300;
-`;
+
+
 
 const StyledRow = styled(Row)`
   margin: -5px 0;
 `;
 
-const Header = ({characters = [], vault}) => {
-  console.log(characters[1])
+const Header = ({characters = [], vault, muiTheme}) => {
+  const RowContainer = styled.div `
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 80px;
+    padding: 0 40px;
+    top: 65px;
+    background-color: ${muiTheme.palette.canvasColor};
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 300;
+  `;
+
   function renderRows(characters) {
     return Object.keys(characters).map((characterID) => <Cell key={characters[characterID].characterId}>
       <CharacterCard character={characters[characterID]}/>

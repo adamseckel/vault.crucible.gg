@@ -1,5 +1,6 @@
 import React from 'react';
 import {FontIcon, IconButton} from 'material-ui';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 import {Card} from 'material-ui/Card';
 import vaultIcon from './icon_vault.png';
 import styled from 'emotion/react';
@@ -37,8 +38,7 @@ const Container = styled.div `
   flex-grow: 1;
 `;
 
-export default({vault, character}) => {
-  console.log(character)
+const CharacterCard = ({vault, character, muiTheme}) => {
   return (
     <CardContainer zDepth={2} data-grow>
       <StyledCard
@@ -67,10 +67,12 @@ export default({vault, character}) => {
           <FontIcon
             className="material-icons"
             color={vault
-            ? palette.darkText
-            : palette.lightText}>arrow_drop_down_circle</FontIcon>
+            ? muiTheme.palette.textColor
+            : muiTheme.palette.alternateTextColor}>arrow_drop_down_circle</FontIcon>
         </IconButton>
       </StyledCard>
     </CardContainer>
   );
 };
+
+export default muiThemeable()(CharacterCard);

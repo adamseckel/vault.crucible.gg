@@ -1,41 +1,26 @@
 import React, {Component} from 'react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import styled from 'emotion/react';
-import keyframes from 'emotion';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
-import {AppBar, FontIcon, IconButton, FlatButton, Menu, MenuItem, Popover} from 'material-ui';
-import {palette, muiThemeDeclaration, Row} from './components/styleguide';
-import {SearchBar, ManagerGrid, SnackbarContainer, UserMenu} from './components';
+import {darkPalette, muiThemeDeclaration} from './components/styleguide';
+import {ManagerGrid, SnackbarContainer, TopBar} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
 import BungieRequestService from './services/BungieRequest';
 import ItemService from './services/ItemService';
+import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 
 injectTapEventPlugin();
 
 const muiTheme = getMuiTheme(muiThemeDeclaration);
-
-const TopBar = styled(AppBar)`
-  border-bottom: 1px solid ${palette.stroke} !important;
-  padding-left: 50px !important;
-  position: fixed !important;
-  top: 0 !important;
-`;
+const darkMuiTheme = getMuiTheme(Object.assign(muiThemeDeclaration), {
+  palette: darkPalette
+});
 
 const StyledSnackbarContainer = styled(SnackbarContainer)`
   position: fixed;
   bottom: 20px;
   left: 20px;
   z-index: 300;
-`;
-
-const SignInButton = styled(FlatButton)`
-  span {
-    font-size: 16px !important;
-  }
-`;
-
-const ReloadIcon = styled(FontIcon)`
-  transition: all .3s linear;
 `;
 
 const apiKey = {
@@ -60,7 +45,8 @@ class App extends Component {
       characters: [],
       items: {},
       notifications: {},
-      platform: 'xb1'
+      platform: 'xb1',
+      theme: 'default'
     }
   }
 
@@ -106,6 +92,12 @@ class App extends Component {
 
   searchForItem = (event, query) => {
     this.setState({query});
+  }
+
+  onToggleTheme = () => {
+    this.setState({
+      theme: this.state.theme === 'default' ? 'dark' : 'default'
+    });
   }
 
   moveItem = (itemReferenceHash, itemId, characterId, vault) => {
@@ -190,32 +182,18 @@ class App extends Component {
   }
 
   render() {
+    const theme = this.state.theme === 'default' ? muiTheme : darkMuiTheme;
     return (
-      <MuiThemeProvider muiTheme={muiTheme}>
-        <div className='App' ref='grid'>
-          <TopBar
-            title='VAULT'
-            zDepth={0}
-            showMenuIconButton={false}
-            titleStyle={{
-              color: palette.secondaryText,
-              textAlign: 'left'
-            }}>
-            <SearchBar onChange={this.searchForItem}/>
-            <Row justify='end' css={`marginRight: 28px;`}>
-
-
-              {this.state.authenticated
-                ? <Row justify='end' css={`margin-right: -15px`}>
-                    <IconButton onTouchTap={this.onReload}>
-                      <ReloadIcon color={palette.secondaryText} className='material-icons'>refresh</ReloadIcon>
-                    </IconButton>
-                    <UserMenu/>
-                  </Row>
-                : <SignInButton label='Sign In' onTouchTap={this.onAuthorize}/>
-              }
-            </Row>
-          </TopBar>
+      <MuiThemeProvider muiTheme={theme}>
+        <div className='App' ref='grid' css={`background-color: ${theme.palette.canvasColor}; transition: background-color 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;`}>
+          <TopBar 
+            authorized={this.state.authenticated}
+            onReload={this.onReload}
+            onAuthorize={this.onAuthorize}
+            onLogout={this.onLogout}
+            onToggleTheme={this.onToggleTheme}
+            onSearchForItem={this.searchForItem}/>
+          
           {this.state.authenticated ? 
             <ManagerGrid 
               moveItem={this.moveItem}
@@ -224,7 +202,7 @@ class App extends Component {
               characters={this.state.charactersByID}
               items={this.state.items}
               query={this.state.query}/>
-            : undefined
+            : ''
           }
           <StyledSnackbarContainer messages={this.state.notifications}/>
         </div>

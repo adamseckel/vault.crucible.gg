@@ -17,9 +17,9 @@ const Bucket = styled.div `
 const ItemContainer = styled.div `
   position: absolute;
   left: 0;
-  userSelect: none;
+  user-select: none;
   margin: 0 5px 5px 0;
-  borderRadius: 4px;
+  border-radius: 4px;
 `;
 
 const springSetting1 = {

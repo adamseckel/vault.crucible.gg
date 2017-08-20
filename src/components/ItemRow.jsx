@@ -11,7 +11,7 @@ import {Snackbar} from 'material-ui'
 
 const StyledRow = styled(Row)`
   position: relative;
-  background-color: white;
+  background-color: ${props => props.background};
   margin: -5px 0;
   transition: opacity, min-height .5s ease;
 `;
@@ -347,6 +347,7 @@ class ItemRow extends Component {
                 justify='start'
                 align='stretch'
                 grow
+                background={this.props.muiTheme.canvasColor}
                 style={{
                 minHeight: `${this.props.height}px`,
                 opacity: `${isVisible
