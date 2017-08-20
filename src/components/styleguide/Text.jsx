@@ -17,7 +17,9 @@ export default styled.p `
     ? palette.lightText
     : props.lightLevel
       ? palette.lightLevel
-      : palette.darkText};
+      : props.gray
+        ? palette.secondaryText
+        : palette.darkText};
   font-weight: ${props => props.bold
         ? 500
         : props.light

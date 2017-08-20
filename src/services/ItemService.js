@@ -65,7 +65,7 @@ export default function(bungieRequestService) {
       },
 
       equipItem(itemId, characterId) {
-        return bungieRequestService.equipItem(itemId, characterId).then(() => characterId);
+        return bungieRequestService.equipItem(itemId, characterId);
       },
 
       updateCharacter(characterID, characterMembershipID) {

@@ -220,26 +220,14 @@ class ItemRow extends Component {
       mouseCircleDelta: [0, 0]
     });
     if (!this.state.lastItem) return
+      
     const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
-    console.log(this.state.items[this.state.lastItem.id])
+
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
     }).indexOf(this.state.lastItem) === 0;
 
-    const toVault = this.state.lastCharacter === 'vault';
-    const fromVault = this.state.initialCharacter === 'vault';
-    if (toVault || fromVault) {
-      return this.props.moveItem(itemHash.toString(), itemId, toVault ? this.state.initialCharacter : this.state.lastCharacter, toVault);
-    } else if (this.state.initialCharacter === this.state.lastCharacter) {
-      return shouldEquip ? this.props.equipItem(itemId, this.state.lastCharacter) : '';
-    } else {
-      return this.props.moveItem(itemHash.toString(), itemId, this.state.initialCharacter, true).then(() => {
-        return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter).then(() => {
-          return shouldEquip ? 
-            this.props.equipItem(itemId, this.state.lastCharacter) : '';
-        })
-      });
-    }
+    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip);
   }
 
   returnQuery(itemDef, query) {

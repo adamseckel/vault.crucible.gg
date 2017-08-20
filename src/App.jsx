@@ -110,37 +110,44 @@ class App extends Component {
 
   moveItem = (itemReferenceHash, itemId, characterId, vault) => {
     return this.state.itemService.moveItem(itemReferenceHash, itemId, characterId, vault).then(({status, statusText, data}) => {
-      const stamp = Date.now();
-      this.setState({
-        notifications: Object.assign({}, this.state.notifications, {
-          [stamp]: {status, statusText, message: data.ErrorStatus, timestamp: Date.now()}
-        })
-      });
-      
-      setImmediate(() => {
-        this.setState({
-          notifications: Object.assign({}, this.state.notifications, {
-            [stamp]: Object.assign(this.state.notifications[stamp], {
-              rendered: true
-            })
-          })
-        });
-      })
-
-      setTimeout(() => {
-        this.setState({
-          notifications: Object.assign({}, this.state.notifications, {
-            [stamp]: Object.assign(this.state.notifications[stamp], {
-              rendered: false
-            })
-          })
-        })
-      }, 3000);
-    })
+      return this.addNotification(status, statusText, data);
+    });
   }
 
   equipItem = (itemId, characterId) => {
-    return this.state.itemService.equipItem(itemId, characterId).then(this.updateCharacters);
+    return this.state.itemService.equipItem(itemId, characterId).then(({status, statusText, data}) => {
+      console.log('hit', status, statusText, data)
+      return this.addNotification(status, statusText, data);
+    }).then(() => characterId);
+  }
+
+  addNotification = (status, statusText, data) => {
+    const stamp = Date.now();
+    this.setState({
+      notifications: Object.assign({}, this.state.notifications, {
+        [stamp]: {status, statusText, message: data.ErrorStatus, timestamp: Date.now()}
+      })
+    });
+    
+    setImmediate(() => {
+      this.setState({
+        notifications: Object.assign({}, this.state.notifications, {
+          [stamp]: Object.assign(this.state.notifications[stamp], {
+            rendered: true
+          })
+        })
+      });
+    })
+
+    setTimeout(() => {
+      this.setState({
+        notifications: Object.assign({}, this.state.notifications, {
+          [stamp]: Object.assign(this.state.notifications[stamp], {
+            rendered: false
+          })
+        })
+      })
+    }, 3000);
   }
 
   updateCharacters = (characterID) => {

@@ -2,10 +2,10 @@
 
 import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import {IconButton, FontIcon, Popover, List, ListItem} from 'material-ui';
+import {IconButton, FontIcon, Popover, List, ListItem, Divider, Toggle} from 'material-ui';
 import TextField from 'material-ui/TextField';
-import {palette, z, Row} from './styleguide';
-import styled from 'emotion/react';
+import {palette, z, Row, Text} from './styleguide';
+import {css} from 'emotion';
 
 import ContentInbox from 'material-ui/svg-icons/content/inbox';
 import ActionGrade from 'material-ui/svg-icons/action/grade';
@@ -44,16 +44,22 @@ class SearchBar extends Component {
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}
-          anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
+          anchorOrigin={{horizontal: 'right', vertical: 'top'}}
           targetOrigin={{horizontal: 'right', vertical: 'top'}}
           onRequestClose={this.handleClose}
+          css={`min-width: 250px`}
         >
-          <List>
-            <ListItem primaryText="Inbox" leftIcon={<ContentInbox />} />
-            <ListItem primaryText="Starred" leftIcon={<ActionGrade />} />
-            <ListItem primaryText="Sent mail" leftIcon={<ContentSend />} />
-            <ListItem primaryText="Drafts" leftIcon={<ContentDrafts />} />
-            <ListItem primaryText="Inbox" leftIcon={<ContentInbox />} />
+          <List css={`padding: 0 !important`}>
+            <ListItem innerDivStyle={{ color: palette.secondaryText}} primaryText="Night Mode" leftIcon={
+              <FontIcon css={`transform: rotateZ(150deg)`} color={palette.secondaryText} className='material-icons'> brightness_2 </FontIcon>
+            } rightToggle={<Toggle onTouchTap={this.props.onToggleTheme}/>} >
+            </ListItem>
+            <Divider />
+            <ListItem innerDivStyle={{ color: palette.secondaryText}} onTouchTap={this.props.onLogout} leftIcon={
+              <FontIcon color={palette.secondaryText} className='material-icons'> exit_to_app </FontIcon>
+            }>
+              <Text gray> Sign Out</Text>
+            </ListItem>
           </List>
         </Popover>
       </div>
