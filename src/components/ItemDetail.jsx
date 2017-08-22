@@ -3,10 +3,8 @@ import styled from 'emotion/react';
 import {palette, z} from './styleguide';
 import {keyframes} from 'emotion';
 import {Row, Column, Text, Divider} from './styleguide';
-import Stats from './Stats';
-import Perks from './Perks';
+import {ItemStats, ItemPerks, ItemDescription} from './index';
 import {fade} from 'material-ui/utils/colorManipulator';
-
 
 const containerPadding = '12px';
 
@@ -55,7 +53,7 @@ const damageTypeIconMap = {
   'damage-void': '/img/destiny_content/damage_types/void.png'
 };
 
-const InventoryItemDetail = styled.div `
+const ItemDetails = styled.div `
   width: 325px;
 `;
 
@@ -71,13 +69,42 @@ const ItemHeader = styled.div`
 
 const bgColor = fade(palette.background, 0.90);
 
+const ItemSection = styled(Column)`
+  padding: ${containerPadding};
+  background-color: ${bgColor};
+  border-radius: 4px;
+  animation: ${frames} 650ms 1 ease;
+  margin-bottom: 4px;
+  box-shadow: ${z.z2};
+  -webkit-backdrop-filter: blur(10px);
+`;
+
 export default(props) => {
   const rarityColor = rarityColorMap[props.item.definition.tierTypeName.toLowerCase()];
-  const damageColor = damageTypeColorMap[damageHashMap[props.item.damageTypeHash]];
-  
+  const damageType = damageHashMap[props.item.damageTypeHash]
+  const damageColor = damageTypeColorMap[damageType];
+  const damageIconPath = damageTypeIconMap[damageType];
+  const primaryStatType = primaryStatHashMap[props.item.primaryStat.statHash];
+
+  function renderStats(stats, item) {
+    return stats
+      ? <ItemSection justify='start' align='start'>
+        <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : ''}/>
+      </ItemSection>
+      : '';
+  }
+
+  function renderPerks(perks) {
+    return perks
+      ? <ItemSection justify='start' align='start'>
+        <ItemPerks {...{perks}}/>
+      </ItemSection>
+      : '';
+  }
+
   return <div css={`position: absolute; z-index: 1000;`} {...props}>
     {props.item 
-      ? <InventoryItemDetail>
+      ? <ItemDetails>
           <ItemHeader rarity={rarityColor}>
             <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
             <Row justify='space-between' css={`margin-top: 4px;`}>
@@ -86,29 +113,14 @@ export default(props) => {
             </Row>
           </ItemHeader>
 
-          <Column justify='start' align='start' css={`padding: ${containerPadding}; background-color: ${bgColor}; border-radius: 4px; animation: ${frames} 650ms 1 ease; margin-bottom: 4px; box-shadow: ${z.z2}; -webkit-backdrop-filter: blur(10px);`}>
-            <Column justify='start' align='start' css={`margin-bottom: 14px`}>
-              <Text css={`color: ${damageColor} !important;`} bold size={4}>{props.item.primaryStat ? props.item.primaryStat.value : 0}</Text>
-              <Text css={`color: ${damageColor} !important;`}>{props.item.primaryStat ? primaryStatHashMap[props.item.primaryStat.statHash] : ''}</Text>
-            </Column>
-            <Text gray italic> {props.item.definition.itemDescription} </Text>
-          </Column>
+          <ItemSection justify='start' align='start'>
+            <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
+          </ItemSection>
 
-          {props.stats
-            ? <Column justify='start' align='start' css={`padding: ${containerPadding}; background-color: ${bgColor}; border-radius: 4px; animation: ${frames} 950ms 1 ease; margin-bottom: 4px; box-shadow: ${z.z2}; -webkit-backdrop-filter: blur(10px);`}>
-              <Stats stats={props.stats} itemStatType={props.item.primaryStat ? primaryStatHashMap[props.item.primaryStat.statHash] : ''}/>
-            </Column>
-            : ''
-          }
-
-          {props.perks
-            ? <Column justify='start' align='start' css={`padding: ${containerPadding}; background-color: ${bgColor}; border-radius: 4px; animation: ${frames} 1250ms 1 ease; margin-bottom: 4px; box-shadow: ${z.z2}; -webkit-backdrop-filter: blur(10px);`}>
-              <Perks perks={props.perks}/>
-            </Column>
-            : ''
-          }
-        </InventoryItemDetail>
-      :''
+          {renderStats(props.stats, props.item)}
+          {renderPerks(props.perks)}
+        </ItemDetails>
+      : ''
     }
   </div>
 };

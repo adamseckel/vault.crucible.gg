@@ -27,7 +27,7 @@ const StatLabel = styled(Text)`
 `;
 
 const BarBackground = styled(Row)`
-  background-color: ${palette.stroke};
+  background-color: ${fade(palette.stroke, .8)};
   height: 20px;
   position: relative;
   padding: 4px;
@@ -47,7 +47,7 @@ const BarFill = styled.div`
   left: 0;
   bottom: 0;
   z-index: 1;
-  background-color: ${palette.secondaryText};
+  background-color: ${fade(palette.secondaryText, .8)};
   width: ${props => `${props.width * 100}%`};
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
@@ -55,7 +55,6 @@ const BarFill = styled.div`
 
 export default(props) => {
   function mapStats(stats) {
-    console.log(stats)
     return stats.map((stat) => 
       props.itemStatType === 'ATTACK'
         ? <StatRow layout='start'>

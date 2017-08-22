@@ -1,11 +1,15 @@
 import Cell from './Cell';
 import CharacterCard from './CharacterCard';
 import Header from './Header';
+import ItemIcon from './ItemIcon';
+import ItemStats from './ItemStats';
+import ItemPerks from './ItemPerks';
+import ItemDescription from './ItemDescription';
+import ItemDetail from './ItemDetail';
 import InventoryBucket from './InventoryBucket';
-import InventoryItem from './InventoryItem';
-import ItemRow from './ItemRow';
+import InventoryRow from './InventoryRow';
+import InventoryGrid from './InventoryGrid';
 import LocationsRow from './LocationsRow';
-import ManagerGrid from './ManagerGrid';
 import SearchBar from './SearchBar';
 import SnackbarContainer from './SnackbarContainer';
 import UserMenu from './UserMenu';
@@ -15,10 +19,14 @@ export {
   CharacterCard,
   Header,
   InventoryBucket,
-  InventoryItem,
-  ItemRow,
+  InventoryRow,
+  ItemIcon,
+  ItemStats,
+  ItemPerks,
+  ItemDetail,
+  ItemDescription,
   LocationsRow,
-  ManagerGrid,
+  InventoryGrid,
   SearchBar,
   SnackbarContainer,
   UserMenu

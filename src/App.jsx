@@ -5,7 +5,7 @@ import keyframes from 'emotion';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
 import {AppBar, FontIcon, IconButton, FlatButton, Menu, MenuItem, Popover} from 'material-ui';
 import {palette, muiThemeDeclaration, Row} from './components/styleguide';
-import {SearchBar, ManagerGrid, SnackbarContainer, UserMenu} from './components';
+import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
 import BungieRequestService from './services/BungieRequest';
 import ItemService from './services/ItemService';
@@ -121,7 +121,6 @@ class App extends Component {
 
   equipItem = (itemId, characterId) => {
     return this.state.itemService.equipItem(itemId, characterId).then(({status, statusText, data}) => {
-      console.log('hit', status, statusText, data)
       return this.addNotification(status, statusText, data);
     }).then(() => characterId);
   }
@@ -158,13 +157,11 @@ class App extends Component {
   updateCharacters = (characterID) => {
     const {characterId, membershipId} = this.state.charactersByID[characterID];
     return this.state.itemService.updateCharacter(characterId, membershipId).then((character) => {
-      console.log(character.powerLevel)
       this.setState({
         charactersByID: Object.assign(this.state.charactersByID, {
           [characterID]: character
         })
       });
-      console.log(this.state.charactersByID[characterID].powerLevel)
     });
   }
 
@@ -229,7 +226,7 @@ class App extends Component {
             </Row>
           </TopBar>
           {this.state.authenticated ? 
-            <ManagerGrid 
+            <InventoryGrid 
               moveItem={this.moveItem}
               getItemDetail={this.getItemDetail}
               equipItem={this.equipItem}

@@ -14,6 +14,7 @@ const PerkIcon = styled.img`
 
 const PerkRow = styled(Row)`
   margin-bottom: 8px;
+  opacity: ${props => props.active ? 1 : 0.4};
   
   &:last-child {
     margin: 0;
@@ -23,7 +24,7 @@ const PerkRow = styled(Row)`
 export default(props) => {
   function mapPerks(perks) {
     return perks.map((perk) => 
-      <PerkRow justify='start'>
+      <PerkRow justify='start' align='start' active={perk.isActive}>
         <PerkIcon src={`https://bungie.net${perk.displayIcon}`} alt={perk.displayName}/>
         <Text gray> {perk.displayDescription} </Text>
       </PerkRow>

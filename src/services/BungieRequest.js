@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+function handleBungieError(response) {
+  console.log(response)
+  return response;
+}
+
 export default function(authorization, apiKey, membershipType) {
   const bungieRequest = axios.create({
     baseURL: 'https://www.bungie.net',

@@ -1,9 +1,7 @@
 import React, {Component} from 'react';
 import styled from 'emotion/react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import LocationsRow from './LocationsRow';
-import InventoryItemDetail from './InventoryItemDetail';
-import ItemRow from './ItemRow'
+import {LocationsRow, ItemDetail, InventoryRow} from './index';
 import {Motion, spring} from 'react-motion';
 import _ from 'lodash';
 
@@ -51,8 +49,7 @@ function calculateCharacterLayout(characters) {
     });
 }
 
-class ManagerGrid extends Component {
-
+class InventoryGrid extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -121,9 +118,12 @@ class ManagerGrid extends Component {
   handleItemHover = (hoveredItemID, characterID, hoveredItem) => {    
     window.addEventListener('mousemove', this.onHover)
 
+    const isLastItem = hoveredItemID === this.state.previouslyHoveredItemID;
+
     this.setState({
       hoveredItemID: undefined,
-      hoveredItem: undefined
+      hoveredItem: undefined,
+      hoveredItemDetails: isLastItem ? this.state.hoveredItemDetails : {}
     });
 
     setImmediate(() => {
@@ -133,22 +133,21 @@ class ManagerGrid extends Component {
       });
     });
 
-    if (hoveredItemID === this.state.previouslyHoveredItemID) return;
+    if (isLastItem) return;
 
     this.props.getItemDetail(characterID, hoveredItemID).then(({data}) => {
       //handle error
       const item = data.Response.data.item;
       const definitions = data.Response.definitions;
       
-      const stats = item.stats.map((stat) => {
+      const stats = item.stats.length ? item.stats.map((stat) => {
         return Object.assign(stat, definitions.stats[stat.statHash]);
-      });
+      }) : undefined;
 
-      const perks = item.perks.map((perk) => {
+      const perks = item.perks.length ? item.perks.map((perk) => {
         return Object.assign(perk, definitions.perks[perk.perkHash])
-      });
+      }) : undefined;
 
-      console.log(stats, perks)
       this.setState({
         hoveredItemDetails: {
           stats,
@@ -176,7 +175,7 @@ class ManagerGrid extends Component {
         return (
           <Motion style={rowStyle} key={bucketKey}>
             {({translateY}) => 
-              <ItemRow {...{bucketKey, layout, characterLayout, handleItemHover, handleItemMouseLeave}}
+              <InventoryRow {...{bucketKey, layout, characterLayout, handleItemHover, handleItemMouseLeave}}
                 key={bucketKey}
                 query={this.props.query}
                 characters={this.props.characters}
@@ -201,12 +200,12 @@ class ManagerGrid extends Component {
       <Grid>
         {
           this.state.hoveredItemID
-            ? <InventoryItemDetail style={{
+            ? <ItemDetail style={{
               transform: `translate3d(${x}px, ${y}px, 0)`
             }}
             item={this.state.hoveredItem}
             stats={this.state.hoveredItemDetails.stats}
-            perks={this.state.hoveredItemDetails.perks || []}
+            perks={this.state.hoveredItemDetails.perks}
             />
             : ''
         }
@@ -217,4 +216,4 @@ class ManagerGrid extends Component {
   }
 }
 
-export default muiThemeable()(ManagerGrid);
+export default muiThemeable()(InventoryGrid);
