@@ -60,6 +60,10 @@ export default function(bungieRequestService) {
         return store.get('Vault::Cache');
       },
 
+      getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
+        return bungieRequestService.getItemDetail(destinyMembershipID, characterID, itemInstanceID);
+      },
+
       moveItem(itemReferenceHash, itemID, characterId, vault) {
         return bungieRequestService.moveItem(itemReferenceHash, itemID, characterId, vault);
       },

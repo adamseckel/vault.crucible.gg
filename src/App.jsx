@@ -108,6 +108,11 @@ class App extends Component {
     this.setState({query});
   }
 
+  getItemDetail = (characterID, itemInstanceID) => {
+    const {membershipId} = this.state.membership.destinyAccounts[0].userInfo;
+    return this.state.itemService.getItemDetail(membershipId, characterID, itemInstanceID);
+  }
+
   moveItem = (itemReferenceHash, itemId, characterId, vault) => {
     return this.state.itemService.moveItem(itemReferenceHash, itemId, characterId, vault).then(({status, statusText, data}) => {
       return this.addNotification(status, statusText, data);
@@ -226,6 +231,7 @@ class App extends Component {
           {this.state.authenticated ? 
             <ManagerGrid 
               moveItem={this.moveItem}
+              getItemDetail={this.getItemDetail}
               equipItem={this.equipItem}
               vaultColumns={this.state.vaultColumns}
               characters={this.state.charactersByID}

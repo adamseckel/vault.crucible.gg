@@ -28,6 +28,10 @@ export default function(authorization, apiKey, membershipType) {
       return bungieRequest.get('/D1/Platform/Destiny/Manifest/')
     },
 
+    getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
+      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/${itemInstanceID}/?definitions=true`)
+    },
+
     moveItem(itemReferenceHash, itemId, characterId, transferToVault = false) {
       return bungieRequest.post(`/D1/Platform/Destiny/TransferItem/`, {
         itemReferenceHash, itemId, membershipType, characterId, transferToVault, stackSize: 1

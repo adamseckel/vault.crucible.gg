@@ -199,6 +199,13 @@ class ItemRow extends Component {
   }
 
   handleMouseDown = (key, characterID, lastItem, index, [pressX, pressY], {pageX, pageY}) => {
+    window.addEventListener('touchmove', this.handleTouchMove);
+    window.addEventListener('touchend', this.handleMouseUp);
+    window.addEventListener('mousemove', this.handleMouseMove);
+    window.addEventListener('mouseup', this.handleMouseUp);
+
+    this.props.handleItemMouseLeave();
+
     this.setState({
       lastPress: key,
       initialCharacter: characterID,
@@ -219,6 +226,12 @@ class ItemRow extends Component {
       isPressed: false,
       mouseCircleDelta: [0, 0]
     });
+
+    window.removeEventListener('touchmove', this.handleTouchMove);
+    window.removeEventListener('touchend', this.handleMouseUp);
+    window.removeEventListener('mousemove', this.handleMouseMove);
+    window.removeEventListener('mouseup', this.handleMouseUp);
+
     if (!this.state.lastItem) return
       
     const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
@@ -257,6 +270,7 @@ class ItemRow extends Component {
   }
 
   renderBucket(items, characterId, layout, order, query) {
+    const {bucketKey} = this.props.bucketKey;
     return (
       <div
         css={`margin-right: -10px;`}
@@ -264,11 +278,13 @@ class ItemRow extends Component {
         data-row
         data-layout="space-between start">
         <InventoryBucket
-          {...{ characterId, layout, order, items, query }}
+          {...{ characterId, layout, order, items, query, bucketKey}}
           mouseCircleDelta={this.state.mouseCircleDelta}
           handleMouseUp={this.handleMouseUp}
           handleMouseDown={this.handleMouseDown}
           handleTouchStart={this.handleTouchStart}
+          handleItemHover={this.props.handleItemHover}
+          handleItemMouseLeave={this.props.handleItemMouseLeave}
           lastPress={this.state.lastPress}
           isPressed={this.state.isPressed}
           mouseXY={this.state.mouseXY}/>
@@ -300,13 +316,6 @@ class ItemRow extends Component {
 
   toggleRender = (render) => {
     this.setState({minimized: render});
-  }
-
-  componentDidMount = () => {
-    window.addEventListener('touchmove', this.handleTouchMove);
-    window.addEventListener('touchend', this.handleMouseUp);
-    window.addEventListener('mousemove', this.handleMouseMove);
-    window.addEventListener('mouseup', this.handleMouseUp);
   }
 
   render() {

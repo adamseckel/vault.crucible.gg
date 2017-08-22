@@ -1,6 +1,8 @@
 import {fade} from 'material-ui/utils/colorManipulator';
 import {Row, Column} from './Box';
 import Text from './Text';
+import Divider from './Divider';
+
 const palette = {
   background: '#FFFFFF',
   stroke: '#EAEAEA',
@@ -11,7 +13,11 @@ const palette = {
   highlight: '#FFCE1F',
   shadow: '#000000',
   lightLevel: '#F5DC56',
-  snack: '#303030'
+  snack: '#303030',
+  legendary: '#522f65',
+  exotic: '#ceae33',
+  rare: '#5076a3',
+  common: '#c3bcb4'
 };
 
 const variables = {
@@ -20,6 +26,7 @@ const variables = {
 
 const z = {
   z0: 'rgba(0, 0, 0, 0) 0px 3px 10px, rgba(0, 0, 0, 0) 0px 3px 10px',
+  z1: 'rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px',
   z2: 'rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px'
 };
 
@@ -46,6 +53,7 @@ export {
   Row,
   Column,
   Text,
+  Divider,
   palette,
   variables,
   z,

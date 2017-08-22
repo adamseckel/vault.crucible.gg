@@ -38,7 +38,6 @@ const Container = styled.div `
 `;
 
 export default({vault, character}) => {
-  console.log(character)
   return (
     <CardContainer zDepth={2} data-grow>
       <StyledCard

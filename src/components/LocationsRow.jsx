@@ -22,7 +22,6 @@ const StyledRow = styled(Row)`
 `;
 
 const Header = ({characters = [], vault}) => {
-  console.log(characters[1])
   function renderRows(characters) {
     return Object.keys(characters).map((characterID) => <Cell key={characters[characterID].characterId}>
       <CharacterCard character={characters[characterID]}/>
