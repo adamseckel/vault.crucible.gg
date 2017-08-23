@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'emotion/react';
 import {palette, z} from './styleguide';
 import {keyframes} from 'emotion';
-import {Row, Column, Text, Divider} from './styleguide';
+import {Row, Column, Text} from './styleguide';
 import {ItemStats, ItemPerks, ItemDescription} from './index';
 import {fade} from 'material-ui/utils/colorManipulator';
 

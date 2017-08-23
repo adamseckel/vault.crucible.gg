@@ -7,7 +7,6 @@ import InventoryBucket from './InventoryBucket';
 import Header from './Header';
 import VisibilitySensor from 'react-visibility-sensor';
 import styled from 'emotion/react';
-import {Snackbar} from 'material-ui'
 
 const StyledRow = styled(Row)`
   position: relative;
@@ -158,14 +157,7 @@ class ItemRow extends Component {
       }).length;
 
       if (characterID === 'vault' ? proposedDestinationItemCount > 100 : proposedDestinationItemCount > 9) {
-        // const update = this.state.error && (this.state.errorMessage === 'This Guardian does not have enough inventory space')
-        //   ? {errorMessage: 'This Guardian does not have enough inventory space'}
-        //   : {
-        //     error: true,
-        //     errorMessage: 'This Guardian does not have enough inventory space'
-        //   };
-
-        return this.setState(Object.assign({mouseXY}, update));
+        return this.setState(Object.assign({mouseXY}));
       }
 
       const col = clamp(Math.floor(mouseXY[0] / width), 0, (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns));

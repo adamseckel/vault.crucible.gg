@@ -3,14 +3,7 @@
 import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {IconButton, FontIcon, Popover, List, ListItem, Divider, Toggle} from 'material-ui';
-import TextField from 'material-ui/TextField';
-import {palette, z, Row, Text} from './styleguide';
-import {css} from 'emotion';
-
-import ContentInbox from 'material-ui/svg-icons/content/inbox';
-import ActionGrade from 'material-ui/svg-icons/action/grade';
-import ContentSend from 'material-ui/svg-icons/content/send';
-import ContentDrafts from 'material-ui/svg-icons/content/drafts';
+import {palette, Text} from './styleguide';
 
 class SearchBar extends Component {
   constructor(props) {

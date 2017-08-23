@@ -1,9 +1,6 @@
 import React from 'react';
 import styled from 'emotion/react';
-import {palette, z} from './styleguide';
-import {keyframes} from 'emotion';
-import {Row, Column, Text, Divider} from './styleguide';
-import {fade} from 'material-ui/utils/colorManipulator';
+import {Row, Text} from './styleguide';
 
 const PerkIcon = styled.img`
   width: 30px;

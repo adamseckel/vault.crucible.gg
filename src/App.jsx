@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import styled from 'emotion/react';
-import keyframes from 'emotion';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
-import {AppBar, FontIcon, IconButton, FlatButton, Menu, MenuItem, Popover} from 'material-ui';
+import {AppBar, FontIcon, IconButton, FlatButton} from 'material-ui';
 import {palette, muiThemeDeclaration, Row} from './components/styleguide';
 import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
@@ -118,7 +117,7 @@ class App extends Component {
     const fromVault = initialCharacterID === 'vault';
 
     if (shouldEquip && lastCharacterID === initialCharacterID) {
-      return this.state.itemService.equipItem(itemId, lastCharacterID);;
+      return this.state.itemService.equipItem(itemId, lastCharacterID);
     }
 
     const isSpecificVaultTransaction = toVault || fromVault;

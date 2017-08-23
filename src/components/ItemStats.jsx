@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'emotion/react';
-import {palette, z} from './styleguide';
-import {keyframes} from 'emotion';
-import {Row, Column, Text, Divider} from './styleguide';
+import {palette} from './styleguide';
+import {Row, Text} from './styleguide';
 import {fade} from 'material-ui/utils/colorManipulator';
 
 const StatRow = styled(Row)`
