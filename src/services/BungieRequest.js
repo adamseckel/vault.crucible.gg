@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+function handleBungieResponse({data}) {
+  const {ErrorCode, Message} = data;
+  if (ErrorCode !== 1) {
+    throw new Error(Message);
+  }
+  return data;
+}
+
 export default function(authorization, apiKey, membershipType) {
   const bungieRequest = axios.create({
     baseURL: 'https://www.bungie.net',
@@ -28,16 +36,20 @@ export default function(authorization, apiKey, membershipType) {
       return bungieRequest.get('/D1/Platform/Destiny/Manifest/')
     },
 
+    getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
+      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/${itemInstanceID}/?definitions=true`)
+    },
+
     moveItem(itemReferenceHash, itemId, characterId, transferToVault = false) {
       return bungieRequest.post(`/D1/Platform/Destiny/TransferItem/`, {
         itemReferenceHash, itemId, membershipType, characterId, transferToVault, stackSize: 1
-      });
+      }).then(handleBungieResponse);
     },
 
     equipItem(itemId, characterId) {
       return bungieRequest.post(`D1/Platform/Destiny/EquipItem/`, {
         characterId, itemId, membershipType
-      });
+      }).then(handleBungieResponse);
     },
 
     getCharacterSummaryById(characterID, destinyMembershipID) {

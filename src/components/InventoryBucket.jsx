@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import {InventoryItem} from './index';
+import {ItemIcon} from './index';
 import {Motion, spring} from 'react-motion';
 import _ from 'underscore';
 import styled from 'emotion/react';
@@ -125,9 +125,11 @@ class InventoryBucket extends Component {
                 ? 1200
                 : visualPosition
             }}
+              onMouseEnter={(e) => this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id])}
+              onMouseLeave={() => this.props.handleItemMouseLeave(item.id)}
               onMouseDown={(e) => this.props.handleMouseDown(key, this.props.characterId, item, index, [x, y], e)}
               onTouchStart={(e) => this.props.handleTouchStart(key, this.props.characterId, item, index, [x, y], e)}>
-              <InventoryItem key={key} item={this.props.items[item.id]}></InventoryItem>
+              <ItemIcon key={key} item={this.props.items[item.id]}></ItemIcon>
             </ItemContainer>
 }
           </Motion>

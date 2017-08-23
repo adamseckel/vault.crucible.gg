@@ -1,5 +1,5 @@
 import React from 'react';
-import {palette, z, Row} from './styleguide';
+import {palette, Row} from './styleguide';
 import styled from 'emotion/react';
 import {Motion, spring} from 'react-motion';
 

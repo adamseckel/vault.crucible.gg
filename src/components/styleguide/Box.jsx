@@ -20,9 +20,6 @@ const Box = styled.div `
   flex-direction: ${props => props.column
   ? 'column'
   : 'row'};
-  flex-grow: ${props => props.grow
-    ? 1
-    : 0};
   justify-content: ${props => justifyMap[props.justify] || 'center'};
   align-items: ${props => alignMap[props.align] || 'center'};
   flex-wrap: ${props => props.wrap

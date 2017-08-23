@@ -7,7 +7,6 @@ import InventoryBucket from './InventoryBucket';
 import Header from './Header';
 import VisibilitySensor from 'react-visibility-sensor';
 import styled from 'emotion/react';
-import {Snackbar} from 'material-ui'
 
 const StyledRow = styled(Row)`
   position: relative;
@@ -158,14 +157,7 @@ class ItemRow extends Component {
       }).length;
 
       if (characterID === 'vault' ? proposedDestinationItemCount > 100 : proposedDestinationItemCount > 9) {
-        // const update = this.state.error && (this.state.errorMessage === 'This Guardian does not have enough inventory space')
-        //   ? {errorMessage: 'This Guardian does not have enough inventory space'}
-        //   : {
-        //     error: true,
-        //     errorMessage: 'This Guardian does not have enough inventory space'
-        //   };
-
-        return this.setState(Object.assign({mouseXY}, update));
+        return this.setState(Object.assign({mouseXY}));
       }
 
       const col = clamp(Math.floor(mouseXY[0] / width), 0, (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns));
@@ -199,6 +191,13 @@ class ItemRow extends Component {
   }
 
   handleMouseDown = (key, characterID, lastItem, index, [pressX, pressY], {pageX, pageY}) => {
+    window.addEventListener('touchmove', this.handleTouchMove);
+    window.addEventListener('touchend', this.handleMouseUp);
+    window.addEventListener('mousemove', this.handleMouseMove);
+    window.addEventListener('mouseup', this.handleMouseUp);
+
+    this.props.handleItemMouseLeave();
+
     this.setState({
       lastPress: key,
       initialCharacter: characterID,
@@ -219,27 +218,25 @@ class ItemRow extends Component {
       isPressed: false,
       mouseCircleDelta: [0, 0]
     });
+
+    window.removeEventListener('touchmove', this.handleTouchMove);
+    window.removeEventListener('touchend', this.handleMouseUp);
+    window.removeEventListener('mousemove', this.handleMouseMove);
+    window.removeEventListener('mouseup', this.handleMouseUp);
+
     if (!this.state.lastItem) return
+      
     const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
-    console.log(this.state.items[this.state.lastItem.id])
+
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
     }).indexOf(this.state.lastItem) === 0;
-
-    const toVault = this.state.lastCharacter === 'vault';
-    const fromVault = this.state.initialCharacter === 'vault';
-    if (toVault || fromVault) {
-      return this.props.moveItem(itemHash.toString(), itemId, toVault ? this.state.initialCharacter : this.state.lastCharacter, toVault);
-    } else if (this.state.initialCharacter === this.state.lastCharacter) {
-      return shouldEquip ? this.props.equipItem(itemId, this.state.lastCharacter) : '';
-    } else {
-      return this.props.moveItem(itemHash.toString(), itemId, this.state.initialCharacter, true).then(() => {
-        return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter).then(() => {
-          return shouldEquip ? 
-            this.props.equipItem(itemId, this.state.lastCharacter) : '';
-        })
-      });
+    
+    if (!shouldEquip && this.state.lastCharacter === this.state.initialCharacter) {
+      return;
     }
+
+    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip);
   }
 
   returnQuery(itemDef, query) {
@@ -269,6 +266,7 @@ class ItemRow extends Component {
   }
 
   renderBucket(items, characterId, layout, order, query) {
+    const {bucketKey} = this.props.bucketKey;
     return (
       <div
         css={`margin-right: -10px;`}
@@ -276,11 +274,13 @@ class ItemRow extends Component {
         data-row
         data-layout="space-between start">
         <InventoryBucket
-          {...{ characterId, layout, order, items, query }}
+          {...{ characterId, layout, order, items, query, bucketKey}}
           mouseCircleDelta={this.state.mouseCircleDelta}
           handleMouseUp={this.handleMouseUp}
           handleMouseDown={this.handleMouseDown}
           handleTouchStart={this.handleTouchStart}
+          handleItemHover={this.props.handleItemHover}
+          handleItemMouseLeave={this.props.handleItemMouseLeave}
           lastPress={this.state.lastPress}
           isPressed={this.state.isPressed}
           mouseXY={this.state.mouseXY}/>
@@ -312,13 +312,6 @@ class ItemRow extends Component {
 
   toggleRender = (render) => {
     this.setState({minimized: render});
-  }
-
-  componentDidMount = () => {
-    window.addEventListener('touchmove', this.handleTouchMove);
-    window.addEventListener('touchend', this.handleMouseUp);
-    window.addEventListener('mousemove', this.handleMouseMove);
-    window.addEventListener('mouseup', this.handleMouseUp);
   }
 
   render() {

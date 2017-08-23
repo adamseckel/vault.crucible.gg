@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import styled from 'emotion/react';
-import keyframes from 'emotion';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
 import {AppBar, FontIcon, IconButton, FlatButton} from 'material-ui';
 import {palette, muiThemeDeclaration, Row} from './components/styleguide';
-import {SearchBar, ManagerGrid, SnackbarContainer} from './components';
+import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
 import BungieRequestService from './services/BungieRequest';
 import ItemService from './services/ItemService';
@@ -59,7 +58,8 @@ class App extends Component {
       membership: {},
       characters: [],
       items: {},
-      notifications: {}
+      notifications: {},
+      platform: 'xb1'
     }
   }
 
@@ -107,51 +107,83 @@ class App extends Component {
     this.setState({query});
   }
 
-  moveItem = (itemReferenceHash, itemId, characterId, vault) => {
-    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterId, vault).then(({status, statusText, data}) => {
-      const stamp = Date.now();
-      this.setState({
-        notifications: Object.assign({}, this.state.notifications, {
-          [stamp]: {status, statusText, message: data.ErrorStatus, timestamp: Date.now()}
-        })
-      });
-      
-      setImmediate(() => {
-        this.setState({
-          notifications: Object.assign({}, this.state.notifications, {
-            [stamp]: Object.assign(this.state.notifications[stamp], {
-              rendered: true
-            })
-          })
-        });
-      })
-
-      setTimeout(() => {
-        this.setState({
-          notifications: Object.assign({}, this.state.notifications, {
-            [stamp]: Object.assign(this.state.notifications[stamp], {
-              rendered: false
-            })
-          })
-        })
-      }, 3000);
-    })
+  getItemDetail = (characterID, itemInstanceID) => {
+    const {membershipId} = this.state.membership.destinyAccounts[0].userInfo;
+    return this.state.itemService.getItemDetail(membershipId, characterID, itemInstanceID);
   }
 
-  equipItem = (itemId, characterId) => {
-    return this.state.itemService.equipItem(itemId, characterId).then(this.updateCharacters);
+  createTransferPromise = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip) => {
+    const toVault = lastCharacterID === 'vault';
+    const fromVault = initialCharacterID === 'vault';
+
+    if (shouldEquip && lastCharacterID === initialCharacterID) {
+      return this.state.itemService.equipItem(itemId, lastCharacterID);
+    }
+
+    const isSpecificVaultTransaction = toVault || fromVault;
+    const characterID = isSpecificVaultTransaction
+      ? (toVault ? initialCharacterID : lastCharacterID)
+      : initialCharacterID;
+    const isVaultTransaction = isSpecificVaultTransaction
+      ? toVault
+      : true;
+    
+    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterID, isVaultTransaction).then((result) => {
+      return (fromVault && shouldEquip)
+        ? this.state.itemService.equipItem(itemId, lastCharacterID)
+        : !isSpecificVaultTransaction
+          ? this.state.itemService.moveItem(itemReferenceHash, itemId, lastCharacterID).then((result) => {
+            return shouldEquip ? this.state.itemService.equipItem(itemId, lastCharacterID) : result;
+          })
+          : result;
+    });
+  }
+
+  moveItem = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip) => {
+    return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip)
+      .then(() => this.addNotification('Success'))
+      .catch((error) => {
+        return this.addNotification(error.message);
+      });
+  }
+
+  addNotification = (message) => {
+    const stamp = Date.now();
+    this.setState({
+      notifications: Object.assign({}, this.state.notifications, {
+        [stamp]: {message, timestamp: Date.now()}
+      })
+    });
+    
+    setImmediate(() => {
+      this.setState({
+        notifications: Object.assign({}, this.state.notifications, {
+          [stamp]: Object.assign(this.state.notifications[stamp], {
+            rendered: true
+          })
+        })
+      });
+    })
+
+    setTimeout(() => {
+      this.setState({
+        notifications: Object.assign({}, this.state.notifications, {
+          [stamp]: Object.assign(this.state.notifications[stamp], {
+            rendered: false
+          })
+        })
+      })
+    }, 3000);
   }
 
   updateCharacters = (characterID) => {
     const {characterId, membershipId} = this.state.charactersByID[characterID];
     return this.state.itemService.updateCharacter(characterId, membershipId).then((character) => {
-      console.log(character.powerLevel)
       this.setState({
         charactersByID: Object.assign(this.state.charactersByID, {
           [characterID]: character
         })
       });
-      console.log(this.state.charactersByID[characterID].powerLevel)
     });
   }
 
@@ -209,18 +241,16 @@ class App extends Component {
                     <IconButton onTouchTap={this.onReload}>
                       <ReloadIcon color={palette.secondaryText} className='material-icons'>refresh</ReloadIcon>
                     </IconButton>
-                    <IconButton onTouchTap={this.onLogout}>
-                      <FontIcon color={palette.secondaryText} className='material-icons'> exit_to_app </FontIcon>
-                    </IconButton>
+                    <UserMenu/>
                   </Row>
                 : <SignInButton label='Sign In' onTouchTap={this.onAuthorize}/>
               }
             </Row>
           </TopBar>
           {this.state.authenticated ? 
-            <ManagerGrid 
+            <InventoryGrid 
               moveItem={this.moveItem}
-              equipItem={this.equipItem}
+              getItemDetail={this.getItemDetail}
               vaultColumns={this.state.vaultColumns}
               characters={this.state.charactersByID}
               items={this.state.items}

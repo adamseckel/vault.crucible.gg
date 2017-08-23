@@ -60,12 +60,19 @@ export default function(bungieRequestService) {
         return store.get('Vault::Cache');
       },
 
+      getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
+        return bungieRequestService.getItemDetail(destinyMembershipID, characterID, itemInstanceID);
+      },
+
       moveItem(itemReferenceHash, itemID, characterId, vault) {
+        console.log('CALL MOVE')
         return bungieRequestService.moveItem(itemReferenceHash, itemID, characterId, vault);
       },
 
       equipItem(itemId, characterId) {
-        return bungieRequestService.equipItem(itemId, characterId).then(() => characterId);
+                console.log('CALL EQUIP')
+
+        return bungieRequestService.equipItem(itemId, characterId);
       },
 
       updateCharacter(characterID, characterMembershipID) {
