@@ -65,10 +65,13 @@ export default function(bungieRequestService) {
       },
 
       moveItem(itemReferenceHash, itemID, characterId, vault) {
+        console.log('CALL MOVE')
         return bungieRequestService.moveItem(itemReferenceHash, itemID, characterId, vault);
       },
 
       equipItem(itemId, characterId) {
+                console.log('CALL EQUIP')
+
         return bungieRequestService.equipItem(itemId, characterId);
       },
 

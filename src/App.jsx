@@ -113,23 +113,46 @@ class App extends Component {
     return this.state.itemService.getItemDetail(membershipId, characterID, itemInstanceID);
   }
 
-  moveItem = (itemReferenceHash, itemId, characterId, vault) => {
-    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterId, vault).then(({status, statusText, data}) => {
-      return this.addNotification(status, statusText, data);
+  createTransferPromise = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip) => {
+    const toVault = lastCharacterID === 'vault';
+    const fromVault = initialCharacterID === 'vault';
+
+    if (shouldEquip && lastCharacterID === initialCharacterID) {
+      return this.state.itemService.equipItem(itemId, lastCharacterID);;
+    }
+
+    const isSpecificVaultTransaction = toVault || fromVault;
+    const characterID = isSpecificVaultTransaction
+      ? (toVault ? initialCharacterID : lastCharacterID)
+      : initialCharacterID;
+    const isVaultTransaction = isSpecificVaultTransaction
+      ? toVault
+      : true;
+    
+    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterID, isVaultTransaction).then((result) => {
+      return (fromVault && shouldEquip)
+        ? this.state.itemService.equipItem(itemId, lastCharacterID)
+        : !isSpecificVaultTransaction
+          ? this.state.itemService.moveItem(itemReferenceHash, itemId, lastCharacterID).then((result) => {
+            return shouldEquip ? this.state.itemService.equipItem(itemId, lastCharacterID) : result;
+          })
+          : result;
     });
   }
 
-  equipItem = (itemId, characterId) => {
-    return this.state.itemService.equipItem(itemId, characterId).then(({status, statusText, data}) => {
-      return this.addNotification(status, statusText, data);
-    }).then(() => characterId);
+  moveItem = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip) => {
+    return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip)
+      .then(() => this.addNotification('Success'))
+      .catch((error) => {
+        return this.addNotification(error.message);
+      });
   }
 
-  addNotification = (status, statusText, data) => {
+  addNotification = (message) => {
     const stamp = Date.now();
     this.setState({
       notifications: Object.assign({}, this.state.notifications, {
-        [stamp]: {status, statusText, message: data.ErrorStatus, timestamp: Date.now()}
+        [stamp]: {message, timestamp: Date.now()}
       })
     });
     
@@ -229,7 +252,6 @@ class App extends Component {
             <InventoryGrid 
               moveItem={this.moveItem}
               getItemDetail={this.getItemDetail}
-              equipItem={this.equipItem}
               vaultColumns={this.state.vaultColumns}
               characters={this.state.charactersByID}
               items={this.state.items}

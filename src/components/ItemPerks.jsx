@@ -24,7 +24,7 @@ const PerkRow = styled(Row)`
 export default(props) => {
   function mapPerks(perks) {
     return perks.map((perk) => 
-      <PerkRow justify='start' align='start' active={perk.isActive}>
+      <PerkRow justify='start' align='start' active={perk.isActive} key={perk.perkHash}>
         <PerkIcon src={`https://bungie.net${perk.displayIcon}`} alt={perk.displayName}/>
         <Text gray> {perk.displayDescription} </Text>
       </PerkRow>

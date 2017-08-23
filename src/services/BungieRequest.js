@@ -40,12 +40,24 @@ export default function(authorization, apiKey, membershipType) {
     moveItem(itemReferenceHash, itemId, characterId, transferToVault = false) {
       return bungieRequest.post(`/D1/Platform/Destiny/TransferItem/`, {
         itemReferenceHash, itemId, membershipType, characterId, transferToVault, stackSize: 1
+      }).then(({data}) => {
+        const {ErrorCode, ErrorStatus, Message} = data;
+        if (ErrorCode !== 1) {
+          throw new Error(Message);
+        }
+        return data;
       });
     },
 
     equipItem(itemId, characterId) {
       return bungieRequest.post(`D1/Platform/Destiny/EquipItem/`, {
         characterId, itemId, membershipType
+      }).then(({data}) => {
+        const {ErrorCode, ErrorStatus, Message} = data;
+        if (ErrorCode !== 1) {
+          throw new Error(Message);
+        }
+        return data;
       });
     },
 

@@ -136,6 +136,7 @@ class InventoryGrid extends Component {
     if (isLastItem) return;
 
     this.props.getItemDetail(characterID, hoveredItemID).then(({data}) => {
+      if (data.ErrorCode !== 1) return
       //handle error
       const item = data.Response.data.item;
       const definitions = data.Response.definitions;
@@ -184,7 +185,6 @@ class InventoryGrid extends Component {
                 height={this.props.items[bucketKey].rowHeight}
                 minimize={this.toggleRow}
                 moveItem={this.props.moveItem}
-                equipItem={this.props.equipItem}
                 render={this.state.hiddenRows[bucketKey]}
                 vaultColumns={this.props.vaultColumns}
                 clientWidth={this.props.clientWidth}/>

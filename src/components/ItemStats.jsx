@@ -57,7 +57,7 @@ export default(props) => {
   function mapStats(stats) {
     return stats.map((stat) => 
       props.itemStatType === 'ATTACK'
-        ? <StatRow layout='start'>
+        ? <StatRow layout='start' key={stat.statName}>
           <StatLabel right gray>{stat.statName}</StatLabel>
           {stat.statName !== 'Magazine'
             ? <BarBackground grow justify='start'>

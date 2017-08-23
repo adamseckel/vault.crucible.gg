@@ -239,6 +239,10 @@ class ItemRow extends Component {
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
     }).indexOf(this.state.lastItem) === 0;
+    
+    if (!shouldEquip && this.state.lastCharacter === this.state.initialCharacter) {
+      return;
+    }
 
     return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip);
   }
