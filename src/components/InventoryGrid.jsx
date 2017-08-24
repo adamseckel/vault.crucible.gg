@@ -70,15 +70,14 @@ class InventoryGrid extends Component {
       hiddenRows: {},
       hoveredItemDetails: {},
       vault: {
-        characterClass: {
-          className: 'vault'
-        },
-        race: {
-          raceName: 'Full'
+        characterLevel: '',
+        characterBase: {
+          classHash: 'vault',
+          raceHash: 'Full',
+          powerLevel: ''
         },
         id: 4567,
-        light: '',
-        level: ''
+
       }
     };
   }

@@ -78,26 +78,33 @@ class App extends Component {
       ItemService(this.state.bungieRequestService).then((itemService) => {
         if (itemService) {
           const membership = itemService.rawMembership;
+          const destinyMembership = membership.destinyMemberships[0];
           const authenticated = true;
-          this.setState({itemService, membership, authenticated});
+          this.setState({itemService, membership, destinyMembership, authenticated});
           window.addEventListener("resize", this.updateWidth);
-          const characters = itemService.getCharacters();
-          const charactersByID = characters.map((character) => {
-            return [character.characterId, character];
-          }).reduce((o, [k, val]) => {
-            o[k] = val;
-            return o;
-          }, {});
-          const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
+          return itemService.getCharacters(destinyMembership.membershipId).then((characters) => {
+            const charactersByID = characters.map((character) => {
+              return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
+            }).reduce((o, [k, val]) => {
+              o[k] = val;
+              return o;
+            }, {});
 
-          return itemService.getItems(this.state.clientWidth).then((items) => {
+            const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
+            
             this.setState({
               characters,
               charactersByID,
-              items,
               vaultColumns
             });
-          });
+
+            return itemService.getItems(this.state.clientWidth).then((items) => {
+              this.setState({
+                items
+              });
+            });
+          })
+          
         }
       });
     });
@@ -108,7 +115,7 @@ class App extends Component {
   }
 
   getItemDetail = (characterID, itemInstanceID) => {
-    const {membershipId} = this.state.membership.destinyAccounts[0].userInfo;
+    const {membershipId} = this.state.destinyMembership;
     return this.state.itemService.getItemDetail(membershipId, characterID, itemInstanceID);
   }
 
