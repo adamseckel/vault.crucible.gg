@@ -64,7 +64,7 @@ class App extends Component {
   }
 
   onAuthorize = () => {
-    return window.open(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`,"_self");
+    return window.open(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`);
   }
 
   componentDidMount() {
@@ -107,6 +107,8 @@ class App extends Component {
           
         }
       });
+    }).catch((error) => {
+      console.log('not authorized')
     });
   }
 
