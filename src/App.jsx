@@ -64,7 +64,7 @@ class App extends Component {
   }
 
   onAuthorize = () => {
-    return window.open(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`);
+    return window.location.replace(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`);
   }
 
   componentDidMount() {
