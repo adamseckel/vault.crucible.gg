@@ -17,7 +17,7 @@ export default function (apiKey) {
       } else if (localStorageAuth && localStorageAuth.authorizationExpiresAt > Date.now()) {
         return Promise.resolve(localStorageAuth);
       } else {
-        console.log('error', localStorageAuth)
+        throw new Error('NOPE')
       }
     });
 }
