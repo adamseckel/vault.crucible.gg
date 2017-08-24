@@ -38,12 +38,14 @@ const Container = styled.div `
 `;
 
 const raceHashMap = {
-  3887404748: 'Human'
+  3887404748: 'Human',
+  2803282938: 'Awoken'
 };
 
 const classHashMap = {
   671679327: 'Hunter',
   2271682572: 'Warlock',
+  3655393761: 'Titan',
   vault: 'Vault'
 };
 
