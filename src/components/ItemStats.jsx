@@ -14,7 +14,6 @@ const StatRow = styled(Row)`
 
 const StatIcon = styled.img`
   width: 20px;
-  filter: invert(00%);
   margin-right: 8px;
   opacity: .6;
 `;
