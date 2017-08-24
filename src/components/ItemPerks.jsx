@@ -4,7 +4,6 @@ import {Row, Text} from './styleguide';
 
 const PerkIcon = styled.img`
   width: 30px;
-  filter: invert(100%);
   margin-right: 12px;
   opacity: .6;
 `;

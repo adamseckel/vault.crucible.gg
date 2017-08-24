@@ -40,7 +40,7 @@ const primaryStatHashMap = {
 };
 
 const damageTypeColorMap = {
-  'damage-kinetic': palette.darkText,
+  'damage-kinetic': palette.background,
   'damage-solar': '#f2721b',
   'damage-arc': '#85c5ec',
   'damage-void': '#b184c5'
@@ -58,23 +58,23 @@ const ItemDetails = styled.div `
 `;
 
 const ItemHeader = styled.div`
-  background-color: ${props => fade(props.rarity, .90)};
+  background-color: ${props => fade(props.rarity, .95)};
   padding: ${containerPadding};
   border-radius: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   animation: ${frames} 350ms 1 ease;
   box-shadow: ${z.z2};
   -webkit-backdrop-filter: blur(10px);
 `;
 
-const bgColor = fade(palette.background, 0.90);
+const bgColor = fade(palette.darkText, 0.95);
 
 const ItemSection = styled(Column)`
   padding: ${containerPadding};
   background-color: ${bgColor};
   border-radius: 4px;
   animation: ${frames} 650ms 1 ease;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   box-shadow: ${z.z2};
   -webkit-backdrop-filter: blur(10px);
 `;
@@ -84,7 +84,7 @@ export default(props) => {
   const damageType = damageHashMap[props.item.damageTypeHash]
   const damageColor = damageTypeColorMap[damageType];
   const damageIconPath = damageTypeIconMap[damageType];
-  const primaryStatType = primaryStatHashMap[props.item.primaryStat.statHash];
+  const primaryStatType = props.item.primaryStat ? primaryStatHashMap[props.item.primaryStat.statHash] : undefined;
 
   function renderStats(stats, item) {
     return stats
