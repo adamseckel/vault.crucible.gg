@@ -52,8 +52,11 @@ export default function(bungieRequestService) {
     return {
       buckets: {},
       rawMembership,
-      getCharacters() {
-        return rawMembership.destinyAccounts[0].characters;
+      getCharacters(destinyMembershipID) {
+        return bungieRequestService.getAccountCharacters(destinyMembershipID).then(({data}) => {
+          this.characters = data.Response.data.characters;
+          return this.characters;
+        });
       },
 
       getCachedItems() {
@@ -65,13 +68,10 @@ export default function(bungieRequestService) {
       },
 
       moveItem(itemReferenceHash, itemID, characterId, vault) {
-        console.log('CALL MOVE')
         return bungieRequestService.moveItem(itemReferenceHash, itemID, characterId, vault);
       },
 
       equipItem(itemId, characterId) {
-                console.log('CALL EQUIP')
-
         return bungieRequestService.equipItem(itemId, characterId);
       },
 
@@ -97,11 +97,12 @@ export default function(bungieRequestService) {
       },
 
       getItems(clientWidth) {
-        const requests = rawMembership.destinyAccounts[0].characters.map((character) => {
-          return bungieRequestService.getCharacterById(character.characterId, character.membershipId).then((data) => {
+        const requests = this.characters.map((character) => {
+          const {characterId, membershipId} = character.characterBase;
+          return bungieRequestService.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
             return {
-              inventory: data.data.Response,
-              key: character.characterId
+              inventory: data.Response,
+              key: characterId
             };
           })
         });

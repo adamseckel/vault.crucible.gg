@@ -24,6 +24,10 @@ export default function(authorization, apiKey, membershipType) {
       return bungieRequest.get(`/Platform/User/GetBungieAccount/${authorization.membership_id}/${254}/`);
     },
 
+    getAccountCharacters(destinyMembershipID) {
+      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Summary/?definitions=true`);
+    },
+
     getCharacterById(characterID, destinyMembershipID) {
       return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/Summary/?definitions=true`);
     },

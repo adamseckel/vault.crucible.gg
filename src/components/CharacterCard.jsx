@@ -37,7 +37,20 @@ const Container = styled.div `
   flex-grow: 1;
 `;
 
+const raceHashMap = {
+  3887404748: 'Human'
+};
+
+const classHashMap = {
+  671679327: 'Hunter',
+  2271682572: 'Warlock',
+  vault: 'Vault'
+};
+
 export default({vault, character}) => {
+  const {classHash, raceHash, powerLevel} = character.characterBase;
+  const {characterLevel} = character;
+
   return (
     <CardContainer zDepth={2} data-grow>
       <StyledCard
@@ -52,15 +65,15 @@ export default({vault, character}) => {
           : `https://www.bungie.net/${character.emblemPath}`}/>
         <Container>
           <Text uppercase white={!vault}>
-            {character.characterClass.className}
+            {classHashMap[classHash]}
           </Text>
-          <Text white={!vault} size={0} light>{character.race.raceName}</Text>
+          <Text white={!vault} size={0} light>{raceHashMap[raceHash]}</Text>
         </Container>
         <div data-grow style={{
           textAlign: 'right'
         }}>
-          <Text uppercase lightLevel>{character.powerLevel}</Text>
-          <Text size={0} uppercase light white={!vault}>{character.level}</Text>
+          <Text uppercase lightLevel>{powerLevel}</Text>
+          <Text size={0} uppercase light white={!vault}>{characterLevel}</Text>
         </div>
         <IconButton>
           <FontIcon
