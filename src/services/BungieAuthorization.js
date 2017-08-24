@@ -23,6 +23,7 @@ export default function (apiKey) {
 }
 
 function getAuthorization(apiKey, token, grantType) {
+  window.history.pushState(null, 'Vault', '/');
   return axios
     .post('https://www.bungie.net/platform/app/oauth/token/', `&client_id=${apiKey.client_id}&client_secret=${apiKey.client_secret}&${grantType === 'refresh_token'
     ? 'refresh_token'
