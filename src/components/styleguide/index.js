@@ -13,7 +13,7 @@ const palette = {
   highlight: '#FFCE1F',
   shadow: '#000000',
   lightLevel: '#F5DC56',
-  snack: '#303030',
+  snack: fade('#000000', 0.90),
   legendary: '#522f65',
   exotic: '#ceae33',
   rare: '#5076a3',

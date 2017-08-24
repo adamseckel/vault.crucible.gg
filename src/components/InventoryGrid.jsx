@@ -148,12 +148,15 @@ class InventoryGrid extends Component {
         return Object.assign(perk, definitions.perks[perk.perkHash])
       }) : undefined;
 
-      this.setState({
-        hoveredItemDetails: {
-          stats,
-          perks
-        }
-      });
+      console.log({item, definitions, stats, perks})
+      if (stats || perks) {
+        this.setState({
+          hoveredItemDetails: {
+            stats,
+            perks
+          }
+        });
+      }
     });
   }
 

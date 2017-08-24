@@ -14,7 +14,7 @@ const StatRow = styled(Row)`
 
 const StatIcon = styled.img`
   width: 20px;
-  filter: invert(100%);
+  filter: invert(00%);
   margin-right: 8px;
   opacity: .6;
 `;
@@ -26,7 +26,7 @@ const StatLabel = styled(Text)`
 `;
 
 const BarBackground = styled(Row)`
-  background-color: ${fade(palette.stroke, .8)};
+  background-color: ${fade(palette.secondaryText, .2)};
   height: 20px;
   position: relative;
   padding: 4px;
@@ -46,7 +46,7 @@ const BarFill = styled.div`
   left: 0;
   bottom: 0;
   z-index: 1;
-  background-color: ${fade(palette.secondaryText, .8)};
+  background-color: ${fade(palette.stroke, .1)};
   width: ${props => `${props.width * 100}%`};
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
@@ -60,11 +60,11 @@ export default(props) => {
           <StatLabel right gray>{stat.statName}</StatLabel>
           {stat.statName !== 'Magazine'
             ? <BarBackground grow justify='start'>
-                <StatValueLabel white>{stat.value}</StatValueLabel>
+                <StatValueLabel gray>{stat.value}</StatValueLabel>
                 <BarFill width={stat.value / stat.maximumValue}></BarFill>
               </BarBackground>
             : <Row grow justify='start' css={`height: 28px;`}>
-              <StatLabel css={`color: ${palette.secondaryText} !important;`}> {stat.value} </StatLabel>
+              <StatLabel gray> {stat.value} </StatLabel>
             </Row>
           }
         </StatRow>
@@ -73,8 +73,8 @@ export default(props) => {
             <StatIcon src={`https://bungie.net${stat.icon}`}/>
             <StatLabel css={`color: ${palette.secondaryText} !important;`}>{stat.statName}</StatLabel>
             <Row grow justify='start' css={`height: 28px;`}>
-                <StatLabel css={`color: ${palette.secondaryText} !important;`}> +{stat.value} </StatLabel>
-              </Row>
+              <StatLabel gray> +{stat.value} </StatLabel>
+            </Row>
           </StatRow>
           : ''
     );
