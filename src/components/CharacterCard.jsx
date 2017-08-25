@@ -64,7 +64,7 @@ export default({vault, character}) => {
           vault={vault}
           src={vault
           ? vaultIcon
-          : `https://www.bungie.net/${character.emblemPath}`}/>
+          : `https://www.bungie.net${character.emblemPath}`}/>
         <Container>
           <Text uppercase white={!vault}>
             {classHashMap[classHash]}

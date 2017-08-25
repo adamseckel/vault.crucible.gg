@@ -28,7 +28,7 @@ export default(props) => {
   return props.item && props.item.definition.icon
     ? <div className={itemStyle}
         style={{
-          backgroundImage: `url(https://bungie.net/${props.item.definition.icon})`,
+          backgroundImage: `url(https://bungie.net${props.item.definition.icon})`,
           borderColor: `${props.item.isGridComplete ? palette.lightLevel : palette.stroke}`,
         }}>
         <span css={statStyle}>
