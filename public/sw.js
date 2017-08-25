@@ -39,7 +39,7 @@ self.addEventListener('fetch', function fetcher (event) {
       caches.match(event.request).then(function(response) {
         // return from cache, otherwise fetch from network
         return response || fetch(request).then(response => {
-          return caches.open('inventory-items')
+          return caches.open('BungieInventoryItemRequests')
             .then(cache => {
               cache.put(event.request, response.clone());
               return response;
