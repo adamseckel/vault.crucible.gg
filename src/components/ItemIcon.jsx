@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'emotion/react';
 import {palette} from './styleguide';
 import {css} from 'emotion';
 

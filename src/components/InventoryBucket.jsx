@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {ItemIcon} from './index';
 import {Motion, spring} from 'react-motion';
-import _ from 'underscore';
+import _ from 'lodash';
 import styled from 'emotion/react';
 
 const Bucket = styled.div `
