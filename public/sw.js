@@ -18,7 +18,13 @@ self.addEventListener('fetch', function fetcher (event) {
     event.respondWith(
       caches.match(event.request).then(function(response) {
         // return from cache, otherwise fetch from network
-        return response || fetch(request);
+        return response || fetch(request).then((image) => {
+          console.log(image)
+          return caches.open('icons')
+            .then(cache => {
+              cache.add(image);
+            });
+        });
       })
     );
   }
