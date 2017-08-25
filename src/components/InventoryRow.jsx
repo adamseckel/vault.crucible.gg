@@ -197,13 +197,13 @@ class ItemRow extends Component {
     window.addEventListener('mouseup', this.handleMouseUp);
 
     this.props.handleItemMouseLeave();
-
     this.setState({
       lastPress: key,
       initialCharacter: characterID,
       lastCharacter: characterID,
       lastItemIndex: index,
       lastItem,
+      lastOrder: this.state.order.slice(0),
       isPressed: true,
       mouseCircleDelta: [
         pageX - pressX,
@@ -224,8 +224,7 @@ class ItemRow extends Component {
     window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mouseup', this.handleMouseUp);
 
-    if (!this.state.lastItem) return
-      
+    if (!this.state.lastItem || !this.state.lastItemIndex) return
     const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
 
     const shouldEquip = this.state.order.filter((item) => {
@@ -236,7 +235,15 @@ class ItemRow extends Component {
       return;
     }
 
-    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip);
+    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip).then(() => {
+      console.log('succes state')
+    }).catch((error) => {
+      const {order, lastOrder, initialCharacter, lastItem, lastItemIndex} = this.state;
+
+      this.setState({
+        order: reinsert(order, initialCharacter, order.indexOf(lastItem), lastOrder.indexOf(lastItem))
+      });
+    })
   }
 
   returnQuery(itemDef, query) {
