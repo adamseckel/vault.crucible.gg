@@ -13,6 +13,7 @@ self.addEventListener('fetch', function fetcher (event) {
   var request = event.request;
   // check if request 
   if (request.url.indexOf('destiny_content/icons') > -1) {
+    console.log('bungie request', request.url)
     // contentful asset detected
     event.respondWith(
       caches.match(event.request).then(function(response) {
