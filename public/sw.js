@@ -31,8 +31,9 @@ self.addEventListener('fetch', function fetcher (event) {
   const Inventory = request.url.indexOf('Character') > -1;
   const Character = request.url.indexOf('Inventory') > -1;
   const Definitions = request.url.indexOf('?definitions=true') > -1;
+  const Summary = request.url.indexOf('Summary') > -1;
 
-  if (Account && Inventory && Character && Definitions) {
+  if (Account && Inventory && Character && Definitions && !Summary) {
     // contentful asset detected
     event.respondWith(
       caches.match(event.request).then(function(response) {
