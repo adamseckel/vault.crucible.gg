@@ -148,7 +148,6 @@ class InventoryGrid extends Component {
         return Object.assign(perk, definitions.perks[perk.perkHash])
       }) : undefined;
 
-      console.log({item, definitions, stats, perks})
       if (stats || perks) {
         this.setState({
           hoveredItemDetails: {
@@ -161,8 +160,7 @@ class InventoryGrid extends Component {
   }
 
   renderRows = () => {
-    if (!Object.keys(this.props.items).length) 
-      return;
+    if (!Object.keys(this.props.items).length) return;
     let rowOffset = 0
     const layout = calculateLayout(this.props.characters, this.props.vaultColumns);
     const characterLayout = calculateCharacterLayout(this.props.characters);

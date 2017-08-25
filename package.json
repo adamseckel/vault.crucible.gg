@@ -12,8 +12,7 @@
     "react-motion": "0.5.0",
     "react-scripts": "1.0.11",
     "react-tap-event-plugin": "2.0.1",
-    "react-visibility-sensor": "3.10.1",
-    "underscore": "1.8.3"
+    "react-visibility-sensor": "3.10.1"
   },
   "scripts": {
     "start": "react-app-rewired start",

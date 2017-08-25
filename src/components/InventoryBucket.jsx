@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {ItemIcon} from './index';
 import {Motion, spring} from 'react-motion';
-import _ from 'underscore';
+import _ from 'lodash';
 import styled from 'emotion/react';
 
 const Bucket = styled.div `
@@ -112,26 +112,28 @@ class InventoryBucket extends Component {
             boxShadow2: spring(0, springSetting1)
           };
         }
-
+        
+        const rawItem = this.props.items[item.id];
         return (
           <Motion style={style} key={key}>
-            {({translateX, translateY, scale, boxShadow1, boxShadow2}) => <ItemContainer
-              key={item.itemID}
-              style={{
-              WebkitTransform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-              transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
-              boxShadow: `0px 3px 10px rgba(0,0,0, ${boxShadow1}), 0px 3px 10px rgba(0,0,0, ${boxShadow2})`,
-              zIndex: (key === lastPress && isPressed)
-                ? 1200
-                : visualPosition
-            }}
-              onMouseEnter={(e) => this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id])}
-              onMouseLeave={() => this.props.handleItemMouseLeave(item.id)}
-              onMouseDown={(e) => this.props.handleMouseDown(key, this.props.characterId, item, index, [x, y], e)}
-              onTouchStart={(e) => this.props.handleTouchStart(key, this.props.characterId, item, index, [x, y], e)}>
-              <ItemIcon key={key} item={this.props.items[item.id]}></ItemIcon>
-            </ItemContainer>
-}
+            {({translateX, translateY, scale, boxShadow1, boxShadow2}) =>
+              <ItemContainer
+                key={item.itemID}
+                style={{
+                WebkitTransform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
+                transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
+                boxShadow: `0px 3px 10px rgba(0,0,0, ${boxShadow1}), 0px 3px 10px rgba(0,0,0, ${boxShadow2})`,
+                zIndex: (key === lastPress && isPressed)
+                  ? 1200
+                  : visualPosition
+                }}
+                onMouseEnter={(e) => this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id])}
+                onMouseLeave={() => this.props.handleItemMouseLeave(item.id)}
+                onMouseDown={(e) => this.props.handleMouseDown(key, this.props.characterId, item, index, [x, y], e)}
+                onTouchStart={(e) => this.props.handleTouchStart(key, this.props.characterId, item, index, [x, y], e)}>
+                  {ItemIcon({key, item: rawItem})}
+              </ItemContainer>
+            }
           </Motion>
         );
       })

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import _ from 'underscore';
+import _ from 'lodash';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {Row} from './styleguide';
 import Cell from './Cell';
