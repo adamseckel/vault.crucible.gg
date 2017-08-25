@@ -76,8 +76,9 @@ class InventoryBucket extends Component {
 
   renderDraggableInventoryItems = (items) => {
     const {lastPress, isPressed, mouseXY, characterId, order} = this.props;
-    if (!order || !characterId) 
-      return;
+    if (!order || !characterId){
+      return false;
+    };
     return order.length > 0
       ? order.filter((item) => {
         return item.characterID === characterId;

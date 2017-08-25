@@ -152,7 +152,8 @@ class App extends Component {
     return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip)
       .then(() => this.addNotification('Success'))
       .catch((error) => {
-        return this.addNotification(error.message);
+        this.addNotification(error.message);
+        throw new Error(error.message);
       });
   }
 
