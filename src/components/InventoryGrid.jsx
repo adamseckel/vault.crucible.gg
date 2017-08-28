@@ -133,20 +133,16 @@ class InventoryGrid extends Component {
     });
 
     if (isLastItem) return;
-    console.log(this.props.items)
-    this.props.getItemDetail(characterID, hoveredItemID).then(({data}) => {
-      if (data.ErrorCode !== 1) return
+    console.log(hoveredItem)
+    // this.props.getItemDetail(characterID, hoveredItemID, item).then(({data}) => {
+      // if (data.ErrorCode !== 1) return
       //handle error
-      const item = data.Response.data.item;
-      const definitions = data.Response.definitions;
+      // const item = data.Response.data.item;
+      // const definitions = data.Response.definitions;
       
-      const stats = item.stats.length ? item.stats.map((stat) => {
-        return Object.assign(stat, definitions.stats[stat.statHash]);
-      }) : undefined;
+      const stats =  (hoveredItem.stats && hoveredItem.stats.length) ? hoveredItem.stats : undefined;
 
-      const perks = item.perks.length ? item.perks.map((perk) => {
-        return Object.assign(perk, definitions.perks[perk.perkHash])
-      }) : undefined;
+      const perks = (hoveredItem.perks && hoveredItem.perks.length) ? hoveredItem.perks : undefined;
 
       if (stats || perks) {
         this.setState({
@@ -156,7 +152,7 @@ class InventoryGrid extends Component {
           }
         });
       }
-    });
+    // });
   }
 
   renderRows = () => {

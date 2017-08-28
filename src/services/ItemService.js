@@ -5,12 +5,12 @@ function mapItems(items, definitions, buckets, storeID) {
   items.forEach((item) => {
     const bucketHash = storeID === 'vault' ? [definitions.items[item.itemHash].bucketTypeHash] : item.bucketHash;
     const baseDefinition = definitions.items[item.itemHash];
-    const stats = Object.keys(baseDefinition.stats).length ? Object.keys(baseDefinition.stats).map((stat) => {
-      return Object.assign(stat, definitions.stats[stat.statHash]);
+    const stats = Object.keys(baseDefinition.stats).length ? Object.keys(baseDefinition.stats).map((key) => {
+      return Object.assign(baseDefinition.stats[key], definitions.stats[key]);
     }) : undefined;
 
-    const perks = baseDefinition.perkHashes.length ? baseDefinition.perkHashes.map((hash) => {
-      return definitions.perks[hash];
+    const perks = (baseDefinition.perkHashes && baseDefinition.perkHashes.length) ? baseDefinition.perkHashes.map((hash) => {
+      return Object.assign({}, definitions.perks[hash]);
     }) : undefined;
 
     if (buckets[bucketHash] && buckets[bucketHash].items[storeID]) {
@@ -149,7 +149,7 @@ export default function(bungieRequestService) {
             itemBuckets[bucketKey].rowHeight = calculateRowHeight(itemBuckets[bucketKey].items, vaultColumns);
             itemBuckets[bucketKey].items = orderByRarity(itemBuckets[bucketKey]);
           });
-          console.log({itemBuckets})
+          console.log('MAPPED', {itemBuckets})
           this.buckets = itemBuckets;
           return itemBuckets;
         });
