@@ -223,18 +223,20 @@ class ItemRow extends Component {
     window.removeEventListener('touchend', this.handleMouseUp);
     window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mouseup', this.handleMouseUp);
-
-    if (!this.state.lastItem || !this.state.lastItemIndex) return
+    console.log(1, this.state.lastItem, this.state.lastItemIndex)
+    
+    if (!this.state.lastItem || this.state.lastItemIndex === undefined) return
+    
     const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
 
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
     }).indexOf(this.state.lastItem) === 0;
-    
+    console.log(2)
     if (!shouldEquip && this.state.lastCharacter === this.state.initialCharacter) {
       return;
     }
-
+    console.log(3)
     return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip).then(() => {
       console.log('succes state')
     }).catch((error) => {

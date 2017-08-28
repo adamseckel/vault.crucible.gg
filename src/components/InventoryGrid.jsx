@@ -133,7 +133,7 @@ class InventoryGrid extends Component {
     });
 
     if (isLastItem) return;
-
+    console.log(this.props.items)
     this.props.getItemDetail(characterID, hoveredItemID).then(({data}) => {
       if (data.ErrorCode !== 1) return
       //handle error

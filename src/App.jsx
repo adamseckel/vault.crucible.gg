@@ -68,12 +68,14 @@ class App extends Component {
   }
 
   componentDidMount() {
+
     this.setState({clientWidth: this.refs.grid.clientWidth});
 
     BungieAuthorizationService(apiKey).then((authorization) => {
       this.setState({
         bungieRequestService: BungieRequestService(authorization, apiKey.key, 1)
       });
+
 
       ItemService(this.state.bungieRequestService).then((itemService) => {
         if (itemService) {
@@ -102,6 +104,11 @@ class App extends Component {
               this.setState({
                 items
               });
+
+              this.state.bungieRequestService.getVault().then((data) => {
+                console.log(data);
+              })
+        
             });
           })
           

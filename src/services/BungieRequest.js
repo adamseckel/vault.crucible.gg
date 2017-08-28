@@ -19,9 +19,12 @@ export default function(authorization, apiKey, membershipType) {
   });
   
   const service = {
+    getManifest() {
+      return bungieRequest.get(`/D1/Platform/Destiny/Manifest/`).then(handleBungieResponse);
+    },
 
     getMembershipById() {
-      return bungieRequest.get(`/Platform/User/GetBungieAccount/${authorization.membership_id}/${254}/`);
+      return bungieRequest.get(`/Platform/User/GetBungieAccount/${authorization.membership_id}/${254}/`).then(handleBungieResponse);
     },
 
     getAccountCharacters(destinyMembershipID) {
@@ -29,18 +32,19 @@ export default function(authorization, apiKey, membershipType) {
     },
 
     getCharacterById(characterID, destinyMembershipID) {
-      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/Summary/?definitions=true`);
+      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/Summary/?definitions=true`).then(handleBungieResponse);
     },
 
     getVaultSummary() {
-      return bungieRequest.get(`D1/Platform/Destiny/${membershipType}/MyAccount/Vault/Summary/?definitions=true`)
+      return bungieRequest.get(`D1/Platform/Destiny/${membershipType}/MyAccount/Vault/Summary/?definitions=true`).then(handleBungieResponse);
     },
 
-    getManifest() {
-      return bungieRequest.get('/D1/Platform/Destiny/Manifest/')
+    getVault() {
+      return bungieRequest.get(`D1/Platform/Destiny/${membershipType}/MyAccount/Vault/?definitions=true`).then(handleBungieResponse);
     },
 
-    getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
+    getItemDetail(destinyMembershipID, characterID = '402305843009217750900', itemInstanceID) {
+      console.log(characterID)
       return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/${itemInstanceID}/?definitions=true`)
     },
 

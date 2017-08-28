@@ -1,15 +1,29 @@
 import store from './localStoreService';
 
 function mapItems(items, definitions, buckets, storeID) {
+  console.log({items, definitions})
   items.forEach((item) => {
     const bucketHash = storeID === 'vault' ? [definitions.items[item.itemHash].bucketTypeHash] : item.bucketHash;
+    const baseDefinition = definitions.items[item.itemHash];
+    const stats = Object.keys(baseDefinition.stats).length ? Object.keys(baseDefinition.stats).map((stat) => {
+      return Object.assign(stat, definitions.stats[stat.statHash]);
+    }) : undefined;
+
+    const perks = baseDefinition.perkHashes.length ? baseDefinition.perkHashes.map((hash) => {
+      return definitions.perks[hash];
+    }) : undefined;
+
     if (buckets[bucketHash] && buckets[bucketHash].items[storeID]) {
       buckets[bucketHash].items[storeID].push(Object.assign(item, {
-        definition: definitions.items[item.itemHash]
+        definition: definitions.items[item.itemHash],
+        stats,
+        perks
       }));
     } else if (buckets[bucketHash] && !buckets[bucketHash].items[storeID]) {
       buckets[bucketHash].items[storeID] = [Object.assign(item, {
-        definition: definitions.items[item.itemHash]
+        definition: definitions.items[item.itemHash],
+        stats,
+        perks
       })];
     } else if (!buckets[bucketHash]) {
       buckets[bucketHash] = {
@@ -17,7 +31,9 @@ function mapItems(items, definitions, buckets, storeID) {
         count: definitions.buckets[bucketHash].itemCount,
         items: {
           [storeID]: [Object.assign(item, {
-            definition: definitions.items[item.itemHash]
+            definition: definitions.items[item.itemHash],
+            stats,
+            perks
           })]
         }
       }
@@ -55,6 +71,7 @@ export default function(bungieRequestService) {
       getCharacters(destinyMembershipID) {
         return bungieRequestService.getAccountCharacters(destinyMembershipID).then(({data}) => {
           this.characters = data.Response.data.characters;
+          console.log(data.Response)
           return this.characters;
         });
       },
@@ -64,7 +81,7 @@ export default function(bungieRequestService) {
       },
 
       getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
-        return bungieRequestService.getItemDetail(destinyMembershipID, characterID, itemInstanceID);
+        return bungieRequestService.getItemDetail(destinyMembershipID, characterID === 'vault' ? undefined : characterID, itemInstanceID);
       },
 
       moveItem(itemReferenceHash, itemID, characterId, vault) {
@@ -99,18 +116,17 @@ export default function(bungieRequestService) {
       getItems(clientWidth) {
         const requests = this.characters.map((character) => {
           const {characterId, membershipId} = character.characterBase;
-          return bungieRequestService.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
+          return bungieRequestService.getCharacterById(characterId, membershipId).then((data) => {
             return {
               inventory: data.Response,
               key: characterId
             };
           })
-        });
-
-        requests.push(
+        }).concat(
           bungieRequestService.getVaultSummary().then((data) => {
+            console.log(data)
             return {
-              inventory: data.data.Response,
+              inventory: data.Response,
               key: 'vault'
             };
           })
@@ -124,6 +140,7 @@ export default function(bungieRequestService) {
           delete itemBuckets[2197472680]
           delete itemBuckets[3284755031]
           delete itemBuckets[375726501]
+          
           const vaultColumns = Math.floor((clientWidth - 90 - (271 * characters.filter((store) => {
             return store.key !== 'vault';
           }).length)) / 52);
@@ -132,7 +149,7 @@ export default function(bungieRequestService) {
             itemBuckets[bucketKey].rowHeight = calculateRowHeight(itemBuckets[bucketKey].items, vaultColumns);
             itemBuckets[bucketKey].items = orderByRarity(itemBuckets[bucketKey]);
           });
-
+          console.log({itemBuckets})
           this.buckets = itemBuckets;
           return itemBuckets;
         });
@@ -140,10 +157,7 @@ export default function(bungieRequestService) {
     }
   };
 
-  return bungieRequestService.getMembershipById().then(({data}) => {
-    if (data.ErrorCode === 1618) {
-      return false;
-    }
+  return bungieRequestService.getMembershipById().then((data) => {
     return service(data.Response);
   });
 };
