@@ -21,14 +21,16 @@ export default function(authorization, apiKey, membershipType) {
   const service = {
 
     getMembershipById() {
-      return bungieRequest.get(`/Platform/User/GetBungieAccount/${authorization.membership_id}/${254}/`);
+      return bungieRequest.get(`/Platform/User/GetBungieAccount/${authorization.membership_id}/${254}/`).then(handleBungieResponse);
     },
 
     getAccountCharacters(destinyMembershipID) {
+      // return bungieRequest.get(`/Platform/Destiny2/${membershipType}/Profile/${destinyMembershipID}/?components=100`)
       return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Summary/?definitions=true`);
     },
 
     getCharacterById(characterID, destinyMembershipID) {
+      // return bungieRequest.get(`/Platform/Destiny2/${membershipType}/Profile/${destinyMembershipID}/Character/${characterID}/`)
       return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/Summary/?definitions=true`);
     },
 
@@ -41,7 +43,7 @@ export default function(authorization, apiKey, membershipType) {
     },
 
     getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
-      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/${itemInstanceID}/?definitions=true`)
+      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/${itemInstanceID}/?definitions=true`).then(handleBungieResponse);
     },
 
     moveItem(itemReferenceHash, itemId, characterId, transferToVault = false) {

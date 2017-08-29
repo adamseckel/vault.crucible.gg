@@ -11,7 +11,7 @@ const sizes = {
 
 export default styled.p `
   margin: 0;
-  font-family: Gill Sans, sans-serif;
+  font-family: Gill Sans, Gill Sans Nova, Segoe UI, sans-serif;
   text-transform: ${props => props.uppercase
   ? 'uppercase'
   : 'none'};

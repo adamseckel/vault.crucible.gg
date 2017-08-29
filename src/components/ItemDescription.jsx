@@ -8,7 +8,12 @@ const DamageIcon = styled.img`
 `;
 
 export default(props) => {
-  const color = props.primaryStatType === 'ATTACK' ? props.damageColor : palette.whiteText;
+  const color = props.primaryStatType === 'ATTACK'
+    ? props.damageColor
+      ? props.damageColor
+      : palette.background
+    : palette.background;
+    
   return <div>
     {(props.item.primaryStat && props.item.primaryStat.value > 0)
       ? <Row justify='start' css={`margin-bottom: 8px`}>

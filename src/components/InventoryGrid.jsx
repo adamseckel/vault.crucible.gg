@@ -134,9 +134,7 @@ class InventoryGrid extends Component {
 
     if (isLastItem) return;
 
-    this.props.getItemDetail(characterID, hoveredItemID).then(({data}) => {
-      if (data.ErrorCode !== 1) return
-      //handle error
+    this.props.getItemDetail(characterID, hoveredItemID).then((data) => {
       const item = data.Response.data.item;
       const definitions = data.Response.definitions;
       
@@ -156,6 +154,9 @@ class InventoryGrid extends Component {
           }
         });
       }
+    }).catch((error) => {
+      // Currently Vault does not allow item Details. Fixed in D2.
+      console.log(error.message)
     });
   }
 

@@ -49,6 +49,14 @@ function calculateVaultColumns(characters, gridWidth) {
   }).length)) / 52);
 }
 
+function removeSplash() {
+  const splash = document.getElementById("splash");
+  splash.className = "removed";
+  setTimeout(() => {
+    splash.parentNode.removeChild(splash);
+  }, 400);
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -70,45 +78,52 @@ class App extends Component {
   componentDidMount() {
     this.setState({clientWidth: this.refs.grid.clientWidth});
 
-    BungieAuthorizationService(apiKey).then((authorization) => {
-      this.setState({
-        bungieRequestService: BungieRequestService(authorization, apiKey.key, 1)
-      });
+    return BungieAuthorizationService(apiKey).then((authorization) => {
+      return BungieRequestService(authorization, apiKey.key).getMembershipById().then((data) => {
+        const membership = data.Response;
+        const destinyMembership = membership.destinyMemberships[0];
+        const authenticated = true;
+        const bungieRequestService = BungieRequestService(authorization, apiKey.key, destinyMembership.membershipType);
+        const itemService = ItemService(bungieRequestService, membership);
+        
+        this.setState({
+          bungieRequestService,
+          membership,
+          destinyMembership,
+          authenticated,
+          itemService
+        });
 
-      ItemService(this.state.bungieRequestService).then((itemService) => {
-        if (itemService) {
-          const membership = itemService.rawMembership;
-          const destinyMembership = membership.destinyMemberships[0];
-          const authenticated = true;
-          this.setState({itemService, membership, destinyMembership, authenticated});
-          window.addEventListener("resize", this.updateWidth);
-          return itemService.getCharacters(destinyMembership.membershipId).then((characters) => {
-            const charactersByID = characters.map((character) => {
-              return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
-            }).reduce((o, [k, val]) => {
-              o[k] = val;
-              return o;
-            }, {});
+        window.addEventListener("resize", this.updateWidth);
 
-            const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
-            
-            this.setState({
-              characters,
-              charactersByID,
-              vaultColumns
-            });
+        return itemService.getCharacters(destinyMembership.membershipId).then((characters) => {
+          const charactersByID = characters.map((character) => {
+            return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
+          }).reduce((o, [k, val]) => {
+            o[k] = val;
+            return o;
+          }, {});
 
-            return itemService.getItems(this.state.clientWidth).then((items) => {
-              this.setState({
-                items
-              });
-            });
-          })
+          const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
           
-        }
-      });
+          this.setState({
+            characters,
+            charactersByID,
+            vaultColumns
+          });
+
+          return itemService.getItems(this.state.clientWidth).then((items) => {
+            removeSplash();
+
+            this.setState({
+              items
+            });
+          });
+        })
+      })
     }).catch((error) => {
-      console.log('not authorized')
+      removeSplash();
+      console.log(error.message);
     });
   }
 
