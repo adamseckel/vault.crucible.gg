@@ -10,6 +10,29 @@ const minimizeYSpringSetting = {
   damping: 15
 };
 
+const vault = {
+  characterLevel: '',
+  characterBase: {
+    classHash: 'vault',
+    raceHash: 'Full',
+    powerLevel: ''
+  },
+  id: 4567
+};
+
+const bucketHashOrder = [
+  1498876634,
+  2465295065,
+  953998645,
+  4023194814,
+  3448274439,
+  3551918588,
+  14239492,
+  20886954,
+  1585787867,
+  434908299
+]
+
 const Grid = styled.div `
   padding: 0px 40px 20px;
   margin-top: 139px;
@@ -53,33 +76,25 @@ class InventoryGrid extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      rows: [
-        1498876634,
-        2465295065,
-        953998645,
-        4023194814,
-        3448274439,
-        3551918588,
-        14239492,
-        20886954,
-        1585787867,
-        434908299
-      ],
+      rows: bucketHashOrder,
       justMinimizedRow: undefined,
       minimizedRows: {},
       hiddenRows: {},
       hoveredItemDetails: {},
-      vault: {
-        characterLevel: '',
-        characterBase: {
-          classHash: 'vault',
-          raceHash: 'Full',
-          powerLevel: ''
-        },
-        id: 4567,
-
-      }
+      vault
     };
+  }
+
+  componentDidMount = () => {
+    this.startInventoryPolling();
+  }
+
+  startInventoryPolling = () => {
+    this.props.startInventoryPolling();
+  }
+
+  stopInventoryPolling = () => {
+    this.props.stopInventoryPolling();
   }
 
   toggleRow = (bucketKey) => {
@@ -110,12 +125,14 @@ class InventoryGrid extends Component {
       hoveredItem: undefined,
       previouslyHoveredItemID: this.state.hoveredItemID
     });
+    this.startInventoryPolling();
 
     window.removeEventListener('mousemove', this.onHover);
   }
 
   handleItemHover = (hoveredItemID, characterID, hoveredItem) => {    
     window.addEventListener('mousemove', this.onHover)
+    this.stopInventoryPolling();
 
     const isLastItem = hoveredItemID === this.state.previouslyHoveredItemID;
 
@@ -134,9 +151,8 @@ class InventoryGrid extends Component {
 
     if (isLastItem) return;
 
-    this.props.getItemDetail(characterID, hoveredItemID).then((data) => {
-      const item = data.Response.data.item;
-      const definitions = data.Response.definitions;
+    this.props.getItemDetail(characterID, hoveredItemID).then(({data, definitions}) => {
+      const item = data.item;
       
       const stats = item.stats.length ? item.stats.map((stat) => {
         return Object.assign(stat, definitions.stats[stat.statHash]);
@@ -188,6 +204,8 @@ class InventoryGrid extends Component {
                 moveItem={this.props.moveItem}
                 render={this.state.hiddenRows[bucketKey]}
                 vaultColumns={this.props.vaultColumns}
+                stopInventoryPolling={this.stopInventoryPolling}
+                startInventoryPolling={this.startInventoryPolling}
                 clientWidth={this.props.clientWidth}/>
             }
           </Motion>

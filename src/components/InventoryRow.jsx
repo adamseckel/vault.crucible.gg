@@ -111,12 +111,14 @@ class ItemRow extends Component {
     this.handleMouseMove(e.touches[0]);
   }
 
-  shouldComponentUpdate = (nextProps, nextState) => {
-    if (_.isEqual(nextProps, this.props) && _.isEqual(nextState, this.state)) {
-      return false;
-    }
-    return true;
-  }
+  // shouldComponentUpdate = (nextProps, nextState) => {
+  //   if (_.isEqual(nextProps, this.props)) {
+  //     console.log('dont update')
+  //     return false;
+  //   }
+  //   console.log(true)
+  //   return true;
+  // }
 
   handleMouseMove = ({pageX, pageY}) => {
     const {
@@ -126,7 +128,6 @@ class ItemRow extends Component {
       isPressed,
       mouseCircleDelta: [dx, dy]
     } = this.state;
-
     if (isPressed) {
       let error;
       const mouseXY = [
@@ -197,6 +198,8 @@ class ItemRow extends Component {
     window.addEventListener('mouseup', this.handleMouseUp);
 
     this.props.handleItemMouseLeave();
+    this.props.stopInventoryPolling();
+
     this.setState({
       lastPress: key,
       initialCharacter: characterID,
@@ -213,11 +216,24 @@ class ItemRow extends Component {
     });
   }
 
+  componentWillReceiveProps = (nextProps) => {
+    if (this.state.isPressed) return;
+    if (_.isEqual(nextProps, this.props)) {
+      return false;
+    }
+    this.setState({
+      order: order(nextProps.items),
+      items: flattenItems(nextProps.items)
+    });
+  } 
+
   handleMouseUp = () => {
     this.setState({
       isPressed: false,
       mouseCircleDelta: [0, 0]
     });
+
+    this.props.startInventoryPolling();
 
     window.removeEventListener('touchmove', this.handleTouchMove);
     window.removeEventListener('touchend', this.handleMouseUp);
@@ -235,9 +251,7 @@ class ItemRow extends Component {
       return;
     }
 
-    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip).then(() => {
-      console.log('succes state')
-    }).catch((error) => {
+    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip).catch((error) => {
       const {order, lastOrder, initialCharacter, lastItem, lastItemIndex} = this.state;
 
       this.setState({
@@ -356,9 +370,9 @@ class ItemRow extends Component {
                 {this.renderRow(isVisible)}
               </StyledRow>
             : <div></div>
-}
+            }
         </div>
-}
+        }
       </VisibilitySensor>
     );
   }

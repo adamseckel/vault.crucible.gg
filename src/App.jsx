@@ -1,8 +1,12 @@
 import React, {Component} from 'react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import styled from 'emotion/react';
-import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
-import {AppBar, FontIcon, IconButton, FlatButton} from 'material-ui';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import AppBar from 'material-ui/AppBar';
+import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
+import FlatButton from 'material-ui/FlatButton';
 import {palette, muiThemeDeclaration, Row} from './components/styleguide';
 import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
@@ -67,7 +71,10 @@ class App extends Component {
       characters: [],
       items: {},
       notifications: {},
-      platform: 'xb1'
+      platform: 'xb1',
+      poller: {
+        count: 0
+      }
     }
   }
 
@@ -79,8 +86,7 @@ class App extends Component {
     this.setState({clientWidth: this.refs.grid.clientWidth});
 
     return BungieAuthorizationService(apiKey).then((authorization) => {
-      return BungieRequestService(authorization, apiKey.key).getMembershipById().then((data) => {
-        const membership = data.Response;
+      return BungieRequestService(authorization, apiKey.key).getMembershipById().then((membership) => {
         const destinyMembership = membership.destinyMemberships[0];
         const authenticated = true;
         const bungieRequestService = BungieRequestService(authorization, apiKey.key, destinyMembership.membershipType);
@@ -122,13 +128,58 @@ class App extends Component {
         })
       })
     }).catch((error) => {
-      removeSplash();
       console.log(error.message);
     });
   }
 
   searchForItem = (event, query) => {
     this.setState({query});
+  }
+
+  startInventoryPolling = () => {
+    if (this.state.pollingDelay) {
+      clearTimeout(this.state.pollingDelay);
+    }
+    if (this.state.inventoryPollingInterval) {
+      clearInterval(this.state.inventoryPollingInterval);
+    }
+
+    const pollingDelay = setTimeout(() => {
+      const now = Date.now();
+      const inventoryPollingInterval = setInterval(() => {
+        if (this.state.poller.instance === now && this.state.poller.count > 50) {
+          return this.stopInventoryPolling();
+        }
+        return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
+          this.setState({
+            items,
+            poller: {
+              instance: now,
+              count: (this.state.poller.count || 0 ) + 1
+            }
+          });
+        }).catch((error) => {
+          console.log(`Polling Error: ${error.message}`);
+        })
+      }, 10000);
+
+      this.setState({
+        inventoryPollingInterval
+      });
+    }, 1000);
+
+    this.setState({
+      pollingDelay
+    });
+  }
+
+  stopInventoryPolling = () => {
+    clearInterval(this.state.inventoryPollingInterval);
+    clearTimeout(this.state.pollingDelay);
+    this.setState({inventoryPollingInterval: undefined, pollingDelay: undefined, poller : {
+      instance: undefined,
+      count: 0
+    }})
   }
 
   getItemDetail = (characterID, itemInstanceID) => {
@@ -279,6 +330,8 @@ class App extends Component {
               vaultColumns={this.state.vaultColumns}
               characters={this.state.charactersByID}
               items={this.state.items}
+              startInventoryPolling={this.startInventoryPolling}
+              stopInventoryPolling={this.stopInventoryPolling}
               query={this.state.query}/>
             : undefined
           }

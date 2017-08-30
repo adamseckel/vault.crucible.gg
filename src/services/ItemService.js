@@ -51,8 +51,7 @@ export default function(bungieRequestService, rawMembership) {
     rawMembership,
     getCharacters(destinyMembershipID) {
       return bungieRequestService.getAccountCharacters(destinyMembershipID).then(({data}) => {
-        console.log(data)
-        this.characters = data.Response.data.characters;
+        this.characters = data.characters;
         return this.characters;
       });
     },
@@ -74,7 +73,7 @@ export default function(bungieRequestService, rawMembership) {
     },
 
     updateCharacter(characterID, characterMembershipID) {
-      return bungieRequestService.getCharacterSummaryById(characterID, characterMembershipID).then(({data}) => {
+      return bungieRequestService.getCharacterSummaryById(characterID, characterMembershipID).then((data) => {
         return data.Response.data.characterBase;
       });
     },
@@ -99,16 +98,16 @@ export default function(bungieRequestService, rawMembership) {
         const {characterId, membershipId} = character.characterBase;
         return bungieRequestService.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
           return {
-            inventory: data.Response,
+            inventory: {data, definitions},
             key: characterId
           };
         })
       });
 
       requests.push(
-        bungieRequestService.getVaultSummary().then((data) => {
+        bungieRequestService.getVaultSummary().then(({data, definitions}) => {
           return {
-            inventory: data.data.Response,
+            inventory: {data, definitions},
             key: 'vault'
           };
         })
