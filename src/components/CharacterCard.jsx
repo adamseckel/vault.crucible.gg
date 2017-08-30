@@ -1,6 +1,7 @@
 import React from 'react';
-import {FontIcon, IconButton} from 'material-ui';
-import {Card} from 'material-ui/Card';
+import Card from 'material-ui/Card';
+import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
 import vaultIcon from './icon_vault.png';
 import styled from 'emotion/react';
 import {Text, Row, palette} from './styleguide';

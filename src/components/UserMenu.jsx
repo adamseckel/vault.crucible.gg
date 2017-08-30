@@ -2,7 +2,12 @@
 
 import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import {IconButton, FontIcon, Popover, List, ListItem, Divider, Toggle} from 'material-ui';
+import IconButton from 'material-ui/IconButton';
+import FontIcon from 'material-ui/FontIcon';
+import Popover from 'material-ui/Popover';
+import Divider from 'material-ui/Divider';
+import {List, ListItem} from 'material-ui/List';
+import Toggle from 'material-ui/Toggle';
 import {palette, Text} from './styleguide';
 
 class SearchBar extends Component {

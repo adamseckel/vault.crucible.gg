@@ -5,7 +5,7 @@ function handleBungieResponse({data}) {
   if (ErrorCode !== 1) {
     throw new Error(Message);
   }
-  return data;
+  return data.Response;
 }
 
 export default function(authorization, apiKey, membershipType) {
@@ -26,20 +26,16 @@ export default function(authorization, apiKey, membershipType) {
 
     getAccountCharacters(destinyMembershipID) {
       // return bungieRequest.get(`/Platform/Destiny2/${membershipType}/Profile/${destinyMembershipID}/?components=100`)
-      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Summary/?definitions=true`);
+      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Summary/?definitions=true`).then(handleBungieResponse);
     },
 
     getCharacterById(characterID, destinyMembershipID) {
       // return bungieRequest.get(`/Platform/Destiny2/${membershipType}/Profile/${destinyMembershipID}/Character/${characterID}/`)
-      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/Summary/?definitions=true`);
+      return bungieRequest.get(`/D1/Platform/Destiny/${membershipType}/Account/${destinyMembershipID}/Character/${characterID}/Inventory/Summary/?definitions=true`).then(handleBungieResponse);
     },
 
     getVaultSummary() {
-      return bungieRequest.get(`D1/Platform/Destiny/${membershipType}/MyAccount/Vault/Summary/?definitions=true`)
-    },
-
-    getManifest() {
-      return bungieRequest.get('/D1/Platform/Destiny/Manifest/')
+      return bungieRequest.get(`D1/Platform/Destiny/${membershipType}/MyAccount/Vault/Summary/?definitions=true`).then(handleBungieResponse);
     },
 
     getItemDetail(destinyMembershipID, characterID, itemInstanceID) {

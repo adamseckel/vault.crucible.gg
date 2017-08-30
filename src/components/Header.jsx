@@ -1,5 +1,6 @@
 import React from 'react';
-import {FontIcon, IconButton} from 'material-ui';
+import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
 import styled from 'emotion/react';
 import {Row, Text, palette} from './styleguide';
 

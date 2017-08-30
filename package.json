@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "react-app-rewire-emotion": "1.0.0",
-    "react-app-rewired": "1.2.0"
+    "react-app-rewired": "1.2.0",
+    "source-map-explorer": "1.4.0"
   }
 }
