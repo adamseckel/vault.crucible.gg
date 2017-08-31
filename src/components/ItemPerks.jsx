@@ -17,17 +17,17 @@ const PerkRow = styled(Row)`
   }
 `;
 
-export default(props) => {
-  function mapPerks(perks) {
-    return perks.map((perk) => 
+export default({perks, className, style}) => {
+  function mapPerks(perkList) {
+    return perkList.map((perk) => 
       <PerkRow justify='start' align='start' active={perk.isActive} key={perk.perkHash}>
-        <PerkIcon src={`https://bungie.net${perk.displayIcon}`} alt={perk.displayName}/>
+        {perk.displayIcon ? <PerkIcon src={`https://bungie.net${perk.displayIcon}`} alt={perk.displayName}/> : ''}
         <Text gray> {perk.displayDescription} </Text>
       </PerkRow>
     );
   }
 
-  return <div {...props}>
-    {props.perks ? mapPerks(props.perks) : ''}
+  return <div {...{className, style}}>
+    {perks ? mapPerks(perks) : ''}
   </div>
 };

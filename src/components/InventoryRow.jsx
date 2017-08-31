@@ -252,7 +252,7 @@ class ItemRow extends Component {
     }
 
     return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip).catch((error) => {
-      const {order, lastOrder, initialCharacter, lastItem, lastItemIndex} = this.state;
+      const {order, lastOrder, initialCharacter, lastItem} = this.state;
 
       this.setState({
         order: reinsert(order, initialCharacter, order.indexOf(lastItem), lastOrder.indexOf(lastItem))

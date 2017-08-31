@@ -139,6 +139,7 @@ class App extends Component {
         })
       })
     }).catch((error) => {
+      removeSplash();
       console.log(error.message);
     });
   }
@@ -148,49 +149,50 @@ class App extends Component {
   }
 
   startInventoryPolling = () => {
-    if (this.state.pollingDelay) {
-      clearTimeout(this.state.pollingDelay);
+    if (this.state.inventoryPollingDelay) {
+      clearTimeout(this.state.inventoryPollingDelay);
     }
     if (this.state.inventoryPollingInterval) {
-      clearInterval(this.state.inventoryPollingInterval);
+      clearTimeout(this.state.inventoryPollingInterval);
     }
-
-    const pollingDelay = setTimeout(() => {
-      const now = Date.now();
-      const inventoryPollingInterval = setInterval(() => {
-        if (this.state.poller.instance === now && this.state.poller.count > 50) {
-          return this.stopInventoryPolling();
-        }
-        return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
-          this.setState({
-            items,
-            poller: {
-              instance: now,
-              count: (this.state.poller.count || 0 ) + 1
-            }
-          });
-        }).catch((error) => {
-          console.log(`Polling Error: ${error.message}`);
-        })
-      }, 10000);
-
-      this.setState({
-        inventoryPollingInterval
-      });
-    }, 1000);
+    const instance = Date.now();
+    console.log('Start Poll', instance);
+    const inventoryPollingDelay = setTimeout(() => {
+      this.inventoryPoll(0, instance);
+    }, 5000);
 
     this.setState({
-      pollingDelay
+      inventoryPollingDelay
+    });
+  }
+
+  inventoryPoll = (count, instance) => {
+    console.log('Poll', count, instance)
+    const basePollingInterval = 15000;
+    const ppm = 60000 / basePollingInterval;
+    const pollDelay = count > (ppm * 5) ? (count / (ppm * 5)) * basePollingInterval : basePollingInterval;
+    const inventoryPollingInterval = setTimeout(() => {
+      return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
+        this.setState({items});
+        return this.inventoryPoll(count + 1, instance);
+      }).catch((error) => {
+        console.log(`Polling Error: ${error.message}`);
+      });
+    }, pollDelay);
+
+    return this.setState({
+      inventoryPollingInterval
     });
   }
 
   stopInventoryPolling = () => {
-    clearInterval(this.state.inventoryPollingInterval);
-    clearTimeout(this.state.pollingDelay);
-    this.setState({inventoryPollingInterval: undefined, pollingDelay: undefined, poller : {
-      instance: undefined,
-      count: 0
-    }})
+    console.log('Stop Polling')
+    clearTimeout(this.state.inventoryPollingInterval);
+    clearTimeout(this.state.inventoryPollingDelay);
+    this.setState({
+      inventoryPollingInterval: undefined,
+      inventoryPollingDelay: undefined
+    });
   }
 
   getItemDetail = (characterID, itemInstanceID) => {
