@@ -138,7 +138,7 @@ class InventoryBucket extends Component {
           </Motion>
         );
       })
-      : ''
+      : undefined
   }
 
   render() {

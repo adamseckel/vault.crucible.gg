@@ -21,13 +21,13 @@ export default({perks, className, style}) => {
   function mapPerks(perkList) {
     return perkList.map((perk) => 
       <PerkRow justify='start' align='start' active={perk.isActive} key={perk.perkHash}>
-        {perk.displayIcon ? <PerkIcon src={`https://bungie.net${perk.displayIcon}`} alt={perk.displayName}/> : ''}
+        {perk.displayIcon ? <PerkIcon src={`https://bungie.net${perk.displayIcon}`} alt={perk.displayName}/> : undefined}
         <Text gray> {perk.displayDescription} </Text>
       </PerkRow>
     );
   }
 
   return <div {...{className, style}}>
-    {perks ? mapPerks(perks) : ''}
+    {perks ? mapPerks(perks) : undefined}
   </div>
 };

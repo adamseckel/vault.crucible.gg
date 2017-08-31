@@ -100,9 +100,9 @@ export default(props) => {
   function renderStats(stats, item) {
     return stats
       ? <ItemSection justify='start' align='start' style={{animationDelay: '200ms'}}>
-        <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : ''}/>
+        <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : undefined}/>
       </ItemSection>
-      : '';
+      : undefined;
   }
 
   function renderPerks(perks) {
@@ -110,7 +110,7 @@ export default(props) => {
       ? <ItemSection justify='start' align='start' style={{animationDelay: '300ms'}}>
         <ItemPerks {...{perks}}/>
       </ItemSection>
-      : '';
+      : undefined;
   }
 
   return <div {...{style: props.style, className: props.className}} css={`position: absolute; z-index: 1000;`}>
@@ -131,7 +131,7 @@ export default(props) => {
           {renderStats(props.stats, props.item)}
           {renderPerks(props.perks)}
         </ItemDetails>
-      : ''
+      : undefined
     }
   </div>
 };
