@@ -2,9 +2,10 @@ import React from 'react';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import styled from 'emotion/react';
-import {Row, Text, palette} from './styleguide';
+import {Row, Text, palette, animations} from './styleguide';
 
 const StickyHeader = styled(Row)`
+  composes: ${animations.fadeIn};
   top: 139px;
   margin-left: -40px;
   z-index: 200;

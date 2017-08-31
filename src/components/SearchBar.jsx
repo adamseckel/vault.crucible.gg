@@ -3,24 +3,14 @@ import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import FontIcon from 'material-ui/FontIcon';
 import TextField from 'material-ui/TextField';
-import {palette, z, Row} from './styleguide';
+import {palette, animations, z, Row} from './styleguide';
 import styled from 'emotion/react';
-import {keyframes} from 'emotion'
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
 
 const SearchBox = styled(Row)`
+  composes: ${animations.fadeIn};
   padding: 0;
   width: 100%;
   border-radius: 4px;
-  animation: ${fadeIn} 500ms ease 1;
   z-index: 2;
   background-color: ${palette.stroke};
 `;

@@ -2,6 +2,7 @@ import {fade} from 'material-ui/utils/colorManipulator';
 import {Row, Column} from './Box';
 import Text from './Text';
 import Divider from './Divider';
+import animations from './animations';
 
 const palette = {
   background: '#FFFFFF',
@@ -56,6 +57,7 @@ export {
   Divider,
   palette,
   variables,
+  animations,
   z,
   muiThemeDeclaration
 };

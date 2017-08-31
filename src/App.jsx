@@ -7,11 +7,9 @@ import AppBar from 'material-ui/AppBar';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
-import {palette, muiThemeDeclaration, Row, Column, Text} from './components/styleguide';
+import {palette, animations, muiThemeDeclaration, Row, Column, Text} from './components/styleguide';
 import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu, LocationsRow} from './components';
-import BungieAuthorizationService from './services/BungieAuthorization';
-import BungieRequestService from './services/BungieRequest';
-import ItemService from './services/ItemService';
+import {BungieAuthorizationService, BungieRequestService, ItemService, store} from './services';
 
 injectTapEventPlugin();
 
@@ -116,7 +114,7 @@ class App extends Component {
         const authenticated = true;
         const bungieRequestService = BungieRequestService(authorization, apiKey.key, destinyMembership.membershipType);
         const itemService = ItemService(bungieRequestService, membership);
-        
+
         this.setState({
           bungieRequestService,
           membership,
@@ -128,6 +126,8 @@ class App extends Component {
         window.addEventListener("resize", this.updateWidth);
 
         return itemService.getCharacters(destinyMembership.membershipId).then((characters) => {
+          removeSplash();
+
           const charactersByID = characters.map((character) => {
             return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
           }).reduce((o, [k, val]) => {
@@ -144,8 +144,6 @@ class App extends Component {
           });
 
           return itemService.getItems(this.state.clientWidth).then((items) => {
-            removeSplash();
-
             this.setState({
               items
             });
@@ -316,13 +314,15 @@ class App extends Component {
   }
 
   onLogout = () => {
-    this.setState({
-      authenticated: false,
-      characters: undefined,
-      items: undefined,
-      itemService: undefined,
-      bungieRequestService: undefined
-    })
+    return store.delete('Vault::Authorization').then(() => {
+      this.setState({
+        authenticated: false,
+        characters: undefined,
+        items: undefined,
+        itemService: undefined,
+        bungieRequestService: undefined
+      });
+    });
   }
 
   render() {
@@ -339,7 +339,7 @@ class App extends Component {
             }}>
             <SearchBarContainer>
               {this.state.authenticated ? <SearchBar onChange={this.searchForItem}/> : undefined}
-              <svg css={`width: 30px; position: absolute; z-index: 1; top: 0; bottom: 0; margin: auto;`} viewBox="0 0 457.92 506.82"><polyline points="426.79 261.25 448.23 282.69 229.75 501.16 11.27 282.69 32.08 261.88" style={{fill: 'none', stroke: '#000', strokeMiterlimit:10, strokeWidth:'8px'}}/><polygon points="229.63 56.79 429.95 258.1 457.92 230.13 229.63 0 0 230.04 28.78 258.82 229.63 56.79"/><path d="M257.1,74.19,62.66,268.62l193.6,193.65L450.67,267.83Zm73.05,258.06a8.22,8.22,0,0,0-2,8v.11l-.5.12a8.18,8.18,0,0,0-7.68,2l-7.25-7.12,2.74-2.74-18.52-18.51a1.69,1.69,0,0,1-1.48-.5c-1-1-6.89-6.55-10.07-6.18l-9.23,9.23c-.91.91-.5,2.83-.54,4l.11.11-.15.15V321c0,.08-.12.06-.17.1l-3.57,3.58-8.63-8.62,3.9-3.89.19.18c1.17,0,3.36.64,4.28-.27l6.93-6.93-.7-.69,1.5-1.5-22.37-22.37L234.58,303l1.5,1.5-.69.69,6.93,6.93c.89.91,3.1.25,4.28.27l.18-.18,3.9,3.89-8.85,8.62-3.58-3.58a.3.3,0,0,1-.17-.1s0-.06,0-.08l-.15-.15.11-.11c0-1.19.36-3.12-.54-4l-9.23-9.23c-3.21-.37-9.15,5.22-10.07,6.18a1.68,1.68,0,0,1-1.47.5l-18.52,18.51,2.74,2.74-7.25,7.12a8.18,8.18,0,0,0-7.67-2l-.54-.12v-.11a8.19,8.19,0,0,0-2-8l-.09-.07,7.18-7.2,2.75,2.75,18.51-18.52a1.69,1.69,0,0,1,.51-1.47c1-1,6.54-6.91,6.16-10.07-5.07-5.09-9.19-9.2-9.2-9.23-.91-.89-2.84-.5-4-.53l-.11.11-.13-.13H205s-.07-.11-.11-.17l-3.58-3.58,8.63-8.62,3.89,3.9-.18.19c0,1.19-.64,3.36.27,4.28l6.92,6.93.7-.69,1.17,1.19L245.07,269,194.7,218.46c-1-1-12.89-13.13-13-24.31l.27-.26c11.18.09,24.43,12.88,24.43,12.88l50.33,50.33,50.38-50.33S320.4,194,331.59,193.86l.28.26c-.1,11.18-12,23.34-13,24.31l-50.33,50.39,22.37,22.37L292.1,290l.69.69c2.8-2.8,6.92-6.93,6.93-6.92.89-.89.22-3.11.26-4.28l-.18-.18,3.89-3.9,8.63,8.62-3.58,3.58-.1.17h-.09l-.15.13-.11-.11c-1.19,0-3.12-.37-4,.53l-9.16,9.36c-.37,3.19,5.22,9.15,6.17,10.07a1.66,1.66,0,0,1,.5,1.47l18.51,18.52,2.75-2.75,7.18,7.2a.4.4,0,0,0-.13.09Z" transform="translate(-27.04 -3.42)"/></svg>
+              <svg css={`width: 30px; position: absolute; z-index: 1; top: 0; bottom: 0; margin: auto; left: 0; right: 0;`} viewBox="0 0 457.92 506.82"><polyline points="426.79 261.25 448.23 282.69 229.75 501.16 11.27 282.69 32.08 261.88" style={{fill: 'none', stroke: '#000', strokeMiterlimit:10, strokeWidth:'8px'}}/><polygon points="229.63 56.79 429.95 258.1 457.92 230.13 229.63 0 0 230.04 28.78 258.82 229.63 56.79"/><path d="M257.1,74.19,62.66,268.62l193.6,193.65L450.67,267.83Zm73.05,258.06a8.22,8.22,0,0,0-2,8v.11l-.5.12a8.18,8.18,0,0,0-7.68,2l-7.25-7.12,2.74-2.74-18.52-18.51a1.69,1.69,0,0,1-1.48-.5c-1-1-6.89-6.55-10.07-6.18l-9.23,9.23c-.91.91-.5,2.83-.54,4l.11.11-.15.15V321c0,.08-.12.06-.17.1l-3.57,3.58-8.63-8.62,3.9-3.89.19.18c1.17,0,3.36.64,4.28-.27l6.93-6.93-.7-.69,1.5-1.5-22.37-22.37L234.58,303l1.5,1.5-.69.69,6.93,6.93c.89.91,3.1.25,4.28.27l.18-.18,3.9,3.89-8.85,8.62-3.58-3.58a.3.3,0,0,1-.17-.1s0-.06,0-.08l-.15-.15.11-.11c0-1.19.36-3.12-.54-4l-9.23-9.23c-3.21-.37-9.15,5.22-10.07,6.18a1.68,1.68,0,0,1-1.47.5l-18.52,18.51,2.74,2.74-7.25,7.12a8.18,8.18,0,0,0-7.67-2l-.54-.12v-.11a8.19,8.19,0,0,0-2-8l-.09-.07,7.18-7.2,2.75,2.75,18.51-18.52a1.69,1.69,0,0,1,.51-1.47c1-1,6.54-6.91,6.16-10.07-5.07-5.09-9.19-9.2-9.2-9.23-.91-.89-2.84-.5-4-.53l-.11.11-.13-.13H205s-.07-.11-.11-.17l-3.58-3.58,8.63-8.62,3.89,3.9-.18.19c0,1.19-.64,3.36.27,4.28l6.92,6.93.7-.69,1.17,1.19L245.07,269,194.7,218.46c-1-1-12.89-13.13-13-24.31l.27-.26c11.18.09,24.43,12.88,24.43,12.88l50.33,50.33,50.38-50.33S320.4,194,331.59,193.86l.28.26c-.1,11.18-12,23.34-13,24.31l-50.33,50.39,22.37,22.37L292.1,290l.69.69c2.8-2.8,6.92-6.93,6.93-6.92.89-.89.22-3.11.26-4.28l-.18-.18,3.89-3.9,8.63,8.62-3.58,3.58-.1.17h-.09l-.15.13-.11-.11c-1.19,0-3.12-.37-4,.53l-9.16,9.36c-.37,3.19,5.22,9.15,6.17,10.07a1.66,1.66,0,0,1,.5,1.47l18.51,18.52,2.75-2.75,7.18,7.2a.4.4,0,0,0-.13.09Z" transform="translate(-27.04 -3.42)"/></svg>
             </SearchBarContainer>
             
             <Row justify='end' css={`marginRight: 28px;`}>
@@ -348,7 +348,7 @@ class App extends Component {
                     <IconButton onTouchTap={this.onReload}>
                       <ReloadIcon color={palette.secondaryText} className='material-icons'>refresh</ReloadIcon>
                     </IconButton>
-                    <UserMenu/>
+                    <UserMenu onLogout={this.onLogout}/>
                   </Row>
                 : <SignInButton label='Sign In' onTouchTap={this.onAuthorize}/>
               }
@@ -369,11 +369,11 @@ class App extends Component {
                 query={this.state.query}/>
             </div>
             
-            : <Column css={`position: absolute; top: 60px; bottom: 0; left: 0; right: 0;`}>
-              <Text gray css={`opacity: 0.05; position: absolute;`} size={'max'}>2</Text>
-              <Text title light size={4} css={`margin-bottom: 20px;`}>vault.crucible.gg</Text>
-              <Text gray size={2} css={`margin-bottom: 20px;`} o> Fast, Simple, Gear Management and Loadouts for Destiny 2. </Text>
-              <SignInButton label='Sign In' onTouchTap={this.onAuthorize}/>
+            : <Column css={`composes: ${animations.fadeInSlow}; position: absolute; top: 60px; bottom: 0; left: 0; right: 0;`}>
+              <Text center gray css={`opacity: 0.05; position: absolute; left: 0; right: 0; top: 0; bottom: 0;`} size={'max'}>2</Text>
+              <Text title light size={4} css={`composes: ${animations.fadeInSlow}; animation-delay: 500ms; opacity: 0; margin-bottom: 20px;`}>vault.crucible.gg</Text>
+              <Text gray size={2} css={`composes: ${animations.fadeInSlow}; animation-delay: 1000ms; opacity: 0; margin-bottom: 20px;`} o> Fast, Simple, Gear Management and Loadouts for Destiny 2. </Text>
+              <SignInButton css={`composes: ${animations.fadeInSlow}; animation-delay: 1500ms; opacity: 0;`} label='Sign In' onTouchTap={this.onAuthorize}/>
             </Column>
           }
           <StyledSnackbarContainer messages={this.state.notifications}/>

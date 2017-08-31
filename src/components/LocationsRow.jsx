@@ -1,21 +1,12 @@
 import React from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import styled from 'emotion/react';
-import {Row} from './styleguide';
+import {animations, Row} from './styleguide';
 import CharacterCard from './CharacterCard';
 import Cell from './Cell';
-import {keyframes} from 'emotion'
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
-
-const RowContainer = styled.div `
+const RowContainer = styled.div`
+  composes: ${animations.fadeIn};
   position: fixed;
   left: 0;
   right: 0;
@@ -23,7 +14,6 @@ const RowContainer = styled.div `
   padding: 0 40px;
   top: 65px;
   background-color: rgba(255,255,255,0.9);
-  animation: ${fadeIn} 500ms ease 1;
   -webkit-backdrop-filter: blur(10px);
   z-index: 300;
 `;
