@@ -139,6 +139,7 @@ class App extends Component {
         })
       })
     }).catch((error) => {
+      removeSplash();
       console.log(error.message);
     });
   }
@@ -154,9 +155,10 @@ class App extends Component {
     if (this.state.inventoryPollingInterval) {
       clearTimeout(this.state.inventoryPollingInterval);
     }
-
+    const instance = Date.now();
+    console.log('Start Poll', instance);
     const inventoryPollingDelay = setTimeout(() => {
-      this.inventoryPoll(0);
+      this.inventoryPoll(0, instance);
     }, 5000);
 
     this.setState({
@@ -164,19 +166,18 @@ class App extends Component {
     });
   }
 
-  inventoryPoll = (count) => {
+  inventoryPoll = (count, instance) => {
+    console.log('Poll', count, instance)
     const basePollingInterval = 15000;
-    const pollDelay = count > (2 * 15) ? (count / (2 * 15)) * basePollingInterval : basePollingInterval;
-    console.log(count, pollDelay);
+    const ppm = 60000 / basePollingInterval;
+    const pollDelay = count > (ppm * 5) ? (count / (ppm * 5)) * basePollingInterval : basePollingInterval;
     const inventoryPollingInterval = setTimeout(() => {
-      return this.inventoryPoll(count + 1);
-      // return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
-      //   this.setState({
-      //     items
-      //   });
-      // }).catch((error) => {
-      //   console.log(`Polling Error: ${error.message}`);
-      // });
+      return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
+        this.setState({items});
+        return this.inventoryPoll(count + 1, instance);
+      }).catch((error) => {
+        console.log(`Polling Error: ${error.message}`);
+      });
     }, pollDelay);
 
     return this.setState({
@@ -185,6 +186,7 @@ class App extends Component {
   }
 
   stopInventoryPolling = () => {
+    console.log('Stop Polling')
     clearTimeout(this.state.inventoryPollingInterval);
     clearTimeout(this.state.inventoryPollingDelay);
     this.setState({

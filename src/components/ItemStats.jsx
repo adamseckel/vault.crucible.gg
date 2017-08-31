@@ -69,7 +69,7 @@ export default(props) => {
         </StatRow>
         : stat.value > 0 
           ? <StatRow layout='start'>
-            <StatIcon src={`https://bungie.net${stat.icon}`}/>
+            {stat.icon ? <StatIcon src={`https://bungie.net${stat.icon}`}/> : ''}
             <StatLabel css={`color: ${palette.secondaryText} !important;`}>{stat.statName}</StatLabel>
             <Row grow justify='start' css={`height: 28px;`}>
               <StatLabel gray> +{stat.value} </StatLabel>
@@ -79,7 +79,7 @@ export default(props) => {
     );
   }
 
-  return <div {...props}>
+  return <div {...{className: props.className, style: props.style}}>
     {props.stats ? mapStats(props.stats) : ''}
   </div>
 };

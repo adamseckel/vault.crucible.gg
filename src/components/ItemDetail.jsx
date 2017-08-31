@@ -113,7 +113,7 @@ export default(props) => {
       : '';
   }
 
-  return <div css={`position: absolute; z-index: 1000;`} {...props}>
+  return <div {...{style: props.style, className: props.className}} css={`position: absolute; z-index: 1000;`}>
     {props.item 
       ? <ItemDetails>
           <ItemHeader rarity={rarityColor}>

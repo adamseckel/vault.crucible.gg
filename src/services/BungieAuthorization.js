@@ -17,7 +17,7 @@ export default function (apiKey) {
       } else if (localStorageAuth && localStorageAuth.authorizationExpiresAt > Date.now()) {
         return Promise.resolve(localStorageAuth);
       } else {
-        throw new Error('NOPE')
+        throw new Error('Bungie auth has failed');
       }
     });
 }
