@@ -5,16 +5,23 @@ import FontIcon from 'material-ui/FontIcon';
 import TextField from 'material-ui/TextField';
 import {palette, z, Row} from './styleguide';
 import styled from 'emotion/react';
+import {keyframes} from 'emotion'
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 const SearchBox = styled(Row)`
   padding: 0;
+  width: 100%;
   border-radius: 4px;
-  width: 50%;
-  position: absolute;
-  top: 8px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+  animation: ${fadeIn} 500ms ease 1;
+  z-index: 2;
   background-color: ${palette.stroke};
 `;
 
@@ -74,7 +81,7 @@ class SearchBar extends Component {
 
   render() {
     return (
-      <SearchBox justify='start'>
+      <SearchBox justify='start' className={this.props.className}>
         <FocusedSearchBoxBg focused={this.state.isSearchFocused}/>
         <SearchIcon className="material-icons" focused={this.state.isSearchFocused}>search</SearchIcon>
         <TextBox

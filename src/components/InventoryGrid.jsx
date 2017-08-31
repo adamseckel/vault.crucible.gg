@@ -215,7 +215,7 @@ class InventoryGrid extends Component {
             stats={this.state.hoveredItemDetails.stats}
             perks={this.state.hoveredItemDetails.perks}
             />
-            : ''
+            : undefined
         }
         {this.renderRows()}
       </Grid>

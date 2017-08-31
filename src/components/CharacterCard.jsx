@@ -4,11 +4,22 @@ import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import vaultIcon from './icon_vault.png';
 import styled from 'emotion/react';
+import {keyframes} from 'emotion';
 import {Text, Row, palette} from './styleguide';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 const CardContainer = styled(Card)`
   overflow: hidden;
   margin: 10px 0 5px;
+  animation: ${fadeIn} 500ms ease 1;
 `;
 
 const StyledCard = styled(Row)`
@@ -50,33 +61,36 @@ const classHashMap = {
   vault: 'Vault'
 };
 
-export default({vault, character}) => {
-  const {classHash, raceHash, powerLevel} = character.characterBase;
-  const {characterLevel} = character;
+const defaultCharacter = {
+  backgroundPath: undefined,
+  emblemPath: undefined,
+  characterLevel: undefined,
+  characterBase: {
+    classHash: undefined,
+    raceHash: undefined,
+    powerLevel: undefined
+  }
+};
 
+export default({vault, character = defaultCharacter}) => {
   return (
     <CardContainer zDepth={2} data-grow>
       <StyledCard
         vault={vault}
         emblem={character.backgroundPath}
         justify='space-between'>
-        <Emblem
-          alt='Emblem'
-          vault={vault}
-          src={vault
-          ? vaultIcon
-          : `https://www.bungie.net${character.emblemPath}`}/>
+        {character.emblemPath ? <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/> : undefined}
         <Container>
           <Text uppercase white={!vault}>
-            {classHashMap[classHash]}
+            {classHashMap[character.characterBase.classHash]}
           </Text>
-          <Text white={!vault} size={0} light>{raceHashMap[raceHash]}</Text>
+          <Text white={!vault} size={0} light>{raceHashMap[character.characterBase.raceHash]}</Text>
         </Container>
         <div data-grow style={{
           textAlign: 'right'
         }}>
-          <Text uppercase lightLevel>{powerLevel}</Text>
-          <Text size={0} uppercase light white={!vault}>{characterLevel}</Text>
+          <Text uppercase lightLevel>{character.characterBase.powerLevel}</Text>
+          <Text size={0} uppercase light white={!vault}>{character.characterLevel}</Text>
         </div>
         <IconButton>
           <FontIcon

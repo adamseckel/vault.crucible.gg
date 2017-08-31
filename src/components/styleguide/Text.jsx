@@ -2,6 +2,8 @@ import styled from 'emotion/react';
 import {palette} from './index';
 
 const sizes = {
+  max: '40rem',
+  5: '5rem',
   4: '3rem',
   3: '2rem',
   2: '1.4rem',
@@ -20,6 +22,7 @@ export default styled.p `
     : 'none'};
   text-align: ${props => props.right ? 'right' : props.center ? 'center' : 'left'};
   font-size: ${props => sizes[props.size] || sizes[1]};
+  letter-spacing: ${props => props.spacing ? '2px' : props.title ? '10px' : 0};
   color: ${props => props.white
     ? palette.lightText
     : props.lightLevel

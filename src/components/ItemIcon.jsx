@@ -32,8 +32,8 @@ export default(props) => {
           borderColor: `${props.item.isGridComplete ? palette.lightLevel : palette.stroke}`,
         }}>
         <span css={statStyle}>
-          {props.item.primaryStat ? props.item.primaryStat.value : ''}
+          {props.item.primaryStat ? props.item.primaryStat.value : undefined}
         </span>
       </div>
-    : '';
+    : undefined;
 };
