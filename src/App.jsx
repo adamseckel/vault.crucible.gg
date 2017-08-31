@@ -148,49 +148,49 @@ class App extends Component {
   }
 
   startInventoryPolling = () => {
-    if (this.state.pollingDelay) {
-      clearTimeout(this.state.pollingDelay);
+    if (this.state.inventoryPollingDelay) {
+      clearTimeout(this.state.inventoryPollingDelay);
     }
     if (this.state.inventoryPollingInterval) {
-      clearInterval(this.state.inventoryPollingInterval);
+      clearTimeout(this.state.inventoryPollingInterval);
     }
 
-    const pollingDelay = setTimeout(() => {
-      const now = Date.now();
-      const inventoryPollingInterval = setInterval(() => {
-        if (this.state.poller.instance === now && this.state.poller.count > 50) {
-          return this.stopInventoryPolling();
-        }
-        return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
-          this.setState({
-            items,
-            poller: {
-              instance: now,
-              count: (this.state.poller.count || 0 ) + 1
-            }
-          });
-        }).catch((error) => {
-          console.log(`Polling Error: ${error.message}`);
-        })
-      }, 10000);
-
-      this.setState({
-        inventoryPollingInterval
-      });
-    }, 1000);
+    const inventoryPollingDelay = setTimeout(() => {
+      this.inventoryPoll(0);
+    }, 5000);
 
     this.setState({
-      pollingDelay
+      inventoryPollingDelay
+    });
+  }
+
+  inventoryPoll = (count) => {
+    const basePollingInterval = 15000;
+    const pollDelay = count > (2 * 15) ? (count / (2 * 15)) * basePollingInterval : basePollingInterval;
+    console.log(count, pollDelay);
+    const inventoryPollingInterval = setTimeout(() => {
+      return this.inventoryPoll(count + 1);
+      // return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
+      //   this.setState({
+      //     items
+      //   });
+      // }).catch((error) => {
+      //   console.log(`Polling Error: ${error.message}`);
+      // });
+    }, pollDelay);
+
+    return this.setState({
+      inventoryPollingInterval
     });
   }
 
   stopInventoryPolling = () => {
-    clearInterval(this.state.inventoryPollingInterval);
-    clearTimeout(this.state.pollingDelay);
-    this.setState({inventoryPollingInterval: undefined, pollingDelay: undefined, poller : {
-      instance: undefined,
-      count: 0
-    }})
+    clearTimeout(this.state.inventoryPollingInterval);
+    clearTimeout(this.state.inventoryPollingDelay);
+    this.setState({
+      inventoryPollingInterval: undefined,
+      inventoryPollingDelay: undefined
+    });
   }
 
   getItemDetail = (characterID, itemInstanceID) => {
