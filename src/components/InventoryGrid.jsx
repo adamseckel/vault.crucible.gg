@@ -1,23 +1,13 @@
 import React, {Component} from 'react';
 import styled from 'emotion/react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import {LocationsRow, ItemDetail, InventoryRow} from './index';
+import {ItemDetail, InventoryRow} from './index';
 import {Motion, spring} from 'react-motion';
 import _ from 'lodash';
 
 const minimizeYSpringSetting = {
   stiffness: 150,
   damping: 15
-};
-
-const vault = {
-  characterLevel: '',
-  characterBase: {
-    classHash: 'vault',
-    raceHash: 'Full',
-    powerLevel: ''
-  },
-  id: 4567
 };
 
 const bucketHashOrder = [
@@ -80,8 +70,7 @@ class InventoryGrid extends Component {
       justMinimizedRow: undefined,
       minimizedRows: {},
       hiddenRows: {},
-      hoveredItemDetails: {},
-      vault
+      hoveredItemDetails: {}
     };
   }
 
@@ -228,7 +217,6 @@ class InventoryGrid extends Component {
             />
             : ''
         }
-        <LocationsRow characters={this.props.characters} vault={this.state.vault} />
         {this.renderRows()}
       </Grid>
     );
