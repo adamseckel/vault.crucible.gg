@@ -8,7 +8,7 @@ import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
 import {palette, muiThemeDeclaration, Row} from './components/styleguide';
-import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu} from './components';
+import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu, LocationsRow} from './components';
 import BungieAuthorizationService from './services/BungieAuthorization';
 import BungieRequestService from './services/BungieRequest';
 import ItemService from './services/ItemService';
@@ -47,6 +47,16 @@ const apiKey = {
   client_secret: process.env.REACT_APP_CLIENT_SECRET || 'm7aOvxvaLgAfeLkT4QC6mg1fyl81iZBt5ptzkq4Pay0'
 };
 
+const vault = {
+  characterLevel: '',
+  characterBase: {
+    classHash: 'vault',
+    raceHash: 'Full',
+    powerLevel: ''
+  },
+  id: 4567
+};
+
 function calculateVaultColumns(characters, gridWidth) {
   return Math.floor((gridWidth - 90 - (271 * characters.filter((store) => {
     return store.key !== 'vault';
@@ -72,6 +82,7 @@ class App extends Component {
       items: {},
       notifications: {},
       platform: 'xb1',
+      vault,
       poller: {
         count: 0
       }
@@ -324,15 +335,20 @@ class App extends Component {
             </Row>
           </TopBar>
           {this.state.authenticated ? 
-            <InventoryGrid 
-              moveItem={this.moveItem}
-              getItemDetail={this.getItemDetail}
-              vaultColumns={this.state.vaultColumns}
-              characters={this.state.charactersByID}
-              items={this.state.items}
-              startInventoryPolling={this.startInventoryPolling}
-              stopInventoryPolling={this.stopInventoryPolling}
-              query={this.state.query}/>
+            <div>
+              <LocationsRow characters={this.state.characters} vault={this.state.vault} />
+
+              <InventoryGrid 
+                moveItem={this.moveItem}
+                getItemDetail={this.getItemDetail}
+                vaultColumns={this.state.vaultColumns}
+                characters={this.state.charactersByID}
+                items={this.state.items}
+                startInventoryPolling={this.startInventoryPolling}
+                stopInventoryPolling={this.stopInventoryPolling}
+                query={this.state.query}/>
+            </div>
+            
             : undefined
           }
           <StyledSnackbarContainer messages={this.state.notifications}/>
