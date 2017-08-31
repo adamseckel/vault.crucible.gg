@@ -19,8 +19,8 @@ const StatIcon = styled.img`
 `;
 
 const StatLabel = styled(Text)`
-  max-width: 80px;
-  min-width: 80px;
+  max-width: 85px;
+  min-width: 85px;
   margin-right: 8px;
 `;
 
@@ -29,7 +29,7 @@ const BarBackground = styled(Row)`
   height: 20px;
   position: relative;
   padding: 4px;
-  width: 208px;
+  width: 203px;
   border-radius: 4px;
   overflow: hidden;
 `;

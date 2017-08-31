@@ -14,9 +14,19 @@ const frames = keyframes`
     transform: translate3d(0, 30px, 0);
   }
 
+  40% {
+    opacity: 1;
+    transform: translate3d(0, -5px, 0);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translate3d(0, 2px, 0);
+  }
+
   to {
     opacity: 1;
-    transfrom: none;
+    transform: translate3d(0, 0, 0);
   }
 `;
 
@@ -62,7 +72,7 @@ const ItemHeader = styled.div`
   padding: ${containerPadding};
   border-radius: 4px;
   margin-bottom: 2px;
-  animation: ${frames} 350ms 1 ease;
+  animation: ${frames} 550ms ease-in-out 1;
   box-shadow: ${z.z2};
   -webkit-backdrop-filter: blur(10px);
 `;
@@ -73,8 +83,9 @@ const ItemSection = styled(Column)`
   padding: ${containerPadding};
   background-color: ${bgColor};
   border-radius: 4px;
-  animation: ${frames} 650ms 1 ease;
+  animation : ${frames} 550ms 1 ease-in-out forwards;
   margin-bottom: 2px;
+  opacity: 0;
   box-shadow: ${z.z2};
   -webkit-backdrop-filter: blur(10px);
 `;
@@ -88,7 +99,7 @@ export default(props) => {
 
   function renderStats(stats, item) {
     return stats
-      ? <ItemSection justify='start' align='start'>
+      ? <ItemSection justify='start' align='start' style={{animationDelay: '200ms'}}>
         <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : ''}/>
       </ItemSection>
       : '';
@@ -96,7 +107,7 @@ export default(props) => {
 
   function renderPerks(perks) {
     return perks
-      ? <ItemSection justify='start' align='start'>
+      ? <ItemSection justify='start' align='start' style={{animationDelay: '300ms'}}>
         <ItemPerks {...{perks}}/>
       </ItemSection>
       : '';
@@ -113,7 +124,7 @@ export default(props) => {
             </Row>
           </ItemHeader>
 
-          <ItemSection justify='start' align='start'>
+          <ItemSection justify='start' align='start' style={{animationDelay: '100ms'}}>
             <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
           </ItemSection>
 
