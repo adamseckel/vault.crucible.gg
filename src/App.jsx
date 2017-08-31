@@ -372,7 +372,8 @@ class App extends Component {
             : <Column css={`position: absolute; top: 60px; bottom: 0; left: 0; right: 0;`}>
               <Text gray css={`opacity: 0.05; position: absolute;`} size={'max'}>2</Text>
               <Text title light size={4} css={`margin-bottom: 20px;`}>vault.crucible.gg</Text>
-              <Text gray size={2}> Fast, Simple, Gear Management and Loadouts for Destiny 2. </Text>
+              <Text gray size={2} css={`margin-bottom: 20px;`} o> Fast, Simple, Gear Management and Loadouts for Destiny 2. </Text>
+              <SignInButton label='Sign In' onTouchTap={this.onAuthorize}/>
             </Column>
           }
           <StyledSnackbarContainer messages={this.state.notifications}/>
