@@ -41,7 +41,8 @@ const Container = styled.div `
 
 const raceHashMap = {
   3887404748: 'Human',
-  2803282938: 'Awoken'
+  2803282938: 'Awoken',
+  full: 'Full'
 };
 
 const classHashMap = {
@@ -69,7 +70,7 @@ export default({vault, character = defaultCharacter}) => {
         vault={vault}
         emblem={character.backgroundPath}
         justify='space-between'>
-        {character.emblemPath ? <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/> : undefined}
+        {(character.emblemPath || vault ) ? <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/> : undefined}
         <Container>
           <Text uppercase white={!vault}>
             {classHashMap[character.characterBase.classHash]}

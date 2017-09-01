@@ -63,7 +63,7 @@ const vault = {
   characterLevel: '',
   characterBase: {
     classHash: 'vault',
-    raceHash: 'Full',
+    raceHash: 'full',
     powerLevel: ''
   },
   id: 4567
@@ -293,6 +293,7 @@ class App extends Component {
   updateWidth = () => {
     this.setState({
       clientWidth: this.refs.grid.clientWidth,
+      clientXY: [this.refs.grid.clientWidth, this.refs.grid.clientHeight],
       vaultColumns: calculateVaultColumns(this.state.characters, this.refs.grid.clientWidth)
     });
   }
@@ -363,6 +364,8 @@ class App extends Component {
                 getItemDetail={this.getItemDetail}
                 vaultColumns={this.state.vaultColumns}
                 characters={this.state.charactersByID}
+                clientWidth={this.state.clientWidth}
+                clientXY={this.state.clientXY}
                 items={this.state.items}
                 startInventoryPolling={this.startInventoryPolling}
                 stopInventoryPolling={this.stopInventoryPolling}
