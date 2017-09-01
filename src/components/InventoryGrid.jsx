@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import styled from 'emotion/react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {ItemDetail, InventoryRow} from './index';
+import {Column} from './styleguide';
 import {Motion, spring} from 'react-motion';
 import _ from 'lodash';
 
@@ -102,9 +103,14 @@ class InventoryGrid extends Component {
   }
 
   onHover = (e) => {
-    const {pageX, pageY} = e;
-    let x = this.props.clientWidth - 400 < pageX ? pageX - 380 : pageX;
-    let y = pageY - 200;
+    const [width, height] = this.props.clientXY;
+    const {pageX, pageY, screenX, screenY} = e;
+    const offsetY = height - screenY + 95 - this.state.detailHeight;
+    const optimalY = (pageY - 130 + this.state.detailHeight - 30);
+
+    const x = width - 400 < pageX ? pageX - 380 : pageX;
+    const y = offsetY > 0 ? optimalY : optimalY + offsetY;
+
     this.setState({
       mouseXY: [x, y]
     });
@@ -133,14 +139,16 @@ class InventoryGrid extends Component {
       hoveredItemDetails: isLastItem ? this.state.hoveredItemDetails : {}
     });
 
-    setImmediate(() => {
-      this.setState({
-        hoveredItemID,
-        hoveredItem
+    if (isLastItem) {
+      setImmediate(() => {
+        this.setState({
+          hoveredItemID,
+          hoveredItem
+        });
       });
-    });
 
-    if (isLastItem) return;
+      return;
+    };
 
     this.props.getItemDetail(characterID, hoveredItemID).then(({data, definitions}) => {
       const item = data.item;
@@ -153,17 +161,23 @@ class InventoryGrid extends Component {
         return Object.assign(perk, definitions.perks[perk.perkHash])
       }) : undefined;
 
-      if (stats || perks) {
-        this.setState({
-          hoveredItemDetails: {
-            stats,
-            perks
-          }
-        });
-      }
+      this.setState({
+        hoveredItemID,
+        hoveredItem,
+        hoveredItemDetails: {
+          stats,
+          perks
+        }
+      });
     }).catch((error) => {
       // Currently Vault does not allow item Details. Fixed in D2.
       console.log(error.message)
+    });
+  }
+
+  saveDetailHeight = (detailHeight) => {
+    this.setState({
+      detailHeight
     });
   }
 
@@ -207,18 +221,18 @@ class InventoryGrid extends Component {
   render() {
     return (
       <Grid>
-        {
-          this.state.hoveredItemID
-            ? <ItemDetail style={{
-              transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`
-            }}
-            item={this.state.hoveredItem}
-            stats={this.state.hoveredItemDetails.stats}
-            perks={this.state.hoveredItemDetails.perks}
-            />
+          {this.state.hoveredItemID
+            ? <Column align='end' justify='end' css={`position: absolute; z-index: 2000;`} style={{transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`, overflow: 'visible', height: '1px',}}>
+                <ItemDetail 
+                  item={this.state.hoveredItem}
+                  saveDetailHeight={this.saveDetailHeight}
+                  stats={this.state.hoveredItemDetails.stats}
+                  perks={this.state.hoveredItemDetails.perks}/>
+              </Column>
             : undefined
-        }
+          }
         {this.renderRows()}
+        <div></div>
       </Grid>
     );
   }

@@ -122,7 +122,7 @@ class App extends Component {
           authenticated,
           itemService
         });
-
+        this.updateWidth();
         window.addEventListener("resize", this.updateWidth);
 
         return itemService.getCharacters(destinyMembership.membershipId).then((characters) => {
@@ -293,7 +293,7 @@ class App extends Component {
   updateWidth = () => {
     this.setState({
       clientWidth: this.refs.grid.clientWidth,
-      clientXY: [this.refs.grid.clientWidth, this.refs.grid.clientHeight],
+      clientXY: [this.refs.grid.clientWidth, window.innerHeight],
       vaultColumns: calculateVaultColumns(this.state.characters, this.refs.grid.clientWidth)
     });
   }

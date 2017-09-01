@@ -5,6 +5,7 @@ import {keyframes} from 'emotion';
 import {Row, Column, Text} from './styleguide';
 import {ItemStats, ItemPerks, ItemDescription} from './index';
 import {fade} from 'material-ui/utils/colorManipulator';
+import {ReactHeight} from 'react-height';
 
 const containerPadding = '12px';
 
@@ -112,25 +113,26 @@ export default(props) => {
       </ItemSection>
       : undefined;
   }
-
-  return <div {...{style: props.style, className: props.className}} css={`position: absolute; z-index: 1000;`}>
+  return <div {...{style: props.style, className: props.className}}>
     {props.item 
-      ? <ItemDetails>
-          <ItemHeader rarity={rarityColor}>
-            <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
-            <Row justify='space-between' css={`margin-top: 4px;`}>
-              <Text>{props.item.definition.itemTypeName}</Text>
-              <Text>{props.item.definition.tierTypeName}</Text>
-            </Row>
-          </ItemHeader>
+      ? <ReactHeight onHeightReady={props.saveDetailHeight}>
+          <ItemDetails>
+            <ItemHeader rarity={rarityColor}>
+              <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
+              <Row justify='space-between' css={`margin-top: 4px;`}>
+                <Text>{props.item.definition.itemTypeName}</Text>
+                <Text>{props.item.definition.tierTypeName}</Text>
+              </Row>
+            </ItemHeader>
 
-          <ItemSection justify='start' align='start' style={{animationDelay: '100ms'}}>
-            <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
-          </ItemSection>
+            <ItemSection justify='start' align='start' style={{animationDelay: '100ms'}}>
+              <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
+            </ItemSection>
 
-          {renderStats(props.stats, props.item)}
-          {renderPerks(props.perks)}
-        </ItemDetails>
+            {renderStats(props.stats, props.item)}
+            {renderPerks(props.perks)}
+          </ItemDetails>
+        </ReactHeight>
       : undefined
     }
   </div>
