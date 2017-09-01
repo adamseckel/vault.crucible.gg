@@ -4,22 +4,12 @@ import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import vaultIcon from './icon_vault.png';
 import styled from 'emotion/react';
-import {keyframes} from 'emotion';
-import {Text, Row, palette} from './styleguide';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
+import {Text, Row, palette, animations} from './styleguide';
 
 const CardContainer = styled(Card)`
+  composes: ${animations.fadeIn};
   overflow: hidden;
   margin: 10px 0 5px;
-  animation: ${fadeIn} 500ms ease 1;
 `;
 
 const StyledCard = styled(Row)`

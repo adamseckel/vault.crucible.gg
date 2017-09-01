@@ -5,5 +5,9 @@ export default {
   set: function(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
     return Promise.resolve(data);
+  },
+  delete: function(key) {
+    localStorage.removeItem(key);
+    return Promise.resolve('Deleted');
   }
 };
