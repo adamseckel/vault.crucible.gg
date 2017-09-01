@@ -20,6 +20,7 @@ const TopBar = styled(AppBar)`
   padding-left: 50px !important;
   position: fixed !important;
   top: 0 !important;
+  -webkit-app-region: drag !important;
 `;
 
 const StyledSnackbarContainer = styled(SnackbarContainer)`
@@ -83,6 +84,7 @@ function removeSplash() {
   }, 400);
 }
 
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -101,8 +103,10 @@ class App extends Component {
     }
   }
 
+
   onAuthorize = () => {
-    return window.location.replace(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`);
+    return window.open(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`)
+    // return window.location.replace(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`);
   }
 
   componentDidMount() {
