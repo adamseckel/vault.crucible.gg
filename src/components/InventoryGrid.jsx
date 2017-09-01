@@ -103,9 +103,11 @@ class InventoryGrid extends Component {
 
   onHover = (e) => {
     const {pageX, pageY} = e;
+    let x = this.props.clientWidth - 400 < pageX ? pageX - 380 : pageX;
+    let y = pageY - 200;
     this.setState({
-      mouseXY: [pageX, pageY - 200]
-    })
+      mouseXY: [x, y]
+    });
   }
 
   handleItemMouseLeave = () => {
@@ -203,13 +205,12 @@ class InventoryGrid extends Component {
   }
 
   render() {
-    const [x, y] = this.state.mouseXY || [0,0];
     return (
       <Grid>
         {
           this.state.hoveredItemID
             ? <ItemDetail style={{
-              transform: `translate3d(${x}px, ${y}px, 0)`
+              transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`
             }}
             item={this.state.hoveredItem}
             stats={this.state.hoveredItemDetails.stats}
