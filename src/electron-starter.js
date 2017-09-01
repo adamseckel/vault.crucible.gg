@@ -31,7 +31,8 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   });
-  mainWindow.loadURL(startUrl);
+
+  mainWindow.loadURL('https://vault.crucible.gg');
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
