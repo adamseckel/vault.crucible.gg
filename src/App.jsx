@@ -49,10 +49,6 @@ const ReloadIcon = styled(FontIcon)`
   transition: all .3s linear;
 `;
 
-const Logo = styled.svg`
-  width: 30px;
-`;
-
 const apiKey = {
   client_id: process.env.REACT_APP_CLIENT_ID || '13756',
   key: process.env.REACT_APP_APIKEY || '43e0503b64df4ebc98f1c986e73d92ac',
@@ -68,6 +64,8 @@ const vault = {
   },
   id: 4567
 };
+
+let inventoryPollingInterval, inventoryPollingDelay;
 
 function calculateVaultColumns(characters, gridWidth) {
   return Math.floor((gridWidth - 90 - (271 * characters.filter((store) => {
@@ -92,6 +90,7 @@ class App extends Component {
       membership: {},
       characters: [],
       items: {},
+      inventoryPolling: false,
       notifications: {},
       platform: 'xb1',
       vault,
@@ -161,51 +160,51 @@ class App extends Component {
   }
 
   startInventoryPolling = () => {
-    if (!this.state.authenticated) return;
-    if (this.state.inventoryPollingDelay) {
-      clearTimeout(this.state.inventoryPollingDelay);
+    if (!this.state.authenticated || this.state.inventoryPolling) return;
+    
+    if (inventoryPollingDelay) {
+      clearTimeout(inventoryPollingDelay);
     }
-    if (this.state.inventoryPollingInterval) {
-      clearTimeout(this.state.inventoryPollingInterval);
+    if (inventoryPollingInterval) {
+      clearTimeout(inventoryPollingInterval);
     }
     const instance = Date.now();
     console.log('Start Poll', instance);
-    const inventoryPollingDelay = setTimeout(() => {
+    inventoryPollingDelay = setTimeout(() => {
       this.inventoryPoll(0, instance);
-    }, 5000);
+    }, 15000);
 
     this.setState({
-      inventoryPollingDelay
+      inventoryPolling: true
     });
   }
 
   inventoryPoll = (count, instance) => {
     console.log('Poll', count, instance)
+    if (!this.state.inventoryPolling) return;
     const basePollingInterval = 15000;
     const ppm = 60000 / basePollingInterval;
     const pollDelay = count > (ppm * 5) ? (count / (ppm * 5)) * basePollingInterval : basePollingInterval;
-    const inventoryPollingInterval = setTimeout(() => {
+    
+    inventoryPollingInterval = setTimeout(() => {
       if (!this.state.authenticated) return;
       return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
+        if (!this.state.inventoryPolling) return;
         this.setState({items});
         return this.inventoryPoll(count + 1, instance);
       }).catch((error) => {
         console.log(`Polling Error: ${error.message}`);
       });
     }, pollDelay);
-
-    return this.setState({
-      inventoryPollingInterval
-    });
   }
 
   stopInventoryPolling = () => {
     console.log('Stop Polling')
-    clearTimeout(this.state.inventoryPollingInterval);
-    clearTimeout(this.state.inventoryPollingDelay);
+    clearTimeout(inventoryPollingInterval);
+    clearTimeout(inventoryPollingDelay);
+
     this.setState({
-      inventoryPollingInterval: undefined,
-      inventoryPollingDelay: undefined
+      inventoryPolling: false
     });
   }
 
@@ -307,7 +306,6 @@ class App extends Component {
     return this.state.itemService.getItems(this.state.clientWidth)
       .then((characterItems) => {
         this.setState({
-          characters: this.state.itemService.getCharacters(),
           items: characterItems,
           reloading: false
         });
