@@ -240,24 +240,34 @@ class ItemRow extends Component {
     window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mouseup', this.handleMouseUp);
 
-    if (!this.state.lastItem || !this.state.lastItemIndex) return
+    if (!this.state.lastItem || this.state.lastItemIndex === undefined) return;
     const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
 
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
     }).indexOf(this.state.lastItem) === 0;
+
+    const shouldUnequip = this.state.lastOrder.filter((item) => {
+      return item.characterID === this.state.lastCharacter;
+    }).indexOf(this.state.lastItem) === 0;
     
-    if (!shouldEquip && this.state.lastCharacter === this.state.initialCharacter) {
+    if (!shouldEquip && !shouldUnequip && this.state.lastCharacter === this.state.initialCharacter) {
       return;
     }
 
-    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip).catch((error) => {
-      const {order, lastOrder, initialCharacter, lastItem} = this.state;
+    const shouldUnequipReplacementItemID = shouldUnequip ? this.state.lastOrder.filter((item) => {
+      return item.characterID === this.state.lastCharacter;
+    })[1].id : undefined;
 
-      this.setState({
-        order: reinsert(order, initialCharacter, order.indexOf(lastItem), lastOrder.indexOf(lastItem))
-      });
-    })
+    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip, shouldUnequipReplacementItemID)
+      // .catch((error) => {
+      //   console.log('catch?', error.message)
+      //   const {order, lastOrder, initialCharacter, lastItem} = this.state;
+
+      //   this.setState({
+      //     order: reinsert(order, initialCharacter, order.indexOf(lastItem), lastOrder.indexOf(lastItem))
+      //   });
+      // });
   }
 
   returnQuery(itemDef, query) {
