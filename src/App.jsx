@@ -49,10 +49,6 @@ const ReloadIcon = styled(FontIcon)`
   transition: all .3s linear;
 `;
 
-const Logo = styled.svg`
-  width: 30px;
-`;
-
 const apiKey = {
   client_id: process.env.REACT_APP_CLIENT_ID || '13756',
   key: process.env.REACT_APP_APIKEY || '43e0503b64df4ebc98f1c986e73d92ac',
@@ -69,6 +65,8 @@ const vault = {
   id: 4567
 };
 
+let inventoryPollingInterval, inventoryPollingDelay;
+
 function calculateVaultColumns(characters, gridWidth) {
   return Math.floor((gridWidth - 90 - (271 * characters.filter((store) => {
     return store.key !== 'vault';
@@ -83,6 +81,15 @@ function removeSplash() {
   }, 400);
 }
 
+function createCharactersByID(characters) {
+  return characters.map((character) => {
+    return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
+  }).reduce((o, [k, val]) => {
+    o[k] = val;
+    return o;
+  }, {});
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -92,9 +99,11 @@ class App extends Component {
       membership: {},
       characters: [],
       items: {},
+      inventoryPolling: false,
       notifications: {},
       platform: 'xb1',
       vault,
+      disablePolling: false,
       poller: {
         count: 0
       }
@@ -128,12 +137,7 @@ class App extends Component {
         return itemService.getCharacters(destinyMembership.membershipId).then((characters) => {
           removeSplash();
 
-          const charactersByID = characters.map((character) => {
-            return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
-          }).reduce((o, [k, val]) => {
-            o[k] = val;
-            return o;
-          }, {});
+          const charactersByID = createCharactersByID(characters);
 
           const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
           
@@ -161,51 +165,51 @@ class App extends Component {
   }
 
   startInventoryPolling = () => {
-    if (!this.state.authenticated) return;
-    if (this.state.inventoryPollingDelay) {
-      clearTimeout(this.state.inventoryPollingDelay);
+    if (!this.state.authenticated || this.state.inventoryPolling || this.state.disablePolling) return;
+    
+    if (inventoryPollingDelay) {
+      clearTimeout(inventoryPollingDelay);
     }
-    if (this.state.inventoryPollingInterval) {
-      clearTimeout(this.state.inventoryPollingInterval);
+    if (inventoryPollingInterval) {
+      clearTimeout(inventoryPollingInterval);
     }
     const instance = Date.now();
-    console.log('Start Poll', instance);
-    const inventoryPollingDelay = setTimeout(() => {
+    // console.log('Start Poll', instance);
+    inventoryPollingDelay = setTimeout(() => {
       this.inventoryPoll(0, instance);
-    }, 5000);
+    }, 15000);
 
     this.setState({
-      inventoryPollingDelay
+      inventoryPolling: true
     });
   }
 
   inventoryPoll = (count, instance) => {
-    console.log('Poll', count, instance)
+    // console.log('Poll', count, instance)
+    if (!this.state.inventoryPolling) return;
     const basePollingInterval = 15000;
     const ppm = 60000 / basePollingInterval;
     const pollDelay = count > (ppm * 5) ? (count / (ppm * 5)) * basePollingInterval : basePollingInterval;
-    const inventoryPollingInterval = setTimeout(() => {
+    
+    inventoryPollingInterval = setTimeout(() => {
       if (!this.state.authenticated) return;
       return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
+        if (!this.state.inventoryPolling) return;
         this.setState({items});
         return this.inventoryPoll(count + 1, instance);
       }).catch((error) => {
         console.log(`Polling Error: ${error.message}`);
       });
     }, pollDelay);
-
-    return this.setState({
-      inventoryPollingInterval
-    });
   }
 
   stopInventoryPolling = () => {
-    console.log('Stop Polling')
-    clearTimeout(this.state.inventoryPollingInterval);
-    clearTimeout(this.state.inventoryPollingDelay);
+    // console.log('Stop Polling')
+    clearTimeout(inventoryPollingInterval);
+    clearTimeout(inventoryPollingDelay);
+
     this.setState({
-      inventoryPollingInterval: undefined,
-      inventoryPollingDelay: undefined
+      inventoryPolling: false
     });
   }
 
@@ -214,12 +218,16 @@ class App extends Component {
     return this.state.itemService.getItemDetail(membershipId, characterID, itemInstanceID);
   }
 
-  createTransferPromise = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip) => {
+  createTransferPromise = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID) => {
     const toVault = lastCharacterID === 'vault';
     const fromVault = initialCharacterID === 'vault';
 
     if (shouldEquip && lastCharacterID === initialCharacterID) {
       return this.state.itemService.equipItem(itemId, lastCharacterID);
+    }
+
+    if (shouldUnequipReplacementItemID && lastCharacterID === initialCharacterID) {
+      return this.state.itemService.equipItem(shouldUnequipReplacementItemID, lastCharacterID);
     }
 
     const isSpecificVaultTransaction = toVault || fromVault;
@@ -241,9 +249,9 @@ class App extends Component {
     });
   }
 
-  moveItem = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip) => {
-    return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip)
-      .then(() => this.addNotification('Success'))
+  moveItem = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID) => {
+    return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID)
+      .then(this.updateCharacters).then(this.addNotification('Success'))
       .catch((error) => {
         this.addNotification(error.message);
         throw new Error(error.message);
@@ -277,15 +285,26 @@ class App extends Component {
         })
       })
     }, 3000);
+
+    return Promise.resolve();
   }
 
-  updateCharacters = (characterID) => {
-    const {characterId, membershipId} = this.state.charactersByID[characterID];
-    return this.state.itemService.updateCharacter(characterId, membershipId).then((character) => {
+  updateCharacters = () => {
+    return this.state.itemService.getCharacters(this.state.destinyMembership.membershipId).then((characters) => {
+      const characterBaseByID = characters.map((character) => {
+        return [character.characterBase.characterId, character.characterBase]
+      }).reduce((o, [k, val]) => {
+        o[k] = val;
+        return o;
+      }, {});
+
+      const newCharacters = this.state.characters.map((character) => {
+        return Object.assign(character, {characterBase: characterBaseByID[character.characterId]});
+      });
+
       this.setState({
-        charactersByID: Object.assign(this.state.charactersByID, {
-          [characterID]: character
-        })
+        characters: newCharacters,
+        charactersByID: createCharactersByID(newCharacters)
       });
     });
   }
@@ -307,7 +326,6 @@ class App extends Component {
     return this.state.itemService.getItems(this.state.clientWidth)
       .then((characterItems) => {
         this.setState({
-          characters: this.state.itemService.getCharacters(),
           items: characterItems,
           reloading: false
         });

@@ -72,10 +72,8 @@ export default function(bungieRequestService, rawMembership) {
       return bungieRequestService.equipItem(itemId, characterId);
     },
 
-    updateCharacter(characterID, characterMembershipID) {
-      return bungieRequestService.getCharacterSummaryById(characterID, characterMembershipID).then((data) => {
-        return data.Response.data.characterBase;
-      });
+    getCharacter(characterID, characterMembershipID) {
+      return bungieRequestService.getCharacterById(characterID, characterMembershipID).then(({data}) => data);
     },
 
     filterItems(query, filteredItems) {

@@ -26,21 +26,13 @@ const springSetting1 = {
   stiffness: 180,
   damping: 10
 };
+
 const springSetting2 = {
   stiffness: 200,
   damping: 17
 };
 
 class InventoryBucket extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      columns: this.props.vault
-        ? Math.floor(547 / 54)
-        : 3
-    };
-  }
-
   shouldComponentUpdate = (nextProps, nextState) => {
     if (_.isEqual(nextProps, this.props) && _.isEqual(nextState, this.state)) {
       return false;
@@ -114,7 +106,6 @@ class InventoryBucket extends Component {
           };
         }
         
-        const rawItem = this.props.items[item.id];
         return (
           <Motion style={style} key={key}>
             {({translateX, translateY, scale, boxShadow1, boxShadow2}) =>
@@ -128,11 +119,11 @@ class InventoryBucket extends Component {
                   ? 1200
                   : visualPosition
                 }}
-                onMouseEnter={(e) => this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id])}
+                onMouseEnter={(e) => !this.props.isPressed ? this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id], e) : undefined}
                 onMouseLeave={() => this.props.handleItemMouseLeave(item.id)}
                 onMouseDown={(e) => this.props.handleMouseDown(key, this.props.characterId, item, index, [x, y], e)}
                 onTouchStart={(e) => this.props.handleTouchStart(key, this.props.characterId, item, index, [x, y], e)}>
-                  {ItemIcon({key, item: rawItem})}
+                  {ItemIcon({key, item: this.props.items[item.id]})}
               </ItemContainer>
             }
           </Motion>

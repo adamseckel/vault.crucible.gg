@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'emotion/react';
 import {palette, z} from './styleguide';
 import {keyframes} from 'emotion';
-import {Row, Column, Text} from './styleguide';
+import {Row, Column, Text, Divider} from './styleguide';
 import {ItemStats, ItemPerks, ItemDescription} from './index';
 import {fade} from 'material-ui/utils/colorManipulator';
 import {ReactHeight} from 'react-height';
@@ -56,6 +56,7 @@ const damageTypeColorMap = {
   'damage-arc': '#85c5ec',
   'damage-void': '#b184c5'
 };
+const bgColor = fade(palette.darkText, 0.95);
 
 const damageTypeIconMap = {
   'damage-kinetic': '/img/destiny_content/damage_types/kinetic.png',
@@ -64,31 +65,26 @@ const damageTypeIconMap = {
   'damage-void': '/img/destiny_content/damage_types/void.png'
 };
 
-const ItemDetails = styled.div `
-  width: 325px;
-`;
-
 const ItemHeader = styled.div`
   background-color: ${props => fade(props.rarity, .95)};
-  padding: ${containerPadding};
+  animation: ${props => props.render ? `${frames} 550ms 1 ease-in-out forwards` : 'none'};
+  padding: ${containerPadding}; 
   border-radius: 4px;
   margin-bottom: 2px;
-  animation: ${frames} 550ms ease-in-out 1;
+  opacity: 0;  
   box-shadow: ${z.z2};
   -webkit-backdrop-filter: blur(10px);
 `;
 
-const bgColor = fade(palette.darkText, 0.95);
-
-const ItemSection = styled(Column)`
-  padding: ${containerPadding};
+const ItemDetails = styled.div`
   background-color: ${bgColor};
   border-radius: 4px;
-  animation : ${frames} 550ms 1 ease-in-out forwards;
-  margin-bottom: 2px;
-  opacity: 0;
-  box-shadow: ${z.z2};
+  opacity: 0;  
+  animation: ${props => props.render ? `${frames} 550ms 1 ease-in-out forwards` : 'none'};
+  animation-delay: 100ms;
+  box-shadow: ${z.z2};  
   -webkit-backdrop-filter: blur(10px);
+  padding: ${containerPadding};  
 `;
 
 export default(props) => {
@@ -100,38 +96,41 @@ export default(props) => {
 
   function renderStats(stats, item) {
     return stats
-      ? <ItemSection justify='start' align='start' style={{animationDelay: '200ms'}}>
+      ? <Column justify='start' align='start'>
+        <Divider css={`opacity: 0.4;`}/>
         <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : undefined}/>
-      </ItemSection>
+      </Column>
       : undefined;
   }
 
   function renderPerks(perks) {
     return perks
-      ? <ItemSection justify='start' align='start' style={{animationDelay: '300ms'}}>
+      ? <Column justify='start' align='start'>
+        <Divider css={`opacity: 0.4;`}/>      
         <ItemPerks {...{perks}}/>
-      </ItemSection>
+      </Column>
       : undefined;
   }
-  return <div {...{style: props.style, className: props.className}}>
+  return <div {...{style: props.style, className: props.className}} css={`max-width: 325px;`}>
     {props.item 
       ? <ReactHeight onHeightReady={props.saveDetailHeight}>
-          <ItemDetails>
-            <ItemHeader rarity={rarityColor}>
-              <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
-              <Row justify='space-between' css={`margin-top: 4px;`}>
-                <Text>{props.item.definition.itemTypeName}</Text>
-                <Text>{props.item.definition.tierTypeName}</Text>
-              </Row>
-            </ItemHeader>
+          <ItemHeader rarity={rarityColor} render={props.render}>
+            <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
+            <Row justify='space-between' css={`margin-top: 4px;`}>
+              <Text>{props.item.definition.itemTypeName}</Text>
+              <Text>{props.item.definition.tierTypeName}</Text>
+            </Row>
+          </ItemHeader>
 
-            <ItemSection justify='start' align='start' style={{animationDelay: '100ms'}}>
+          <ItemDetails render={props.render}>
+            <Column justify='start' align='start' >
               <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
-            </ItemSection>
+            </Column>
 
             {renderStats(props.stats, props.item)}
             {renderPerks(props.perks)}
           </ItemDetails>
+
         </ReactHeight>
       : undefined
     }

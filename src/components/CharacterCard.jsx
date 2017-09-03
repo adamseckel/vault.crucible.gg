@@ -4,7 +4,7 @@ import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import vaultIcon from './icon_vault.png';
 import styled from 'emotion/react';
-import {Text, Row, palette, animations} from './styleguide';
+import {Text, Row, Column, palette, animations} from './styleguide';
 
 const CardContainer = styled(Card)`
   composes: ${animations.fadeIn};
@@ -42,7 +42,7 @@ const Container = styled.div `
 const raceHashMap = {
   3887404748: 'Human',
   2803282938: 'Awoken',
-  full: 'Full'
+  full: '  .'
 };
 
 const classHashMap = {
@@ -64,32 +64,32 @@ const defaultCharacter = {
 };
 
 export default({vault, character = defaultCharacter}) => {
+  function renderDropdownButton() {
+    return (
+      <IconButton>
+        <FontIcon className="material-icons" color={vault ? palette.darkText : palette.lightText}>arrow_drop_down_circle</FontIcon>
+      </IconButton>
+    );
+  }
+
   return (
-    <CardContainer zDepth={2} data-grow>
+    <CardContainer zDepth={2} grow>
       <StyledCard
         vault={vault}
         emblem={character.backgroundPath}
         justify='space-between'>
+        
         {(character.emblemPath || vault ) ? <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/> : undefined}
+        
         <Container>
-          <Text uppercase white={!vault}>
-            {classHashMap[character.characterBase.classHash]}
-          </Text>
-          <Text white={!vault} size={0} light>{raceHashMap[character.characterBase.raceHash]}</Text>
+          <Text uppercase white={!vault}> {classHashMap[character.characterBase.classHash]} </Text>
+          <Text white={!vault} size={0} light> {raceHashMap[character.characterBase.raceHash]} </Text>
         </Container>
-        <div data-grow style={{
-          textAlign: 'right'
-        }}>
-          <Text uppercase lightLevel>{character.characterBase.powerLevel}</Text>
-          <Text size={0} uppercase light white={!vault}>{character.characterLevel}</Text>
-        </div>
-        <IconButton>
-          <FontIcon
-            className="material-icons"
-            color={vault
-            ? palette.darkText
-            : palette.lightText}>arrow_drop_down_circle</FontIcon>
-        </IconButton>
+
+        <Column justify='center' align='end' grow css={`margin-right: 10px;`}>
+          <Text right uppercase lightLevel>{character.characterBase.powerLevel}</Text>
+          <Text right size={0} uppercase light white={!vault}>{character.characterLevel}</Text>
+        </Column>
       </StyledCard>
     </CardContainer>
   );

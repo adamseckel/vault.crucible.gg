@@ -55,6 +55,18 @@ function calculateLayout(characters, vaultColumns) {
   }, {});
 }
 
+function calculateMouseXY(e, clientXY, cardHeight) {
+  const [width, height] = clientXY;
+  const {pageX, pageY, screenY} = e;
+  const offsetY = height - screenY + 95 - cardHeight;
+  const optimalY = (pageY - 130 + cardHeight - 30);
+
+  const x = width - 400 < pageX ? pageX - 380 : pageX;
+  const y = offsetY > 0 ? optimalY : optimalY + offsetY;
+
+  return [x, y];
+}
+
 function calculateCharacterLayout(characters) {
   return Object.keys(characters)
     .concat(['vault'])
@@ -103,16 +115,8 @@ class InventoryGrid extends Component {
   }
 
   onHover = (e) => {
-    const [width, height] = this.props.clientXY;
-    const {pageX, pageY, screenX, screenY} = e;
-    const offsetY = height - screenY + 95 - this.state.detailHeight;
-    const optimalY = (pageY - 130 + this.state.detailHeight - 30);
-
-    const x = width - 400 < pageX ? pageX - 380 : pageX;
-    const y = offsetY > 0 ? optimalY : optimalY + offsetY;
-
     this.setState({
-      mouseXY: [x, y]
+      mouseXY: calculateMouseXY(e, this.props.clientXY, this.state.detailHeight)
     });
   }
 
@@ -120,23 +124,30 @@ class InventoryGrid extends Component {
     this.setState({
       hoveredItemID: undefined,
       hoveredItem: undefined,
-      previouslyHoveredItemID: this.state.hoveredItemID
+      previouslyHoveredItemID: this.state.hoveredItemID,
+      detailHeight: undefined,
     });
     this.startInventoryPolling();
 
     window.removeEventListener('mousemove', this.onHover);
   }
 
-  handleItemHover = (hoveredItemID, characterID, hoveredItem) => {    
+  handleItemHover = (hoveredItemID, characterID, hoveredItem, e) => {    
     window.addEventListener('mousemove', this.onHover)
     this.stopInventoryPolling();
 
     const isLastItem = hoveredItemID === this.state.previouslyHoveredItemID;
+    const {pageX, pageY, screenY} = e;
 
     this.setState({
       hoveredItemID: undefined,
       hoveredItem: undefined,
-      hoveredItemDetails: isLastItem ? this.state.hoveredItemDetails : {}
+      hoveredItemDetails: isLastItem ? this.state.hoveredItemDetails : {},
+      lastEvent: {
+        pageX,
+        pageY,
+        screenY
+      }
     });
 
     if (isLastItem) {
@@ -150,34 +161,38 @@ class InventoryGrid extends Component {
       return;
     };
 
-    this.props.getItemDetail(characterID, hoveredItemID).then(({data, definitions}) => {
-      const item = data.item;
-      
-      const stats = item.stats.length ? item.stats.map((stat) => {
-        return Object.assign(stat, definitions.stats[stat.statHash]);
-      }) : undefined;
+    this.props.getItemDetail(characterID, hoveredItemID)
+      .then(({data, definitions}) => {
+        const item = data.item;
+        
+        const stats = item.stats.length ? item.stats.map((stat) => {
+          return stat.value > 0 ? Object.assign(stat, definitions.stats[stat.statHash]) : undefined;
+        }).filter((stat) => {
+          return stat ? stat : false;
+        }) : undefined;
 
-      const perks = item.perks.length ? item.perks.map((perk) => {
-        return Object.assign(perk, definitions.perks[perk.perkHash])
-      }) : undefined;
-
-      this.setState({
-        hoveredItemID,
-        hoveredItem,
-        hoveredItemDetails: {
-          stats,
-          perks
-        }
+        const perks = item.perks.length ? item.perks.map((perk) => {
+          return Object.assign(perk, definitions.perks[perk.perkHash])
+        }) : undefined;
+        
+        this.setState({
+          hoveredItemID,
+          hoveredItem,
+          hoveredItemDetails: {
+            stats: (stats && stats.length) ? stats : undefined,
+            perks
+          }
+        });
+      }).catch((error) => {
+        // Currently Vault does not allow item Details. Fixed in D2.
+        console.log(error.message)
       });
-    }).catch((error) => {
-      // Currently Vault does not allow item Details. Fixed in D2.
-      console.log(error.message)
-    });
   }
 
   saveDetailHeight = (detailHeight) => {
     this.setState({
-      detailHeight
+      detailHeight,
+      mouseXY: calculateMouseXY(this.state.lastEvent, this.props.clientXY, detailHeight)
     });
   }
 
@@ -222,12 +237,16 @@ class InventoryGrid extends Component {
     return (
       <Grid>
           {this.state.hoveredItemID
-            ? <Column align='end' justify='end' css={`position: absolute; z-index: 2000;`} style={{transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`, overflow: 'visible', height: '1px',}}>
-                <ItemDetail 
-                  item={this.state.hoveredItem}
-                  saveDetailHeight={this.saveDetailHeight}
-                  stats={this.state.hoveredItemDetails.stats}
-                  perks={this.state.hoveredItemDetails.perks}/>
+            ? <Column align='end' justify='end' css={`position: absolute; z-index: 2000; overflow: visible; height: 1px;`}
+                style={{
+                  transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`
+                }}>
+                  <ItemDetail 
+                    item={this.state.hoveredItem}
+                    saveDetailHeight={this.saveDetailHeight}
+                    render={this.state.detailHeight ? true : false}
+                    stats={this.state.hoveredItemDetails.stats}
+                    perks={this.state.hoveredItemDetails.perks}/>
               </Column>
             : undefined
           }
