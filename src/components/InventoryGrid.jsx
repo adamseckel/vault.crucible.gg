@@ -201,7 +201,6 @@ class InventoryGrid extends Component {
     let rowOffset = 0
     const layout = calculateLayout(this.props.characters, this.props.vaultColumns);
     const characterLayout = calculateCharacterLayout(this.props.characters);
-
     const {handleItemHover, handleItemMouseLeave} = this;
     return this.state.rows.map((bucketKey) => {
         let rowStyle = {

@@ -49,12 +49,6 @@ const ReloadIcon = styled(FontIcon)`
   transition: all .3s linear;
 `;
 
-const apiKey = {
-  client_id: process.env.REACT_APP_CLIENT_ID || '13756',
-  key: process.env.REACT_APP_APIKEY || '43e0503b64df4ebc98f1c986e73d92ac',
-  client_secret: process.env.REACT_APP_CLIENT_SECRET || 'm7aOvxvaLgAfeLkT4QC6mg1fyl81iZBt5ptzkq4Pay0'
-};
-
 const vault = {
   characterLevel: '',
   characterBase: {
@@ -84,8 +78,8 @@ function removeSplash() {
 function createCharactersByID(characters) {
   return characters.map((character) => {
     return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
-  }).reduce((o, [k, val]) => {
-    o[k] = val;
+  }).reduce((o, [key, val]) => {
+    o[key] = val;
     return o;
   }, {});
 }
@@ -103,6 +97,7 @@ class App extends Component {
       notifications: {},
       platform: 'xb1',
       vault,
+      apiKey: props.apiKey,
       disablePolling: false,
       poller: {
         count: 0
@@ -111,30 +106,34 @@ class App extends Component {
   }
 
   onAuthorize = () => {
-    return window.location.replace(`https://www.bungie.net/en/OAuth/Authorize?client_id=${apiKey.client_id}&response_type=code`);
+    return window.location.replace(`https://www.bungie.net/en/OAuth/Authorize?client_id=${this.state.apiKey.client_id}&response_type=code`);
+  }
+
+  authorize = () => {
+    return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
+      return BungieRequestService(authorization, this.state.apiKey.key, this.state.destinyMembership.membershipType);
+    });
   }
 
   componentDidMount() {
     this.setState({clientWidth: this.refs.grid.clientWidth});
 
-    return BungieAuthorizationService(apiKey).then((authorization) => {
-      return BungieRequestService(authorization, apiKey.key).getMembershipById().then((membership) => {
+    return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
+      return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById().then((membership) => {
         const destinyMembership = membership.destinyMemberships[0];
         const authenticated = true;
-        const bungieRequestService = BungieRequestService(authorization, apiKey.key, destinyMembership.membershipType);
-        const itemService = ItemService(bungieRequestService, membership);
+        const bungieRequestService = BungieRequestService(authorization, this.state.apiKey.key, destinyMembership.membershipType);
 
         this.setState({
           bungieRequestService,
           membership,
           destinyMembership,
-          authenticated,
-          itemService
+          authenticated
         });
         this.updateWidth();
         window.addEventListener("resize", this.updateWidth);
 
-        return itemService.getCharacters(destinyMembership.membershipId).then((characters) => {
+        return ItemService(this.authorize).getCharacters(destinyMembership.membershipId).then((characters) => {
           removeSplash();
 
           const charactersByID = createCharactersByID(characters);
@@ -147,7 +146,7 @@ class App extends Component {
             vaultColumns
           });
 
-          return itemService.getItems(this.state.clientWidth).then((items) => {
+          return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters).then((items) => {
             this.setState({
               items
             });
@@ -174,7 +173,7 @@ class App extends Component {
       clearTimeout(inventoryPollingInterval);
     }
     const instance = Date.now();
-    // console.log('Start Poll', instance);
+    console.log('Start Poll', instance);
     inventoryPollingDelay = setTimeout(() => {
       this.inventoryPoll(0, instance);
     }, 15000);
@@ -185,7 +184,7 @@ class App extends Component {
   }
 
   inventoryPoll = (count, instance) => {
-    // console.log('Poll', count, instance)
+    console.log('Poll', count, instance)            
     if (!this.state.inventoryPolling) return;
     const basePollingInterval = 15000;
     const ppm = 60000 / basePollingInterval;
@@ -193,18 +192,26 @@ class App extends Component {
     
     inventoryPollingInterval = setTimeout(() => {
       if (!this.state.authenticated) return;
-      return this.state.itemService.getItems(this.state.clientWidth).then((items) => {
+      return Promise.all([
+        this.updateItems(),
+        this.updateCharacters()
+      ]).then(() => {
         if (!this.state.inventoryPolling) return;
-        this.setState({items});
+        console.log('Poll Data', count, instance)        
         return this.inventoryPoll(count + 1, instance);
-      }).catch((error) => {
+      })
+      .catch((error) => {
         console.log(`Polling Error: ${error.message}`);
       });
     }, pollDelay);
   }
 
+  updateItems = () => {
+    return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters).then((items) => this.setState({items}));
+  }
+
   stopInventoryPolling = () => {
-    // console.log('Stop Polling')
+    console.log('Stop Polling')
     clearTimeout(inventoryPollingInterval);
     clearTimeout(inventoryPollingDelay);
 
@@ -215,7 +222,7 @@ class App extends Component {
 
   getItemDetail = (characterID, itemInstanceID) => {
     const {membershipId} = this.state.destinyMembership;
-    return this.state.itemService.getItemDetail(membershipId, characterID, itemInstanceID);
+    return ItemService(this.authorize).getItemDetail(membershipId, characterID, itemInstanceID);
   }
 
   createTransferPromise = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID) => {
@@ -223,11 +230,11 @@ class App extends Component {
     const fromVault = initialCharacterID === 'vault';
 
     if (shouldEquip && lastCharacterID === initialCharacterID) {
-      return this.state.itemService.equipItem(itemId, lastCharacterID);
+      return ItemService(this.authorize).equipItem(itemId, lastCharacterID);
     }
 
     if (shouldUnequipReplacementItemID && lastCharacterID === initialCharacterID) {
-      return this.state.itemService.equipItem(shouldUnequipReplacementItemID, lastCharacterID);
+      return ItemService(this.authorize).equipItem(shouldUnequipReplacementItemID, lastCharacterID);
     }
 
     const isSpecificVaultTransaction = toVault || fromVault;
@@ -238,12 +245,12 @@ class App extends Component {
       ? toVault
       : true;
     
-    return this.state.itemService.moveItem(itemReferenceHash, itemId, characterID, isVaultTransaction).then((result) => {
+    return ItemService(this.authorize).moveItem(itemReferenceHash, itemId, characterID, isVaultTransaction).then((result) => {
       return (fromVault && shouldEquip)
-        ? this.state.itemService.equipItem(itemId, lastCharacterID)
+        ? ItemService(this.authorize).equipItem(itemId, lastCharacterID)
         : !isSpecificVaultTransaction
-          ? this.state.itemService.moveItem(itemReferenceHash, itemId, lastCharacterID).then((result) => {
-            return shouldEquip ? this.state.itemService.equipItem(itemId, lastCharacterID) : result;
+          ? ItemService(this.authorize).moveItem(itemReferenceHash, itemId, lastCharacterID).then((result) => {
+            return shouldEquip ? ItemService(this.authorize).equipItem(itemId, lastCharacterID) : result;
           })
           : result;
     });
@@ -290,11 +297,11 @@ class App extends Component {
   }
 
   updateCharacters = () => {
-    return this.state.itemService.getCharacters(this.state.destinyMembership.membershipId).then((characters) => {
+    return ItemService(this.authorize).getCharacters(this.state.destinyMembership.membershipId).then((characters) => {
       const characterBaseByID = characters.map((character) => {
         return [character.characterBase.characterId, character.characterBase]
-      }).reduce((o, [k, val]) => {
-        o[k] = val;
+      }).reduce((o, [key, val]) => {
+        o[key] = val;
         return o;
       }, {});
 
@@ -323,7 +330,7 @@ class App extends Component {
 
   onReload = () => {
     this.setState({reloading: true})
-    return this.state.itemService.getItems(this.state.clientWidth)
+    return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters)
       .then((characterItems) => {
         this.setState({
           items: characterItems,

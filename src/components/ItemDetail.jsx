@@ -74,6 +74,7 @@ const ItemHeader = styled.div`
   opacity: 0;  
   box-shadow: ${z.z2};
   -webkit-backdrop-filter: blur(10px);
+  user-select: none;  
 `;
 
 const ItemDetails = styled.div`
@@ -84,7 +85,8 @@ const ItemDetails = styled.div`
   animation-delay: 100ms;
   box-shadow: ${z.z2};  
   -webkit-backdrop-filter: blur(10px);
-  padding: ${containerPadding};  
+  padding: ${containerPadding};
+  user-select: none;  
 `;
 
 export default(props) => {

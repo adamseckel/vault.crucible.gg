@@ -22,23 +22,18 @@ function clamp(n, min, max) {
 }
 
 function flattenItems(items) {
-  return Object
-    .keys(items)
-    .map((characterID) => {
-      return items[characterID];
-    })
-    .reduce((a, b) => {
-      return a.concat((Array.isArray(b)
-        ? b
-        : []));
-    })
-    .map((item) => {
-      return [item.itemId, item];
-    })
-    .reduce((o, [key, value]) => {
-      o[key] = value;
-      return o;
-    }, {});
+  return Object.keys(items).map((characterID) => {
+    return items[characterID];
+  }).reduce((a, b) => {
+    return a.concat((Array.isArray(b)
+      ? b
+      : []));
+  }).map((item) => {
+    return [item.itemId, item];
+  }).reduce((o, [key, val]) => {
+    o[key] = val;
+    return o;
+  }, {});
 }
 
 function order(items) {
@@ -167,14 +162,6 @@ class ItemRow extends Component {
 
       let newOrder = true;
       let proposedOrder = reinsert(order, characterID, order.indexOf(lastItem), index);
-      // const visualPosition = proposedOrder.filter((item) => {
-      //   return item.characterID === characterID;
-      // }).indexOf(lastItem);
-
-      // if (visualPosition === 0 && !lastItem.equippable) {
-      //   error = "You can't equip this item on this Guardian";
-      //   proposedOrder = reinsert(order, characterID, order.indexOf(lastItem), index + 2);
-      // }
 
       const update = {
         mouseXY,
@@ -260,14 +247,14 @@ class ItemRow extends Component {
     })[1].id : undefined;
 
     return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip, shouldUnequipReplacementItemID)
-      // .catch((error) => {
-      //   console.log('catch?', error.message)
-      //   const {order, lastOrder, initialCharacter, lastItem} = this.state;
+      .catch((error) => {
+        console.log('catch?', error.message)
+        const {order, lastOrder, initialCharacter, lastItem} = this.state;
 
-      //   this.setState({
-      //     order: reinsert(order, initialCharacter, order.indexOf(lastItem), lastOrder.indexOf(lastItem))
-      //   });
-      // });
+        this.setState({
+          order: reinsert(order, initialCharacter, order.indexOf(lastItem), lastOrder.indexOf(lastItem))
+        });
+      });
   }
 
   returnQuery(itemDef, query) {

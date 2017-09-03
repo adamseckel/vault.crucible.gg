@@ -33,27 +33,10 @@ function calculateRowHeight(bucketItems, vaultColumns) {
   });
 }
 
-function orderByRarity(bucketItems) {
-  const rarity = ['common', 'rare', 'legendary', 'exotic'];
-  return Object.keys(bucketItems.items).map((characterID) => {
-    return [characterID, bucketItems.items[characterID].sort((a, b) => {
-      return rarity.indexOf(a.definition.tierTypeName.toLowerCase()) < rarity.indexOf(b.definition.tierTypeName.toLowerCase());
-    })];
-  }).reduce((o, [key, val]) => {
-    o[key] = val;
-    return o
-  }, {});
-}
-
-export default function(bungieRequestService, rawMembership) {
+export default function(getBungieRequest) {
   return {
-    buckets: {},
-    rawMembership,
     getCharacters(destinyMembershipID) {
-      return bungieRequestService.getAccountCharacters(destinyMembershipID).then(({data}) => {
-        this.characters = data.characters;
-        return this.characters;
-      });
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getAccountCharacters(destinyMembershipID).then(({data}) => data.characters));
     },
 
     getCachedItems() {
@@ -61,74 +44,58 @@ export default function(bungieRequestService, rawMembership) {
     },
 
     getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
-      return bungieRequestService.getItemDetail(destinyMembershipID, characterID, itemInstanceID);
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getItemDetail(destinyMembershipID, characterID, itemInstanceID));
     },
 
     moveItem(itemReferenceHash, itemID, characterId, vault) {
-      return bungieRequestService.moveItem(itemReferenceHash, itemID, characterId, vault);
+      return getBungieRequest().then((bungieRequest) => bungieRequest.moveItem(itemReferenceHash, itemID, characterId, vault));
     },
 
     equipItem(itemId, characterId) {
-      return bungieRequestService.equipItem(itemId, characterId);
+      return getBungieRequest().then((bungieRequest) => bungieRequest.equipItem(itemId, characterId));
     },
 
     getCharacter(characterID, characterMembershipID) {
-      return bungieRequestService.getCharacterById(characterID, characterMembershipID).then(({data}) => data);
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterID, characterMembershipID).then(({data}) => data));
     },
 
-    filterItems(query, filteredItems) {
-      if (query === '') {
-        return undefined;
-      }
-
-      return Object.keys((filteredItems || this.buckets)).forEach((bucketKey) => {
-        Object.keys((filteredItems || this.buckets)[bucketKey].items).forEach((storeKey) => {
-          const itemList = (filteredItems || this.buckets)[bucketKey].items[storeKey].filter((item) => {
-            return item.definition.itemName.indexOf(query) >= 0;
-          });
-          (filteredItems || this.buckets)[bucketKey].items[storeKey] = itemList;
-        })
-      });
-    },
-
-    getItems(clientWidth) {
-      const requests = this.characters.map((character) => {
+    getItems(clientWidth, characters) {
+      const requests = characters.map((character) => {
         const {characterId, membershipId} = character.characterBase;
-        return bungieRequestService.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
+        return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
           return {
             inventory: {data, definitions},
             key: characterId
           };
-        })
+        }));
       });
 
       requests.push(
-        bungieRequestService.getVaultSummary().then(({data, definitions}) => {
+        getBungieRequest().then((bungieRequest) => bungieRequest.getVaultSummary().then(({data, definitions}) => {
           return {
             inventory: {data, definitions},
             key: 'vault'
           };
         })
-      );
+      ));
 
-      return Promise.all(requests).then((characters) => {
+      return Promise.all(requests).then((locations) => {
         const itemBuckets = {};
-        characters.forEach((character) => mapItems(character.inventory.data.items, character.inventory.definitions, itemBuckets, character.key));
+        locations.forEach((character) => mapItems(character.inventory.data.items, character.inventory.definitions, itemBuckets, character.key));
 
-        delete itemBuckets[1801258597]
-        delete itemBuckets[2197472680]
-        delete itemBuckets[3284755031]
-        delete itemBuckets[375726501]
-        const vaultColumns = Math.floor((clientWidth - 90 - (271 * characters.filter((store) => {
+        delete itemBuckets[1801258597];
+        delete itemBuckets[2197472680];
+        delete itemBuckets[3284755031];
+        delete itemBuckets[375726501];
+
+        const vaultColumns = Math.floor((clientWidth - 90 - (271 * locations.filter((store) => {
           return store.key !== 'vault';
         }).length)) / 52);
 
         Object.keys(itemBuckets).forEach((bucketKey) => {
           itemBuckets[bucketKey].rowHeight = calculateRowHeight(itemBuckets[bucketKey].items, vaultColumns);
-          itemBuckets[bucketKey].items = orderByRarity(itemBuckets[bucketKey]);
         });
 
-        this.buckets = itemBuckets;
         return itemBuckets;
       });
     }

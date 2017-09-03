@@ -7,4 +7,5 @@ export default styled.hr`
   width: 100%;
   border-bottom: 1px solid #646464;
   transition: color .3s ease;
+  user-select: none;  
 `;
