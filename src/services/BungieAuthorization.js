@@ -20,7 +20,7 @@ export default function (apiKey) {
         console.log('Authorization: Current auth has not expired')
         return Promise.resolve(localStorageAuth);
       } else {
-        throw new Error('Bungie Auth has failed for some unexplained reason. Weird.');
+        throw new Error('Users is logged out');
       }
     });
 }

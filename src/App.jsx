@@ -7,9 +7,9 @@ import AppBar from 'material-ui/AppBar';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
-import {palette, animations, muiThemeDeclaration, Row, Column, Text} from './components/styleguide';
-import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu, LocationsRow} from './components';
-import {BungieAuthorizationService, BungieRequestService, ItemService, store} from './services';
+import {palette, muiThemeDeclaration, Row} from './components/styleguide';
+import {SearchBar, InventoryGrid, SnackbarContainer, UserMenu, LocationsRow, Landing} from './components';
+import Store from './Store';
 
 injectTapEventPlugin();
 
@@ -49,362 +49,62 @@ const ReloadIcon = styled(FontIcon)`
   transition: all .3s linear;
 `;
 
-const vault = {
-  characterLevel: '',
-  characterBase: {
-    classHash: 'vault',
-    raceHash: 'full',
-    powerLevel: ''
-  },
-  id: 4567
-};
-
-let inventoryPollingInterval, inventoryPollingDelay;
-
-function calculateVaultColumns(characters, gridWidth) {
-  return Math.floor((gridWidth - 90 - (271 * characters.filter((store) => {
-    return store.key !== 'vault';
-  }).length)) / 52);
-}
-
-function removeSplash() {
-  const splash = document.getElementById("splash");
-  splash.className = "removed";
-  setTimeout(() => {
-    splash.parentNode.removeChild(splash);
-  }, 400);
-}
-
-function createCharactersByID(characters) {
-  return characters.map((character) => {
-    return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
-  }).reduce((o, [key, val]) => {
-    o[key] = val;
-    return o;
-  }, {});
-}
-
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      bungieRequestService: false,
-      authenticated: false,
-      membership: {},
-      characters: [],
-      items: {},
-      inventoryPolling: false,
-      notifications: {},
-      platform: 'xb1',
-      vault,
-      apiKey: props.apiKey,
-      disablePolling: false,
-      poller: {
-        count: 0
-      }
-    }
-  }
-
-  onAuthorize = () => {
-    return window.location.replace(`https://www.bungie.net/en/OAuth/Authorize?client_id=${this.state.apiKey.client_id}&response_type=code`);
-  }
-
-  authorize = () => {
-    return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
-      return BungieRequestService(authorization, this.state.apiKey.key, this.state.destinyMembership.membershipType);
-    });
-  }
-
-  componentDidMount() {
-    this.setState({clientWidth: this.refs.grid.clientWidth});
-
-    return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
-      return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById().then((membership) => {
-        const destinyMembership = membership.destinyMemberships[0];
-        const authenticated = true;
-        const bungieRequestService = BungieRequestService(authorization, this.state.apiKey.key, destinyMembership.membershipType);
-
-        this.setState({
-          bungieRequestService,
-          membership,
-          destinyMembership,
-          authenticated
-        });
-        this.updateWidth();
-        window.addEventListener("resize", this.updateWidth);
-
-        return ItemService(this.authorize).getCharacters(destinyMembership.membershipId).then((characters) => {
-          removeSplash();
-
-          const charactersByID = createCharactersByID(characters);
-
-          const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
-          
-          this.setState({
-            characters,
-            charactersByID,
-            vaultColumns
-          });
-
-          return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters).then((items) => {
-            this.setState({
-              items
-            });
-          });
-        })
-      })
-    }).catch((error) => {
-      removeSplash();
-      console.log(error.message);
-    });
-  }
-
-  searchForItem = (event, query) => {
-    this.setState({query});
-  }
-
-  startInventoryPolling = () => {
-    if (!this.state.authenticated || this.state.inventoryPolling || this.state.disablePolling) return;
-    
-    if (inventoryPollingDelay) {
-      clearTimeout(inventoryPollingDelay);
-    }
-    if (inventoryPollingInterval) {
-      clearTimeout(inventoryPollingInterval);
-    }
-    const instance = Date.now();
-    console.log('Start Poll', instance);
-    inventoryPollingDelay = setTimeout(() => {
-      this.inventoryPoll(0, instance);
-    }, 15000);
-
-    this.setState({
-      inventoryPolling: true
-    });
-  }
-
-  inventoryPoll = (count, instance) => {
-    console.log('Poll', count, instance)            
-    if (!this.state.inventoryPolling) return;
-    const basePollingInterval = 15000;
-    const ppm = 60000 / basePollingInterval;
-    const pollDelay = count > (ppm * 5) ? (count / (ppm * 5)) * basePollingInterval : basePollingInterval;
-    
-    inventoryPollingInterval = setTimeout(() => {
-      if (!this.state.authenticated) return;
-      return Promise.all([
-        this.updateItems(),
-        this.updateCharacters()
-      ]).then(() => {
-        if (!this.state.inventoryPolling) return;
-        console.log('Poll Data', count, instance)        
-        return this.inventoryPoll(count + 1, instance);
-      })
-      .catch((error) => {
-        console.log(`Polling Error: ${error.message}`);
-      });
-    }, pollDelay);
-  }
-
-  updateItems = () => {
-    return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters).then((items) => this.setState({items}));
-  }
-
-  stopInventoryPolling = () => {
-    console.log('Stop Polling')
-    clearTimeout(inventoryPollingInterval);
-    clearTimeout(inventoryPollingDelay);
-
-    this.setState({
-      inventoryPolling: false
-    });
-  }
-
-  getItemDetail = (characterID, itemInstanceID) => {
-    const {membershipId} = this.state.destinyMembership;
-    return ItemService(this.authorize).getItemDetail(membershipId, characterID, itemInstanceID);
-  }
-
-  createTransferPromise = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID) => {
-    const toVault = lastCharacterID === 'vault';
-    const fromVault = initialCharacterID === 'vault';
-
-    if (shouldEquip && lastCharacterID === initialCharacterID) {
-      return ItemService(this.authorize).equipItem(itemId, lastCharacterID);
-    }
-
-    if (shouldUnequipReplacementItemID && lastCharacterID === initialCharacterID) {
-      return ItemService(this.authorize).equipItem(shouldUnequipReplacementItemID, lastCharacterID);
-    }
-
-    const isSpecificVaultTransaction = toVault || fromVault;
-    const characterID = isSpecificVaultTransaction
-      ? (toVault ? initialCharacterID : lastCharacterID)
-      : initialCharacterID;
-    const isVaultTransaction = isSpecificVaultTransaction
-      ? toVault
-      : true;
-    
-    return ItemService(this.authorize).moveItem(itemReferenceHash, itemId, characterID, isVaultTransaction).then((result) => {
-      return (fromVault && shouldEquip)
-        ? ItemService(this.authorize).equipItem(itemId, lastCharacterID)
-        : !isSpecificVaultTransaction
-          ? ItemService(this.authorize).moveItem(itemReferenceHash, itemId, lastCharacterID).then((result) => {
-            return shouldEquip ? ItemService(this.authorize).equipItem(itemId, lastCharacterID) : result;
-          })
-          : result;
-    });
-  }
-
-  moveItem = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID) => {
-    return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID)
-      .then(this.updateCharacters).then(this.addNotification('Success'))
-      .catch((error) => {
-        this.addNotification(error.message);
-        throw new Error(error.message);
-      });
-  }
-
-  addNotification = (message) => {
-    const stamp = Date.now();
-    this.setState({
-      notifications: Object.assign({}, this.state.notifications, {
-        [stamp]: {message, timestamp: Date.now()}
-      })
-    });
-    
-    setImmediate(() => {
-      this.setState({
-        notifications: Object.assign({}, this.state.notifications, {
-          [stamp]: Object.assign(this.state.notifications[stamp], {
-            rendered: true
-          })
-        })
-      });
-    })
-
-    setTimeout(() => {
-      this.setState({
-        notifications: Object.assign({}, this.state.notifications, {
-          [stamp]: Object.assign(this.state.notifications[stamp], {
-            rendered: false
-          })
-        })
-      })
-    }, 3000);
-
-    return Promise.resolve();
-  }
-
-  updateCharacters = () => {
-    return ItemService(this.authorize).getCharacters(this.state.destinyMembership.membershipId).then((characters) => {
-      const characterBaseByID = characters.map((character) => {
-        return [character.characterBase.characterId, character.characterBase]
-      }).reduce((o, [key, val]) => {
-        o[key] = val;
-        return o;
-      }, {});
-
-      const newCharacters = this.state.characters.map((character) => {
-        return Object.assign(character, {characterBase: characterBaseByID[character.characterId]});
-      });
-
-      this.setState({
-        characters: newCharacters,
-        charactersByID: createCharactersByID(newCharacters)
-      });
-    });
-  }
-
-  updateWidth = () => {
-    this.setState({
-      clientWidth: this.refs.grid.clientWidth,
-      clientXY: [this.refs.grid.clientWidth, window.innerHeight],
-      vaultColumns: calculateVaultColumns(this.state.characters, this.refs.grid.clientWidth)
-    });
-  }
-
-  componentWillUnmount = () => {
-    window.removeEventListener("resize", () => this.updateWidth());
-  }
-
-  onReload = () => {
-    this.setState({reloading: true})
-    return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters)
-      .then((characterItems) => {
-        this.setState({
-          items: characterItems,
-          reloading: false
-        });
-      });
-  }
-
-  onLogout = () => {
-    return store.delete('Vault::Authorization').then(() => {
-      this.setState({
-        authenticated: false,
-        characters: undefined,
-        items: undefined,
-        itemService: undefined,
-        bungieRequestService: undefined
-      });
-    });
-  }
-
   render() {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
-        <div className='App' ref='grid'>
-          <TopBar
-            title='VAULT'
-            zDepth={0}
-            showMenuIconButton={false}
-            titleStyle={{
-              color: palette.secondaryText,
-              textAlign: 'left'
-            }}>
-            <SearchBarContainer>
-              {this.state.authenticated ? <SearchBar onChange={this.searchForItem}/> : undefined}
-              <svg css={`width: 30px; position: absolute; z-index: 1; top: 0; bottom: 0; margin: auto; left: 0; right: 0;`} viewBox="0 0 457.92 506.82"><polyline points="426.79 261.25 448.23 282.69 229.75 501.16 11.27 282.69 32.08 261.88" style={{fill: 'none', stroke: '#000', strokeMiterlimit:10, strokeWidth:'8px'}}/><polygon points="229.63 56.79 429.95 258.1 457.92 230.13 229.63 0 0 230.04 28.78 258.82 229.63 56.79"/><path d="M257.1,74.19,62.66,268.62l193.6,193.65L450.67,267.83Zm73.05,258.06a8.22,8.22,0,0,0-2,8v.11l-.5.12a8.18,8.18,0,0,0-7.68,2l-7.25-7.12,2.74-2.74-18.52-18.51a1.69,1.69,0,0,1-1.48-.5c-1-1-6.89-6.55-10.07-6.18l-9.23,9.23c-.91.91-.5,2.83-.54,4l.11.11-.15.15V321c0,.08-.12.06-.17.1l-3.57,3.58-8.63-8.62,3.9-3.89.19.18c1.17,0,3.36.64,4.28-.27l6.93-6.93-.7-.69,1.5-1.5-22.37-22.37L234.58,303l1.5,1.5-.69.69,6.93,6.93c.89.91,3.1.25,4.28.27l.18-.18,3.9,3.89-8.85,8.62-3.58-3.58a.3.3,0,0,1-.17-.1s0-.06,0-.08l-.15-.15.11-.11c0-1.19.36-3.12-.54-4l-9.23-9.23c-3.21-.37-9.15,5.22-10.07,6.18a1.68,1.68,0,0,1-1.47.5l-18.52,18.51,2.74,2.74-7.25,7.12a8.18,8.18,0,0,0-7.67-2l-.54-.12v-.11a8.19,8.19,0,0,0-2-8l-.09-.07,7.18-7.2,2.75,2.75,18.51-18.52a1.69,1.69,0,0,1,.51-1.47c1-1,6.54-6.91,6.16-10.07-5.07-5.09-9.19-9.2-9.2-9.23-.91-.89-2.84-.5-4-.53l-.11.11-.13-.13H205s-.07-.11-.11-.17l-3.58-3.58,8.63-8.62,3.89,3.9-.18.19c0,1.19-.64,3.36.27,4.28l6.92,6.93.7-.69,1.17,1.19L245.07,269,194.7,218.46c-1-1-12.89-13.13-13-24.31l.27-.26c11.18.09,24.43,12.88,24.43,12.88l50.33,50.33,50.38-50.33S320.4,194,331.59,193.86l.28.26c-.1,11.18-12,23.34-13,24.31l-50.33,50.39,22.37,22.37L292.1,290l.69.69c2.8-2.8,6.92-6.93,6.93-6.92.89-.89.22-3.11.26-4.28l-.18-.18,3.89-3.9,8.63,8.62-3.58,3.58-.1.17h-.09l-.15.13-.11-.11c-1.19,0-3.12-.37-4,.53l-9.16,9.36c-.37,3.19,5.22,9.15,6.17,10.07a1.66,1.66,0,0,1,.5,1.47l18.51,18.52,2.75-2.75,7.18,7.2a.4.4,0,0,0-.13.09Z" transform="translate(-27.04 -3.42)"/></svg>
-            </SearchBarContainer>
-            
-            <Row justify='end' css={`marginRight: 28px;`}>
-              {this.state.authenticated
-                ? <Row justify='end' css={`margin-right: -15px`}>
-                    <IconButton onTouchTap={this.onReload}>
-                      <ReloadIcon color={palette.secondaryText} className='material-icons'>refresh</ReloadIcon>
-                    </IconButton>
-                    <UserMenu onLogout={this.onLogout}/>
-                  </Row>
-                : <SignInButton label='Sign In' onTouchTap={this.onAuthorize}/>
-              }
-            </Row>
-          </TopBar>
-          {this.state.authenticated ? 
-            <div>
-              <LocationsRow characters={this.state.characters} vault={this.state.vault} />
+        <div className='App'>
+          <Store firebaseService={this.props.firebaseService} apiKey={this.props.apiKey}>
+            {({props, actions}) => <div>
+              <TopBar
+                title='VAULT'
+                zDepth={0}
+                showMenuIconButton={false}
+                titleStyle={{
+                  color: palette.secondaryText,
+                  textAlign: 'left'
+                }}>
+                <SearchBarContainer>
+                  {props.authenticated ? <SearchBar onChange={actions.searchForItem}/> : undefined}
+                  <svg css={`width: 30px; position: absolute; z-index: 1; top: 0; bottom: 0; margin: auto; left: 0; right: 0;`} viewBox="0 0 457.92 506.82"><polyline points="426.79 261.25 448.23 282.69 229.75 501.16 11.27 282.69 32.08 261.88" style={{fill: 'none', stroke: '#000', strokeMiterlimit:10, strokeWidth:'8px'}}/><polygon points="229.63 56.79 429.95 258.1 457.92 230.13 229.63 0 0 230.04 28.78 258.82 229.63 56.79"/><path d="M257.1,74.19,62.66,268.62l193.6,193.65L450.67,267.83Zm73.05,258.06a8.22,8.22,0,0,0-2,8v.11l-.5.12a8.18,8.18,0,0,0-7.68,2l-7.25-7.12,2.74-2.74-18.52-18.51a1.69,1.69,0,0,1-1.48-.5c-1-1-6.89-6.55-10.07-6.18l-9.23,9.23c-.91.91-.5,2.83-.54,4l.11.11-.15.15V321c0,.08-.12.06-.17.1l-3.57,3.58-8.63-8.62,3.9-3.89.19.18c1.17,0,3.36.64,4.28-.27l6.93-6.93-.7-.69,1.5-1.5-22.37-22.37L234.58,303l1.5,1.5-.69.69,6.93,6.93c.89.91,3.1.25,4.28.27l.18-.18,3.9,3.89-8.85,8.62-3.58-3.58a.3.3,0,0,1-.17-.1s0-.06,0-.08l-.15-.15.11-.11c0-1.19.36-3.12-.54-4l-9.23-9.23c-3.21-.37-9.15,5.22-10.07,6.18a1.68,1.68,0,0,1-1.47.5l-18.52,18.51,2.74,2.74-7.25,7.12a8.18,8.18,0,0,0-7.67-2l-.54-.12v-.11a8.19,8.19,0,0,0-2-8l-.09-.07,7.18-7.2,2.75,2.75,18.51-18.52a1.69,1.69,0,0,1,.51-1.47c1-1,6.54-6.91,6.16-10.07-5.07-5.09-9.19-9.2-9.2-9.23-.91-.89-2.84-.5-4-.53l-.11.11-.13-.13H205s-.07-.11-.11-.17l-3.58-3.58,8.63-8.62,3.89,3.9-.18.19c0,1.19-.64,3.36.27,4.28l6.92,6.93.7-.69,1.17,1.19L245.07,269,194.7,218.46c-1-1-12.89-13.13-13-24.31l.27-.26c11.18.09,24.43,12.88,24.43,12.88l50.33,50.33,50.38-50.33S320.4,194,331.59,193.86l.28.26c-.1,11.18-12,23.34-13,24.31l-50.33,50.39,22.37,22.37L292.1,290l.69.69c2.8-2.8,6.92-6.93,6.93-6.92.89-.89.22-3.11.26-4.28l-.18-.18,3.89-3.9,8.63,8.62-3.58,3.58-.1.17h-.09l-.15.13-.11-.11c-1.19,0-3.12-.37-4,.53l-9.16,9.36c-.37,3.19,5.22,9.15,6.17,10.07a1.66,1.66,0,0,1,.5,1.47l18.51,18.52,2.75-2.75,7.18,7.2a.4.4,0,0,0-.13.09Z" transform="translate(-27.04 -3.42)"/></svg>
+                </SearchBarContainer>
+                
+                <Row justify='end' css={`marginRight: 28px;`}>
+                  {props.authenticated
+                    ? <Row justify='end' css={`margin-right: -15px`}>
+                        <IconButton onTouchTap={actions.onReload}>
+                          <ReloadIcon color={palette.secondaryText} className='material-icons'>refresh</ReloadIcon>
+                        </IconButton>
+                        <UserMenu onLogout={actions.onLogout}/>
+                      </Row>
+                    : <SignInButton label='Sign In' onTouchTap={actions.onAuthorize}/>
+                  }
+                </Row>
+              </TopBar>
+              {props.authenticated ? 
+                <div>
+                  <LocationsRow characters={props.characters} vault={props.vault} />
 
-              <InventoryGrid 
-                moveItem={this.moveItem}
-                getItemDetail={this.getItemDetail}
-                vaultColumns={this.state.vaultColumns}
-                characters={this.state.charactersByID}
-                clientWidth={this.state.clientWidth}
-                clientXY={this.state.clientXY}
-                items={this.state.items}
-                startInventoryPolling={this.startInventoryPolling}
-                stopInventoryPolling={this.stopInventoryPolling}
-                query={this.state.query}/>
+                  <InventoryGrid 
+                    moveItem={actions.moveItem}
+                    getItemDetail={actions.getItemDetail}
+                    vaultColumns={props.vaultColumns}
+                    characters={props.charactersByID}
+                    clientWidth={props.clientWidth}
+                    clientXY={props.clientXY}
+                    items={props.items}
+                    startInventoryPolling={actions.startInventoryPolling}
+                    stopInventoryPolling={actions.stopInventoryPolling}
+                    query={props.query}/>
+                </div>
+                
+                : <Landing onAuthorize={actions.onAuthorize} SignInButton={SignInButton}/>
+                }/>
+              }
+              <StyledSnackbarContainer messages={props.notifications}/>
             </div>
-            
-            : <Column css={`composes: ${animations.fadeInSlow}; position: absolute; top: 60px; bottom: 0; left: 0; right: 0;`}>
-              <Text center gray css={`opacity: 0.05; position: absolute; left: 0; right: 0; top: 0; bottom: 0;`} size={'max'}>2</Text>
-              <Text title light size={4} css={`composes: ${animations.fadeInSlow}; animation-delay: 500ms; opacity: 0; margin-bottom: 20px;`}>vault.crucible.gg</Text>
-              <Text gray size={2} css={`composes: ${animations.fadeInSlow}; animation-delay: 1000ms; opacity: 0; margin-bottom: 20px;`} o> Fast, Simple, Gear Management and Loadouts for Destiny 2. </Text>
-              <SignInButton css={`composes: ${animations.fadeInSlow}; animation-delay: 1500ms; opacity: 0;`} label='Sign In' onTouchTap={this.onAuthorize}/>
-            </Column>
-          }
-          <StyledSnackbarContainer messages={this.state.notifications}/>
+            }
+          </Store>
         </div>
       </MuiThemeProvider>
     );
