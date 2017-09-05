@@ -10,7 +10,7 @@ const Snackbar = styled(Row)`
   color: ${palette.lightText};
   border-radius: 4px;
   padding: 6px 24px;
-  min-width: 200px;
+  min-width: 250px;
   font-size: 14px;
   text-align: left;
   height: 36px;
@@ -18,6 +18,7 @@ const Snackbar = styled(Row)`
   bottom: 0;
   box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
   -webkit-backdrop-filter: blur(10px);
+  user-select: none;  
 `;
 
 export default({messages = [], className}) => {

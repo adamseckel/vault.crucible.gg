@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "0.16.2",
     "emotion": "7.0.13",
+    "firebase": "^4.3.0",
     "lodash": "4.17.4",
     "material-ui": "0.18.7",
     "react": "^15.6.1",

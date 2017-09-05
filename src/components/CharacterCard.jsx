@@ -13,14 +13,11 @@ const CardContainer = styled(Card)`
 `;
 
 const StyledCard = styled(Row)`
+  user-select: none;
   background-size: cover;
   padding: 0 0 0 10px;
-  min-width: ${props => !props.vault
-  ? '240px'
-  : 'none'};
-  max-width: ${props => !props.vault
-    ? '240px'
-    : 'none'};
+  min-width: ${props => !props.vault ? '240px' : 'none'};
+  max-width: ${props => !props.vault ? '240px' : 'none'};
   height: 50px;
   background-image: ${props => `url(https://www.bungie.net${props.emblem})`};
 `;
@@ -28,9 +25,7 @@ const StyledCard = styled(Row)`
 const Emblem = styled.img `
   width: 34px;
   height: 34px;
-  filter: ${props => props.vault
-  ? ' invert(100%)'
-  : 'none'};
+  filter: ${props => props.vault ? 'invert(100%)' : 'none'};
 `;
 
 const Container = styled.div `
@@ -64,13 +59,13 @@ const defaultCharacter = {
 };
 
 export default({vault, character = defaultCharacter}) => {
-  function renderDropdownButton() {
-    return (
-      <IconButton>
-        <FontIcon className="material-icons" color={vault ? palette.darkText : palette.lightText}>arrow_drop_down_circle</FontIcon>
-      </IconButton>
-    );
-  }
+  // function renderDropdownButton() {
+  //   return (
+  //     <IconButton>
+  //       <FontIcon className="material-icons" color={vault ? palette.darkText : palette.lightText}>arrow_drop_down_circle</FontIcon>
+  //     </IconButton>
+  //   );
+  // }
 
   return (
     <CardContainer zDepth={2} grow>

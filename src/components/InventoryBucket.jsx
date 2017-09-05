@@ -49,9 +49,8 @@ class InventoryBucket extends Component {
   }
 
   returnQuery(item, query) {
-    if (!query || query === '') {
-      return true;
-    }
+    if (!query || query === '') return true;
+    
     return ['common', 'rare', 'legendary', 'exotic'].indexOf(query) >= 0
       ? item
         .quality

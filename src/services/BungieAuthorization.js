@@ -8,16 +8,19 @@ export default function (apiKey) {
       if (window.location.href.includes('authorize')) {
         const authCode = new URLSearchParams(window.location.search).get("code");
         return getAuthorization(apiKey, authCode, 'authorization_code').then((authorization) => {
+          console.log('Authorization: Got initial auth')  
           return store.set('Vault::Authorization', authorization);
         });
       } else if (localStorageAuth && localStorageAuth.authorizationExpiresAt < Date.now()) {
         return getAuthorization(apiKey, localStorageAuth.refresh_token, 'refresh_token').then((authorization) => {
+          console.log('Authorization: Auth expired and updated')
           return store.set('Vault::Authorization', authorization);
         });
       } else if (localStorageAuth && localStorageAuth.authorizationExpiresAt > Date.now()) {
+        console.log('Authorization: Current auth has not expired')
         return Promise.resolve(localStorageAuth);
       } else {
-        throw new Error('Bungie Auth has failed for some unexplained reason. Weird.');
+        throw new Error('Users is logged out');
       }
     });
 }

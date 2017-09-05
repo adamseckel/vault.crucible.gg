@@ -13,6 +13,8 @@ import LocationsRow from './LocationsRow';
 import SearchBar from './SearchBar';
 import SnackbarContainer from './SnackbarContainer';
 import UserMenu from './UserMenu';
+import Landing from './Landing';
+import TopBar from './TopBar';
 
 export {
   Cell,
@@ -29,5 +31,7 @@ export {
   InventoryGrid,
   SearchBar,
   SnackbarContainer,
-  UserMenu
+  UserMenu,
+  Landing,
+  TopBar
 };
