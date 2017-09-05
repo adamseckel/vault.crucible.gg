@@ -3,12 +3,17 @@ import {BungieAuthorizationService, BungieRequestService, ItemService, store} fr
 
 const vault = {
   characterLevel: '',
-  characterBase: {
-    classHash: 'vault',
-    raceHash: 'full',
-    powerLevel: ''
-  },
-  id: 4567
+  classHash: 'vault',
+  raceHash: 'full',
+  light: '',
+  id: 4567,
+  levelProgression: {
+    level: undefined
+  }
+};
+
+const tripleWreckAccount = {
+  membershipId: 12506127,
 };
 
 let inventoryPollingInterval, inventoryPollingDelay;
@@ -46,14 +51,14 @@ function flattenBuckets(buckets) {
   }, {})
 }
 
-function createCharactersByID(characters) {
-  return characters.map((character) => {
-    return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
-  }).reduce((o, [key, val]) => {
-    o[key] = val;
-    return o;
-  }, {});
-}
+// function createCharactersByID(characters) {
+//   return characters.map((character) => {
+//     return [character.characterBase.characterId, Object.assign(character, {characterId: character.characterBase.characterId})];
+//   }).reduce((o, [key, val]) => {
+//     o[key] = val;
+//     return o;
+//   }, {});
+// }
 
 class Store extends Component {
   constructor(props) {
@@ -89,11 +94,12 @@ class Store extends Component {
 
   componentDidMount() {
     return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
-      return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById().then((membership) => {
-        const destinyMembership = membership.destinyMemberships[0];
+      return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById(tripleWreckAccount.membershipId).then((membership) => {
+        const destinyMembership = membership.destinyMemberships[1];
         const authenticated = true;
         const bungieRequestService = BungieRequestService(authorization, this.state.apiKey.key, destinyMembership.membershipType);
         this.state.firebaseService.insertOrUpdateUserAndTrackVisit(membership.bungieNetUser);
+        // return;
 
         this.setState({
           bungieRequestService,
@@ -105,27 +111,29 @@ class Store extends Component {
         window.addEventListener("resize", this.updateWidth);
 
         return ItemService(this.authorize).getCharacters(destinyMembership.membershipId).then((characters) => {
+          console.log(characters)
           removeSplash();
 
-          const charactersByID = createCharactersByID(characters);
+          const charactersByID = characters;
           this.state.firebaseService.insertOrUpdateCharacters(membership.bungieNetUser.membershipId, charactersByID);
           
-
-          const vaultColumns = calculateVaultColumns(characters, this.state.clientWidth);
+          const characterArray = Object.keys(characters).map((characterId) => characters[characterId]);
+          const vaultColumns = calculateVaultColumns(characterArray, this.state.clientWidth);
           
           this.setState({
-            characters,
+            characters: characterArray,
             charactersByID,
             vaultColumns
           });
 
-          return this.updateItems();
+          // return this.updateItems();
         })
       })
-    }).catch((error) => {
-      removeSplash();      
-      console.log(`Start Up Error: ${error.message}`);
     })
+    // .catch((error) => {
+    //   removeSplash();      
+    //   console.log(`Start Up Error: ${error.message}`);
+    // })
   }
 
   searchForItem = (event, query) => {
@@ -283,10 +291,10 @@ class Store extends Component {
         return Object.assign(character, {characterBase: characterBaseByID[character.characterId]});
       });
 
-      this.setState({
-        characters: newCharacters,
-        charactersByID: createCharactersByID(newCharacters)
-      });
+      // this.setState({
+      //   characters: newCharacters,
+      //   charactersByID: createCharactersByID(newCharacters)
+      // });
     });
   }
 

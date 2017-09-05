@@ -36,7 +36,7 @@ function calculateRowHeight(bucketItems, vaultColumns) {
 export default function(getBungieRequest) {
   return {
     getCharacters(destinyMembershipID) {
-      return getBungieRequest().then((bungieRequest) => bungieRequest.getAccountCharacters(destinyMembershipID).then(({data}) => data.characters));
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getAccountCharacters(destinyMembershipID).then(({characters}) => characters.data));
     },
 
     getCachedItems() {
