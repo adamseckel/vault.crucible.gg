@@ -165,21 +165,21 @@ class InventoryGrid extends Component {
       .then(({data, definitions}) => {
         const item = data.item;
         
-        const stats = item.stats.length ? item.stats.map((stat) => {
-          return stat.value > 0 ? Object.assign(stat, definitions.stats[stat.statHash]) : undefined;
+        const stats = item.stats.length && item.stats.map((stat) => {
+          return stat.value > 0 && Object.assign(stat, definitions.stats[stat.statHash]);
         }).filter((stat) => {
           return stat ? stat : false;
-        }) : undefined;
+        });
 
-        const perks = item.perks.length ? item.perks.map((perk) => {
+        const perks = item.perks.length && item.perks.map((perk) => {
           return Object.assign(perk, definitions.perks[perk.perkHash])
-        }) : undefined;
+        });
         
         this.setState({
           hoveredItemID,
           hoveredItem,
           hoveredItemDetails: {
-            stats: (stats && stats.length) ? stats : undefined,
+            stats: (stats && stats.length) && stats,
             perks
           }
         });
@@ -235,20 +235,17 @@ class InventoryGrid extends Component {
   render() {
     return (
       <Grid>
-          {this.state.hoveredItemID
-            ? <Column align='end' justify='end' css={`position: absolute; z-index: 2000; overflow: visible; height: 1px;`}
-                style={{
-                  transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`
-                }}>
-                  <ItemDetail 
-                    item={this.state.hoveredItem}
-                    saveDetailHeight={this.saveDetailHeight}
-                    render={this.state.detailHeight ? true : false}
-                    stats={this.state.hoveredItemDetails.stats}
-                    perks={this.state.hoveredItemDetails.perks}/>
-              </Column>
-            : undefined
-          }
+        {this.state.hoveredItemID && <Column align='end' justify='end' css={`position: absolute; z-index: 2000; overflow: visible; height: 1px;`}
+          style={{
+            transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`
+          }}>
+            <ItemDetail 
+              item={this.state.hoveredItem}
+              saveDetailHeight={this.saveDetailHeight}
+              render={this.state.detailHeight ? true : false}
+              stats={this.state.hoveredItemDetails.stats}
+              perks={this.state.hoveredItemDetails.perks}/>
+        </Column>}
         {this.renderRows()}
         <div></div>
       </Grid>

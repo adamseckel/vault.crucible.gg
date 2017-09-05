@@ -94,47 +94,39 @@ export default(props) => {
   const damageType = damageHashMap[props.item.damageTypeHash]
   const damageColor = damageTypeColorMap[damageType];
   const damageIconPath = damageTypeIconMap[damageType];
-  const primaryStatType = props.item.primaryStat ? primaryStatHashMap[props.item.primaryStat.statHash] : undefined;
+  const primaryStatType = props.item.primaryStat && primaryStatHashMap[props.item.primaryStat.statHash];
 
   function renderStats(stats, item) {
-    return stats
-      ? <Column justify='start' align='start'>
-        <Divider css={`opacity: 0.4;`}/>
-        <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : undefined}/>
-      </Column>
-      : undefined;
+    return stats && <Column justify='start' align='start'>
+      <Divider css={`opacity: 0.4;`}/>
+      <ItemStats stats={stats} itemStatType={item.primaryStat && primaryStatType}/>
+    </Column>
   }
 
   function renderPerks(perks) {
-    return perks
-      ? <Column justify='start' align='start'>
-        <Divider css={`opacity: 0.4;`}/>      
-        <ItemPerks {...{perks}}/>
-      </Column>
-      : undefined;
+    return perks && <Column justify='start' align='start'>
+      <Divider css={`opacity: 0.4;`}/>      
+      <ItemPerks {...{perks}}/>
+    </Column>
   }
   return <div {...{style: props.style, className: props.className}} css={`max-width: 325px;`}>
-    {props.item 
-      ? <ReactHeight onHeightReady={props.saveDetailHeight}>
-          <ItemHeader rarity={rarityColor} render={props.render}>
-            <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
-            <Row justify='space-between' css={`margin-top: 4px;`}>
-              <Text>{props.item.definition.itemTypeName}</Text>
-              <Text>{props.item.definition.tierTypeName}</Text>
-            </Row>
-          </ItemHeader>
+    {props.item && <ReactHeight onHeightReady={props.saveDetailHeight}>
+      <ItemHeader rarity={rarityColor} render={props.render}>
+        <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
+        <Row justify='space-between' css={`margin-top: 4px;`}>
+          <Text>{props.item.definition.itemTypeName}</Text>
+          <Text>{props.item.definition.tierTypeName}</Text>
+        </Row>
+      </ItemHeader>
 
-          <ItemDetails render={props.render}>
-            <Column justify='start' align='start' >
-              <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
-            </Column>
+      <ItemDetails render={props.render}>
+        <Column justify='start' align='start' >
+          <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
+        </Column>
 
-            {renderStats(props.stats, props.item)}
-            {renderPerks(props.perks)}
-          </ItemDetails>
-
-        </ReactHeight>
-      : undefined
-    }
+        {renderStats(props.stats, props.item)}
+        {renderPerks(props.perks)}
+      </ItemDetails>
+    </ReactHeight>}
   </div>
 };

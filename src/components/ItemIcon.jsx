@@ -25,15 +25,16 @@ const statStyle = css`
 `;
 
 export default(props) => {
-  return props.item && props.item.definition.icon
-    ? <div className={itemStyle}
-        style={{
-          backgroundImage: `url(https://bungie.net${props.item.definition.icon})`,
-          borderColor: `${props.item.isGridComplete ? palette.lightLevel : palette.stroke}`,
-        }}>
-        <span css={statStyle}>
-          {props.item.primaryStat ? props.item.primaryStat.value : undefined}
-        </span>
-      </div>
-    : undefined;
+  if (!props.item && !props.item.definition) return;
+  return (
+    <div className={itemStyle}
+      style={{
+        backgroundImage: `url(https://bungie.net${props.item.definition.icon})`,
+        borderColor: `${props.item.isGridComplete ? palette.lightLevel : palette.stroke}`,
+      }}>
+      <span css={statStyle}>
+        {props.item.primaryStat && props.item.primaryStat.value}
+      </span>
+    </div>
+  );
 };

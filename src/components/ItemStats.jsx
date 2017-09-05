@@ -67,15 +67,13 @@ export default(props) => {
             </Row>
           }
         </StatRow>
-        : stat.value > 0 
-          ? <StatRow layout='start'>
+        : stat.value > 0 && <StatRow layout='start'>
             {stat.icon ? <StatIcon src={`https://bungie.net${stat.icon}`}/> : undefined}
             <StatLabel css={`color: ${palette.secondaryText} !important;`}>{stat.statName}</StatLabel>
             <Row grow justify='start' css={`height: 28px;`}>
               <StatLabel gray> +{stat.value} </StatLabel>
             </Row>
           </StatRow>
-          : undefined
     );
   }
 

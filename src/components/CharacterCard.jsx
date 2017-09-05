@@ -74,7 +74,7 @@ export default({vault, character = defaultCharacter}) => {
         emblem={character.backgroundPath}
         justify='space-between'>
         
-        {(character.emblemPath || vault ) ? <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/> : undefined}
+        {(character.emblemPath || vault ) && <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/>}
         
         <Container>
           <Text uppercase white={!vault}> {classHashMap[character.characterBase.classHash]} </Text>

@@ -242,9 +242,9 @@ class ItemRow extends Component {
       return;
     }
 
-    const shouldUnequipReplacementItemID = shouldUnequip ? this.state.lastOrder.filter((item) => {
+    const shouldUnequipReplacementItemID = shouldUnequip && this.state.lastOrder.filter((item) => {
       return item.characterID === this.state.lastCharacter;
-    })[1].id : undefined;
+    })[1].id;
 
     return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip, shouldUnequipReplacementItemID)
       .catch((error) => {
