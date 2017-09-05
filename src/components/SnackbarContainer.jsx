@@ -10,7 +10,7 @@ const Snackbar = styled(Row)`
   color: ${palette.lightText};
   border-radius: 4px;
   padding: 6px 24px;
-  min-width: 200px;
+  min-width: 250px;
   font-size: 14px;
   text-align: left;
   height: 36px;

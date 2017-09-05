@@ -328,7 +328,7 @@ class Store extends Component {
   render() {
     return (
       <div ref='client'>
-        {this.props.children({props: this.state, actions: this})}
+        {this.props.children({state: this.state, actions: this})}
       </div>
     );
   }
