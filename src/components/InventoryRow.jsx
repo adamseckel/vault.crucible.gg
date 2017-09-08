@@ -29,7 +29,7 @@ function flattenItems(items) {
       ? b
       : []));
   }).map((item) => {
-    return [item.itemId, item];
+    return [item.itemInstanceId, item];
   }).reduce((o, [key, val]) => {
     o[key] = val;
     return o;
@@ -43,16 +43,13 @@ function order(items) {
       return items[characterID].map((item) => {
         return {
           characterID,
-          id: item.itemId,
-          name: item.definition.itemName,
-          equippable: item.definition.equippable,
-          quality: item
-            .definition
-            .tierTypeName
-            .toLowerCase(),
-          nonTransferrable: item.definition.nonTransferrable,
+          id: item.itemInstanceId,
+          name: item.displayProperties.name,
+          equippable: item.equippable,
+          quality: item.inventory && item.inventory.tierTypeName && item.inventory.tierTypeName.toLowerCase(),
+          nonTransferrable: item.inventory.nonTransferrableOriginal,
           equipped: item.transferStatus,
-          itemTypeName: item.definition.itemTypeName
+          itemTypeName: item.itemTypeDisplayName
         }
       }).sort((a, b) => {
         return a.equipped < b.equipped;
@@ -228,7 +225,8 @@ class ItemRow extends Component {
     window.removeEventListener('mouseup', this.handleMouseUp);
 
     if (!this.state.lastItem || this.state.lastItemIndex === undefined) return;
-    const {itemId, itemHash} = this.state.items[this.state.lastItem.id];
+    const {itemInstanceId, itemHash} = this.state.items[this.state.lastItem.id];
+    console.log( this.state.items[this.state.lastItem.id])
 
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
@@ -242,11 +240,13 @@ class ItemRow extends Component {
       return;
     }
 
-    const shouldUnequipReplacementItemID = shouldUnequip ? this.state.lastOrder.filter((item) => {
+    const shouldUnequipReplacementItem = shouldUnequip && this.state.lastOrder.filter((item) => {
       return item.characterID === this.state.lastCharacter;
-    })[1].id : undefined;
+    })[1];
 
-    return this.props.moveItem(itemHash.toString(), itemId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip, shouldUnequipReplacementItemID)
+    const shouldUnequipReplacementItemID = shouldUnequipReplacementItem ? shouldUnequipReplacementItem.id : false;
+
+    return this.props.moveItem(itemHash.toString(), itemInstanceId, this.state.lastCharacter, this.state.initialCharacter, shouldEquip, shouldUnequipReplacementItemID)
       .catch((error) => {
         console.log('catch?', error.message)
         const {order, lastOrder, initialCharacter, lastItem} = this.state;

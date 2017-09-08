@@ -50,19 +50,9 @@ class InventoryBucket extends Component {
 
   returnQuery(item, query) {
     if (!query || query === '') return true;
-    
     return ['common', 'rare', 'legendary', 'exotic'].indexOf(query) >= 0
-      ? item
-        .quality
-        .toLowerCase()
-        .indexOf(query.toLowerCase()) >= 0
-      : item
-        .name
-        .toLowerCase()
-        .indexOf(query.toLowerCase()) >= 0 || item
-        .itemTypeName
-        .toLowerCase()
-        .indexOf(query.toLowerCase()) >= 0;
+      ? item.quality.toLowerCase().indexOf(query.toLowerCase()) >= 0
+      : item.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || item.itemTypeName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
   }
 
   renderDraggableInventoryItems = (items) => {
@@ -119,7 +109,7 @@ class InventoryBucket extends Component {
                   : visualPosition
                 }}
                 onMouseEnter={(e) => !this.props.isPressed ? this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id], e) : undefined}
-                onMouseLeave={() => this.props.handleItemMouseLeave(item.id)}
+                onMouseLeave={() => this.props.handleItemMouseLeave(item.itemID)}
                 onMouseDown={(e) => this.props.handleMouseDown(key, this.props.characterId, item, index, [x, y], e)}
                 onTouchStart={(e) => this.props.handleTouchStart(key, this.props.characterId, item, index, [x, y], e)}>
                   {ItemIcon({key, item: this.props.items[item.id]})}

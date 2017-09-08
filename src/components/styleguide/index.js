@@ -18,7 +18,8 @@ const palette = {
   legendary: '#522f65',
   exotic: '#ceae33',
   rare: '#5076a3',
-  common: '#c3bcb4'
+  common: '#c3bcb4',
+  uncommon: '#366f42'
 };
 
 const variables = {

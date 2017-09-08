@@ -35,34 +35,37 @@ const rarityColorMap = {
   legendary: palette.legendary,
   exotic: palette.exotic,
   common: palette.common,
+  uncommon: palette.uncommon,
   rare: palette.rare
 };
 
 const damageHashMap = {
-  3373582085: 'damage-kinetic',
-  1847026933: 'damage-solar',
-  2303181850: 'damage-arc',
-  3454344768: 'damage-void'
+  0: 'none',
+  1: 'kinetic',
+  3: 'solar',
+  2: 'arc',
+  4: 'void',
+  5: 'raid'
 };
 
 const primaryStatHashMap = {
-  368428387: 'ATTACK',
+  1480404414: 'ATTACK',
   3897883278: 'DEFENSE'
 };
 
 const damageTypeColorMap = {
-  'damage-kinetic': palette.background,
-  'damage-solar': '#f2721b',
-  'damage-arc': '#85c5ec',
-  'damage-void': '#b184c5'
+  'kinetic': palette.background,
+  'solar': '#f2721b',
+  'arc': '#85c5ec',
+  'void': '#b184c5'
 };
 const bgColor = fade(palette.darkText, 0.95);
 
 const damageTypeIconMap = {
-  'damage-kinetic': '/img/destiny_content/damage_types/kinetic.png',
-  'damage-solar': '/img/destiny_content/damage_types/thermal.png',
-  'damage-arc': '/img/destiny_content/damage_types/arc.png',
-  'damage-void': '/img/destiny_content/damage_types/void.png'
+  'kinetic': '/img/destiny_content/damage_types/kinetic.png',
+  'solar': '/img/destiny_content/damage_types/thermal.png',
+  'arc': '/img/destiny_content/damage_types/arc.png',
+  'void': '/img/destiny_content/damage_types/void.png'
 };
 
 const ItemHeader = styled.div`
@@ -90,51 +93,43 @@ const ItemDetails = styled.div`
 `;
 
 export default(props) => {
-  const rarityColor = rarityColorMap[props.item.definition.tierTypeName.toLowerCase()];
-  const damageType = damageHashMap[props.item.damageTypeHash]
+  const rarityColor = rarityColorMap[props.item.inventory.tierTypeName.toLowerCase()];
+  const damageType = props.item && props.item.instance && damageHashMap[props.item.instance.damageType];
   const damageColor = damageTypeColorMap[damageType];
   const damageIconPath = damageTypeIconMap[damageType];
-  const primaryStatType = props.item.primaryStat ? primaryStatHashMap[props.item.primaryStat.statHash] : undefined;
+  const primaryStatType = props.item.instance && props.item.instance.primaryStat && primaryStatHashMap[props.item.instance.primaryStat.statHash];
 
   function renderStats(stats, item) {
-    return stats
-      ? <Column justify='start' align='start'>
-        <Divider css={`opacity: 0.4;`}/>
-        <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : undefined}/>
-      </Column>
-      : undefined;
+    return stats && <Column justify='start' align='start'>
+      <Divider css={`opacity: 0.4;`}/>
+      <ItemStats stats={stats} itemStatType={item.primaryStat && primaryStatType}/>
+    </Column>
   }
 
   function renderPerks(perks) {
-    return perks
-      ? <Column justify='start' align='start'>
-        <Divider css={`opacity: 0.4;`}/>      
-        <ItemPerks {...{perks}}/>
-      </Column>
-      : undefined;
+    return perks && <Column justify='start' align='start'>
+      <Divider css={`opacity: 0.4;`}/>      
+      <ItemPerks {...{perks}}/>
+    </Column>
   }
-  return <div {...{style: props.style, className: props.className}} css={`max-width: 325px;`}>
-    {props.item 
-      ? <ReactHeight onHeightReady={props.saveDetailHeight}>
-          <ItemHeader rarity={rarityColor} render={props.render}>
-            <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
-            <Row justify='space-between' css={`margin-top: 4px;`}>
-              <Text>{props.item.definition.itemTypeName}</Text>
-              <Text>{props.item.definition.tierTypeName}</Text>
-            </Row>
-          </ItemHeader>
+  return <div {...{style: props.style, className: props.className}} css={`min-width: 325px; max-width: 325px;`}>
+    {props.item && <ReactHeight onHeightReady={props.saveDetailHeight}>
+      <ItemHeader rarity={rarityColor} render={props.render}>
+        <Text white size={2} bold>{props.item.displayProperties.name.toUpperCase()}</Text>
+        <Row justify='space-between' css={`margin-top: 4px;`}>
+          <Text>{props.item.itemTypeDisplayName}</Text>
+          <Text>{props.item.inventory.tierTypeName}</Text>
+        </Row>
+      </ItemHeader>
 
-          <ItemDetails render={props.render}>
-            <Column justify='start' align='start' >
-              <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
-            </Column>
+      <ItemDetails render={props.render}>
+        <Column justify='start' align='start' >
+          <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
+        </Column>
 
-            {renderStats(props.stats, props.item)}
-            {renderPerks(props.perks)}
-          </ItemDetails>
-
-        </ReactHeight>
-      : undefined
-    }
+        {renderStats(props.stats, props.item)}
+        {renderPerks(props.perks)}
+      </ItemDetails>
+    </ReactHeight>}
   </div>
 };
