@@ -25,6 +25,7 @@ const StyledCard = styled(Row)`
 const Emblem = styled.img `
   width: 34px;
   height: 34px;
+  margin-right: 10px;
   filter: ${props => props.vault ? 'invert(100%)' : 'none'};
 `;
 

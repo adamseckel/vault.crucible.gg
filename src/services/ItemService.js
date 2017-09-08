@@ -59,21 +59,25 @@ export default function(getBungieRequest) {
       return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterID, characterMembershipID).then(({data}) => data));
     },
 
-    getItems(clientWidth, characters) {
+    getItems(clientWidth, characters, membershipId) {
       const requests = characters.map((character) => {
-        const {characterId, membershipId} = character.characterBase;
-        return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
+        const {characterId, membershipId} = character;
+        return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterId, membershipId).then(({character, inventory, equipment, itemComponents}) => {
           return {
-            inventory: {data, definitions},
+            character,
+            inventory,
+            equipment,
+            itemComponents,
             key: characterId
           };
         }));
       });
 
       requests.push(
-        getBungieRequest().then((bungieRequest) => bungieRequest.getVaultSummary().then(({data, definitions}) => {
+        getBungieRequest().then((bungieRequest) => bungieRequest.getProfileInventory(membershipId).then(({profileInventory, itemComponents}) => {
           return {
-            inventory: {data, definitions},
+            inventory: profileInventory,
+            itemComponents,
             key: 'vault'
           };
         })
@@ -81,12 +85,10 @@ export default function(getBungieRequest) {
 
       return Promise.all(requests).then((locations) => {
         const itemBuckets = {};
+        console.log(locations)
+        return;
         locations.forEach((character) => mapItems(character.inventory.data.items, character.inventory.definitions, itemBuckets, character.key));
 
-        delete itemBuckets[1801258597];
-        delete itemBuckets[2197472680];
-        delete itemBuckets[3284755031];
-        delete itemBuckets[375726501];
 
         const vaultColumns = Math.floor((clientWidth - 90 - (271 * locations.filter((store) => {
           return store.key !== 'vault';

@@ -94,12 +94,16 @@ class Store extends Component {
 
   componentDidMount() {
     return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
-      return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById(tripleWreckAccount.membershipId).then((membership) => {
+      return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById().then((membership) => {
         const destinyMembership = membership.destinyMemberships[1];
         const authenticated = true;
         const bungieRequestService = BungieRequestService(authorization, this.state.apiKey.key, destinyMembership.membershipType);
         this.state.firebaseService.insertOrUpdateUserAndTrackVisit(membership.bungieNetUser);
         // return;
+        // bungieRequestService.getManifest().then((path) => {
+        //   firebaseService.setManifestUrl
+        // })
+
 
         this.setState({
           bungieRequestService,
@@ -109,15 +113,17 @@ class Store extends Component {
         });
         this.updateWidth();
         window.addEventListener("resize", this.updateWidth);
-
-        return ItemService(this.authorize).getCharacters(destinyMembership.membershipId).then((characters) => {
-          console.log(characters)
+        return Promise.all([
+          ItemService(this.authorize).getCharacters(destinyMembership.membershipId),
+        ]).then((characters, manifest) => {
+          console.log(manifest)
           removeSplash();
 
           const charactersByID = characters;
           this.state.firebaseService.insertOrUpdateCharacters(membership.bungieNetUser.membershipId, charactersByID);
           
           const characterArray = Object.keys(characters).map((characterId) => characters[characterId]);
+          console.log(characterArray)
           const vaultColumns = calculateVaultColumns(characterArray, this.state.clientWidth);
           
           this.setState({
@@ -125,8 +131,9 @@ class Store extends Component {
             charactersByID,
             vaultColumns
           });
+          
 
-          // return this.updateItems();
+          return this.updateItems(destinyMembership.membershipId);
         })
       })
     })
@@ -141,6 +148,7 @@ class Store extends Component {
   }
 
   startInventoryPolling = () => {
+    return
     if (!this.state.authenticated || this.state.inventoryPolling || this.state.disablePolling) return;
     
     if (inventoryPollingDelay) {
@@ -184,8 +192,8 @@ class Store extends Component {
     }, pollDelay);
   }
 
-  updateItems = () => {
-    return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters).then((items) => {
+  updateItems = (destinyMembershipID) => {
+    return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters, destinyMembershipID).then((items) => {
       this.state.firebaseService.insertOrUpdateItems(this.state.membership.bungieNetUser.membershipId, flattenBuckets(items));
       this.setState({items})}
     );
