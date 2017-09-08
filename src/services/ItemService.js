@@ -1,28 +1,18 @@
 import store from './localStoreService';
 
-function mapItems(items, definitions, buckets, storeID) {
-  items.forEach((item) => {
-    const bucketHash = storeID === 'vault' ? [definitions.items[item.itemHash].bucketTypeHash] : item.bucketHash;
-    if (buckets[bucketHash] && buckets[bucketHash].items[storeID]) {
-      buckets[bucketHash].items[storeID].push(Object.assign(item, {
-        definition: definitions.items[item.itemHash]
-      }));
-    } else if (buckets[bucketHash] && !buckets[bucketHash].items[storeID]) {
-      buckets[bucketHash].items[storeID] = [Object.assign(item, {
-        definition: definitions.items[item.itemHash]
-      })];
-    } else if (!buckets[bucketHash]) {
-      buckets[bucketHash] = {
-        name: definitions.buckets[bucketHash].bucketName,
-        count: definitions.buckets[bucketHash].itemCount,
-        items: {
-          [storeID]: [Object.assign(item, {
-            definition: definitions.items[item.itemHash]
-          })]
-        }
+function reduceToBuckets(buckets, item) {
+  if (buckets[item.inventory.bucketTypeHash] && buckets[item.inventory.bucketTypeHash].items[item.characterID]) {
+    buckets[item.inventory.bucketTypeHash].items[item.characterID].push(item);
+  } else if (buckets[item.inventory.bucketTypeHash] && !buckets[item.inventory.bucketTypeHash].items[item.characterID]) {
+    buckets[item.inventory.bucketTypeHash].items[item.characterID] = [item];
+  } else if (!buckets[item.inventory.bucketTypeHash]) {
+    buckets[item.inventory.bucketTypeHash] = {
+      items: {
+        [item.characterID]: [item]
       }
     }
-  });
+  }
+  return buckets;
 }
 
 function calculateRowHeight(bucketItems, vaultColumns) {
@@ -36,7 +26,7 @@ function calculateRowHeight(bucketItems, vaultColumns) {
 export default function(getBungieRequest) {
   return {
     getCharacters(destinyMembershipID) {
-      return getBungieRequest().then((bungieRequest) => bungieRequest.getAccountCharacters(destinyMembershipID).then(({data}) => data.characters));
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getAccountCharacters(destinyMembershipID).then(({characters}) => characters.data));
     },
 
     getCachedItems() {
@@ -59,41 +49,55 @@ export default function(getBungieRequest) {
       return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterID, characterMembershipID).then(({data}) => data));
     },
 
-    getItems(clientWidth, characters) {
+    getItems(clientWidth, characters, membershipId, manifest, bucketDefinitions, statsDefinitions) {
       const requests = characters.map((character) => {
-        const {characterId, membershipId} = character.characterBase;
-        return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
+        const {characterId, membershipId} = character;
+        return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterId, membershipId).then(({character, inventory, equipment, itemComponents}) => {
           return {
-            inventory: {data, definitions},
+            character,
+            inventory,
+            equipment,
+            itemComponents,
             key: characterId
           };
         }));
       });
 
       requests.push(
-        getBungieRequest().then((bungieRequest) => bungieRequest.getVaultSummary().then(({data, definitions}) => {
+        getBungieRequest().then((bungieRequest) => bungieRequest.getProfileInventory(membershipId).then(({profileInventory, itemComponents}) => {
           return {
-            inventory: {data, definitions},
+            inventory: profileInventory,
+            itemComponents,
             key: 'vault'
           };
         })
       ));
 
       return Promise.all(requests).then((locations) => {
-        const itemBuckets = {};
-        locations.forEach((character) => mapItems(character.inventory.data.items, character.inventory.definitions, itemBuckets, character.key));
+        const itemBuckets = locations.map(({inventory = {data: {items: []}}, equipment = {data: {items: []}}, itemComponents, key}) => {
+          return inventory.data.items.concat(equipment.data.items).map((rawItem) => {
+            const {classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, perks, sockets, stats, redacted} = manifest[rawItem.itemHash];
+            const instance = itemComponents.instances.data[rawItem.itemInstanceId];
+            return Object.assign(rawItem,
+              {characterID: key},
+              {id: rawItem.itemHash, itemId: rawItem.itemHash, classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, perks, sockets, stats, redacted},
+              {instance}
+            )
+          });
+        }).reduce((a, b) => {
+          return a.concat(b);
+        }, []).filter((item) => {
+          return item.displayProperties.hasIcon && item.equippable && !item.redacted;
+        }).reduce(reduceToBuckets, {});
 
-        delete itemBuckets[1801258597];
-        delete itemBuckets[2197472680];
-        delete itemBuckets[3284755031];
-        delete itemBuckets[375726501];
-
-        const vaultColumns = Math.floor((clientWidth - 90 - (271 * locations.filter((store) => {
-          return store.key !== 'vault';
+        const vaultColumns = Math.floor((clientWidth - 90 - (271 * locations.filter((character) => {
+          return character.key !== 'vault';
         }).length)) / 52);
 
         Object.keys(itemBuckets).forEach((bucketKey) => {
+          const bucket = bucketDefinitions[bucketKey];
           itemBuckets[bucketKey].rowHeight = calculateRowHeight(itemBuckets[bucketKey].items, vaultColumns);
+          itemBuckets[bucketKey].name = bucket.displayProperties.name;
         });
 
         return itemBuckets;

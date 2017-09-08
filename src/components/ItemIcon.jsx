@@ -16,7 +16,7 @@ const statStyle = css`
   position: absolute;
   bottom: 0;
   right: 0;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.7);
   font-size: 10px;
   padding: 0 2px;
   border-radius: 2px;
@@ -29,12 +29,13 @@ export default(props) => {
   return (
     <div className={itemStyle}
       style={{
-        backgroundImage: `url(https://bungie.net${props.item.definition.icon})`,
-        borderColor: `${props.item.isGridComplete ? palette.lightLevel : palette.stroke}`,
+        backgroundImage: `url(https://bungie.net${props.item.displayProperties.icon})`
       }}>
-      <span css={statStyle}>
-        {props.item.primaryStat && props.item.primaryStat.value}
-      </span>
+      {props.item.instance && props.item.instance.primaryStat && props.item.instance.primaryStat.value && 
+        <span css={statStyle}>
+          {props.item.instance.primaryStat.value || 0}
+        </span>
+      }
     </div>
   );
 };

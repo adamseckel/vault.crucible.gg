@@ -10,19 +10,9 @@ const minimizeYSpringSetting = {
   stiffness: 150,
   damping: 15
 };
+// const otherBuckets = [284967655,  1269569095,   2025709351,  2973005342, 3054419239, 3313201758,  4274335291];
 
-const bucketHashOrder = [
-  1498876634,
-  2465295065,
-  953998645,
-  4023194814,
-  3448274439,
-  3551918588,
-  14239492,
-  20886954,
-  1585787867,
-  434908299
-]
+const bucketHashOrder = [1498876634, 2465295065, 953998645, 4023194814, 3448274439, 3551918588, 14239492, 20886954, 1585787867];
 
 const Grid = styled.div `
   padding: 0px 40px 20px;
@@ -124,7 +114,6 @@ class InventoryGrid extends Component {
     this.setState({
       hoveredItemID: undefined,
       hoveredItem: undefined,
-      previouslyHoveredItemID: this.state.hoveredItemID,
       detailHeight: undefined,
     });
     this.startInventoryPolling();
@@ -135,14 +124,11 @@ class InventoryGrid extends Component {
   handleItemHover = (hoveredItemID, characterID, hoveredItem, e) => {    
     window.addEventListener('mousemove', this.onHover)
     this.stopInventoryPolling();
-
-    const isLastItem = hoveredItemID === this.state.previouslyHoveredItemID;
     const {pageX, pageY, screenY} = e;
-
+    
     this.setState({
       hoveredItemID: undefined,
       hoveredItem: undefined,
-      hoveredItemDetails: isLastItem ? this.state.hoveredItemDetails : {},
       lastEvent: {
         pageX,
         pageY,
@@ -150,43 +136,12 @@ class InventoryGrid extends Component {
       }
     });
 
-    if (isLastItem) {
-      setImmediate(() => {
-        this.setState({
-          hoveredItemID,
-          hoveredItem
-        });
+    setImmediate(() => {
+      this.setState({
+        hoveredItemID,
+        hoveredItem
       });
-
-      return;
-    };
-
-    this.props.getItemDetail(characterID, hoveredItemID)
-      .then(({data, definitions}) => {
-        const item = data.item;
-        
-        const stats = item.stats.length && item.stats.map((stat) => {
-          return stat.value > 0 && Object.assign(stat, definitions.stats[stat.statHash]);
-        }).filter((stat) => {
-          return stat ? stat : false;
-        });
-
-        const perks = item.perks.length && item.perks.map((perk) => {
-          return Object.assign(perk, definitions.perks[perk.perkHash])
-        });
-        
-        this.setState({
-          hoveredItemID,
-          hoveredItem,
-          hoveredItemDetails: {
-            stats: (stats && stats.length) && stats,
-            perks
-          }
-        });
-      }).catch((error) => {
-        // Currently Vault does not allow item Details. Fixed in D2.
-        console.log(error.message)
-      });
+    });
   }
 
   saveDetailHeight = (detailHeight) => {
@@ -197,39 +152,39 @@ class InventoryGrid extends Component {
   }
 
   renderRows = () => {
-    if (!Object.keys(this.props.items).length) return;
+    if (!this.props.items || !Object.keys(this.props.items).length) return;
     let rowOffset = 0
     const layout = calculateLayout(this.props.characters, this.props.vaultColumns);
     const characterLayout = calculateCharacterLayout(this.props.characters);
     const {handleItemHover, handleItemMouseLeave} = this;
     return this.state.rows.map((bucketKey) => {
-        let rowStyle = {
-          translateY: spring(rowOffset, minimizeYSpringSetting)
-        }
-        rowOffset += this.state.minimizedRows[bucketKey]
-          ? 40
-          : this.props.items[bucketKey].rowHeight + 30;
-        return (
-          <Motion style={rowStyle} key={bucketKey}>
-            {({translateY}) => 
-              <InventoryRow {...{bucketKey, layout, characterLayout, handleItemHover, handleItemMouseLeave}}
-                key={bucketKey}
-                query={this.props.query}
-                characters={this.props.characters}
-                items={this.props.items[bucketKey].items}
-                title={this.props.items[bucketKey].name}
-                height={this.props.items[bucketKey].rowHeight}
-                minimize={this.toggleRow}
-                moveItem={this.props.moveItem}
-                render={this.state.hiddenRows[bucketKey]}
-                vaultColumns={this.props.vaultColumns}
-                stopInventoryPolling={this.stopInventoryPolling}
-                startInventoryPolling={this.startInventoryPolling}
-                clientWidth={this.props.clientWidth}/>
-            }
-          </Motion>
-        );
-      });
+      let rowStyle = {
+        translateY: spring(rowOffset, minimizeYSpringSetting)
+      }
+      rowOffset += this.state.minimizedRows[bucketKey]
+        ? 40
+        : this.props.items[bucketKey].rowHeight + 30;
+      return (
+        <Motion style={rowStyle} key={bucketKey}>
+          {({translateY}) => 
+            <InventoryRow {...{bucketKey, layout, characterLayout, handleItemHover, handleItemMouseLeave}}
+              key={bucketKey}
+              query={this.props.query}
+              characters={this.props.characters}
+              items={this.props.items[bucketKey].items}
+              title={this.props.items[bucketKey].name}
+              height={this.props.items[bucketKey].rowHeight}
+              minimize={this.toggleRow}
+              moveItem={this.props.moveItem}
+              render={this.state.hiddenRows[bucketKey]}
+              vaultColumns={this.props.vaultColumns}
+              stopInventoryPolling={this.stopInventoryPolling}
+              startInventoryPolling={this.startInventoryPolling}
+              clientWidth={this.props.clientWidth}/>
+          }
+        </Motion>
+      );
+    });
   }
 
   render() {
@@ -242,9 +197,7 @@ class InventoryGrid extends Component {
             <ItemDetail 
               item={this.state.hoveredItem}
               saveDetailHeight={this.saveDetailHeight}
-              render={this.state.detailHeight ? true : false}
-              stats={this.state.hoveredItemDetails.stats}
-              perks={this.state.hoveredItemDetails.perks}/>
+              render={this.state.detailHeight ? true : false}/>
         </Column>}
         {this.renderRows()}
         <div></div>
