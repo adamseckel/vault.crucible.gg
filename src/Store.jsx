@@ -155,7 +155,7 @@ class Store extends Component {
   inventoryPoll = (count, instance) => {
     console.log('Poll', count, instance)            
     if (!this.state.inventoryPolling) return;
-    const basePollingInterval = 15000;
+    const basePollingInterval = 5000;
     const ppm = 60000 / basePollingInterval;
     const pollDelay = count > (ppm * 5) ? (count / (ppm * 5)) * basePollingInterval : basePollingInterval;
     
