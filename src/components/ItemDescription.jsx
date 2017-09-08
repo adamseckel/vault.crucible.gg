@@ -15,11 +15,11 @@ export default(props) => {
     : palette.background;
     
   return <div>
-    {props.item.primaryStat && props.item.primaryStat.value > 0 && <Row justify='start' css={`margin-bottom: 8px`}>
+    {props.item.instance && props.item.instance.primaryStat && props.item.instance.primaryStat.value > 0 && <Row justify='start' css={`margin-bottom: 8px`}>
       {props.damageIconPath && <DamageIcon src={`https://bungie.net${props.damageIconPath}`}/>}
-      <Text css={`color: ${color} !important;`} bold size={4}>{props.item.primaryStat ? props.item.primaryStat.value : 0}</Text>
-      <Text css={`color: ${color} !important; margin-left: 8px;`}>{props.item.primaryStat && props.primaryStatType}</Text>
+      <Text css={`color: ${color} !important;`} bold size={4}>{props.item.instance ? props.item.instance.primaryStat.value : 0}</Text>
+      <Text css={`color: ${color} !important; margin-left: 8px;`}>{props.item.instance && props.primaryStatType}</Text>
     </Row>}
-    <Text gray italic> {props.item.definition.itemDescription} </Text>
+    <Text gray italic> {props.item.displayProperties.description} </Text>
   </div>
 };

@@ -27,6 +27,7 @@ self.addEventListener('fetch', function fetcher (event) {
       })
     );
   }
+
   const Account = request.url.indexOf('Account') > -1;
   const Inventory = request.url.indexOf('Character') > -1;
   const Character = request.url.indexOf('Inventory') > -1;
@@ -40,6 +41,22 @@ self.addEventListener('fetch', function fetcher (event) {
         // return from cache, otherwise fetch from network
         return response || fetch(request).then(response => {
           return caches.open('BungieInventoryItemRequests')
+            .then(cache => {
+              cache.put(event.request, response.clone());
+              return response;
+            });
+        });
+      })
+    );
+  }
+
+  const Manifest = request.url.indexOf('manifest') > -1;
+  if (Manifest) {
+    event.respondWith(
+      caches.match(event.request).then(function(response) {
+        // return from cache, otherwise fetch from network
+        return response || fetch(request).then(response => {
+          return caches.open('JSONManifests')
             .then(cache => {
               cache.put(event.request, response.clone());
               return response;

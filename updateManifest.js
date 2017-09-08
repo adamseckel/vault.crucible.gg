@@ -58,5 +58,5 @@ function getManifest(manifestVersion){
 	});
 }
 
-getManifest('1.2.3')
+getManifest('beta')
 

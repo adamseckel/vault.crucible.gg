@@ -70,7 +70,6 @@ export default({vault, character = defaultCharacter}) => {
   //     </IconButton>
   //   );
   // }
-  console.log(character)
 
   return (
     <CardContainer zDepth={2} grow>
