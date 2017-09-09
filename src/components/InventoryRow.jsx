@@ -40,7 +40,7 @@ function order(items) {
   return Object
     .keys(items)
     .map((characterID) => {
-      return items[characterID].map((item) => {
+      return _.sortBy(items[characterID].map((item) => {
         return {
           characterID,
           id: item.itemInstanceId,
@@ -48,12 +48,10 @@ function order(items) {
           equippable: item.equippable,
           quality: item.inventory && item.inventory.tierTypeName && item.inventory.tierTypeName.toLowerCase(),
           nonTransferrable: item.inventory.nonTransferrableOriginal,
-          equipped: item.transferStatus,
+          equipped: item.instance.isEquipped,
           itemTypeName: item.itemTypeDisplayName
         }
-      }).sort((a, b) => {
-        return a.equipped < b.equipped;
-      });
+      }), (item) => {return !item.equipped});
     })
     .reduce((a, b) => {
       return a.concat(b);
