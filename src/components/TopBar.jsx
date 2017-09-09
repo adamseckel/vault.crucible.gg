@@ -45,10 +45,9 @@ export default({className, style, searchForItem, authenticated, onReload, onLogo
     <Row justify='end' css={`marginRight: 28px;`}>
       {authenticated
         ? <Row justify='end' css={`margin-right: -15px`}>
-            <IconButton onTouchTap={onReload}>
-              <ReloadIcon color={palette.secondaryText} className='material-icons'>refresh</ReloadIcon>
+            <IconButton onTouchTap={onLogout} tooltip="Logout">
+              <FontIcon color={palette.secondaryText} className='material-icons'> exit_to_app </FontIcon>
             </IconButton>
-            <UserMenu onLogout={onLogout}/>
           </Row>
         : <SignInButton label='Sign In' onTouchTap={onAuthorize}/>
       }

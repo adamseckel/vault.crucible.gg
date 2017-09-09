@@ -19,7 +19,8 @@ const palette = {
   exotic: '#ceae33',
   rare: '#5076a3',
   common: '#c3bcb4',
-  uncommon: '#366f42'
+  uncommon: '#366f42',
+  twitterBlue: '#1da1f2'
 };
 
 const variables = {
@@ -37,7 +38,7 @@ const muiThemeDeclaration = {
     primary1Color: '#FFF',
     primary2Color: '#646464',
     primary3Color: '#3A3A3A',
-    accent1Color: '#F5DC56',
+    accent1Color: palette.twitterBlue,
     textColor: '#000',
     alternateTextColor: '#FFF',
     canvasColor: '#FFF',
