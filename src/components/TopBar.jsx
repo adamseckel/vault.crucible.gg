@@ -1,10 +1,12 @@
 import React from 'react';
 import {Row, palette} from './styleguide';
 import styled from 'emotion/react';
-import {SearchBar, UserMenu} from './index';
+import {SearchBar} from './index';
 import AppBar from 'material-ui/AppBar';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import MenuItem from 'material-ui/MenuItem';
 
 const TopBar = styled(AppBar)`
   border-bottom: 1px solid ${palette.stroke} !important;
@@ -21,12 +23,19 @@ const SearchBarContainer = styled(Row)`
   margin: 0 auto;
 `;
 
-const ReloadIcon = styled(FontIcon)`
-  transition: all .3s linear;
-`;
+const accountTypeMap = {
+  1: 'XBOX',
+  2: 'PS4',
+  4: 'BNET'
+};
 
+export default({className, style, searchForItem, authenticated, onReload, onLogout, onAuthorize, destinyAccounts, selectedAccount, handleAccountChange, SignInButton}) => {
+  function mapAccounts(accounts) {
+    return accounts && accounts.map((account) => {
+      return <MenuItem key={account.membershipType} value={account} primaryText={accountTypeMap[account.membershipType]} />
+    });
+  }
 
-export default({className, style, searchForItem, authenticated, onReload, onLogout, onAuthorize, SignInButton}) => {
   return <TopBar
     title='VAULT'
     zDepth={0}
@@ -45,6 +54,9 @@ export default({className, style, searchForItem, authenticated, onReload, onLogo
     <Row justify='end' css={`marginRight: 28px;`}>
       {authenticated
         ? <Row justify='end' css={`margin-right: -15px`}>
+            <DropDownMenu css={`margin-bottom: 6px; margin-right: -20px;`}value={selectedAccount} onChange={handleAccountChange}>
+              {mapAccounts(destinyAccounts)}
+            </DropDownMenu>
             <IconButton onTouchTap={onLogout} tooltip="Logout">
               <FontIcon color={palette.secondaryText} className='material-icons'> exit_to_app </FontIcon>
             </IconButton>
