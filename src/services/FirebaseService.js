@@ -28,6 +28,11 @@ export default function(db) {
 
     trackPollEventByBungieID(bungieID, tracking) {
       return db.child('poll-events-by-bungie-id').child(bungieID).push(tracking);      
+    },
+
+    trackError(errorMessage) {
+      const timestamp = Date.now();
+      return db.child('errors').push({errorMessage, timestamp});
     }
   }
 }

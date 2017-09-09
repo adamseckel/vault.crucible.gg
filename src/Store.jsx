@@ -89,7 +89,8 @@ class Store extends Component {
       })
     })
     .catch((error) => {
-      removeSplash();      
+      removeSplash();
+      this.state.firebaseService.trackError(error.message);
       console.log(`Start Up Error: ${error.message}`);
     })
   }
@@ -191,6 +192,7 @@ class Store extends Component {
         return this.inventoryPoll(count + 1, instance);
       })
       .catch((error) => {
+        this.state.firebaseService.trackError(error.message);
         console.log(`Polling Error: ${error.message}`);
       });
     }, pollDelay);
@@ -254,6 +256,7 @@ class Store extends Component {
       .then(() => this.updateCharacters(this.state.destinyMembership.membershipId)).then(this.addNotification('Success'))
       .catch((error) => {
         this.addNotification(error.message);
+        this.state.firebaseService.trackError(error.message);
         throw new Error(error.message);
       });
   }
@@ -300,6 +303,7 @@ class Store extends Component {
       this.updateCharacters(destinyMembership.membershipId),
       this.updateItems(destinyMembership.membershipId)
     ]).catch((error) => {
+      this.state.firebaseService.trackError(error.message);
       console.log(error.message)
     });
   }
