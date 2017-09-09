@@ -44,6 +44,9 @@ class App extends Component {
                   onReload={actions.onReload}
                   onLogout={actions.onLogout}
                   onAuthorize={actions.onAuthorize}
+                  destinyAccounts={state.membership.destinyMemberships}
+                  selectedAccount={state.destinyMembership}
+                  handleAccountChange={actions.handleAccountChange}
                   SignInButton={SignInButton}/>
 
                 {state.authenticated

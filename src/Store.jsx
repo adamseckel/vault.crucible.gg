@@ -81,50 +81,70 @@ class Store extends Component {
 
   componentDidMount() {
     const manifestRequestService = ManifestRequestService('beta');
-    return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
-      return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById().then((membership) => {
-        const destinyMembership = membership.destinyMemberships[1];
-        const authenticated = true;
-        const bungieRequestService = BungieRequestService(authorization, this.state.apiKey.key, destinyMembership.membershipType);
-        this.state.firebaseService.insertOrUpdateUserAndTrackVisit(membership.bungieNetUser);
-
-        this.setState({
-          bungieRequestService,
-          membership,
-          destinyMembership,
-          authenticated
+    return store.get('Vault::AccountIndex').then((savedAccountIndex) => {
+      return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
+        return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById().then((membership) => {
+          return this.setMembership(membership, authorization, manifestRequestService, savedAccountIndex);
         });
-        this.updateWidth();
-        window.addEventListener("resize", this.updateWidth);
-        return Promise.all([
-          ItemService(this.authorize).getCharacters(destinyMembership.membershipId),
-          manifestRequestService.getInventoryItemDefinitions(),
-          manifestRequestService.getDestinyInventoryBucketDefinitions(),
-          manifestRequestService.getStatsDefinitions()
-        ]).then(([characters, inventoryDefinitions, bucketDefinitions, statsDefinitions]) => {
-          removeSplash();
-          const charactersByID = characters;
-          this.state.firebaseService.insertOrUpdateCharacters(membership.bungieNetUser.membershipId, charactersByID);
-          
-          const characterArray = Object.keys(characters).map((characterId) => characters[characterId]);
-          const vaultColumns = calculateVaultColumns(characterArray, this.state.clientWidth);
-          
-          this.setState({
-            characters: characterArray,
-            charactersByID,
-            vaultColumns,
-            inventoryDefinitions,
-            bucketDefinitions,
-            statsDefinitions
-          });     
-
-          return this.updateItems(destinyMembership.membershipId);
-        })
       })
     })
     .catch((error) => {
       removeSplash();      
       console.log(`Start Up Error: ${error.message}`);
+    })
+  }
+
+  setMembership = (membership, authorization, manifestRequestService, accountIndex) => {
+    const destinyMembership = membership.destinyMemberships[accountIndex || 0];
+    const authenticated = true;
+    const bungieRequestService = BungieRequestService(authorization, this.state.apiKey.key, destinyMembership.membershipType);
+    this.state.firebaseService.insertOrUpdateUserAndTrackVisit(membership.bungieNetUser);
+
+    this.setState({
+      bungieRequestService,
+      membership,
+      destinyMembership,
+      authenticated
+    });
+    const accounts = membership && membership.destinyMemberships.length;
+    this.updateWidth();
+    window.addEventListener("resize", this.updateWidth);
+    return this.getAccount(destinyMembership, membership, manifestRequestService).then(() => {
+      return store.set('Vault::AccountIndex', accountIndex);
+    })
+    .catch((error) => {
+      if (accounts > 1 && accountIndex < accounts) {
+        return this.setMembership(membership, authorization, manifestRequestService, accountIndex + 1)
+      } else {
+        throw new Error('No Destiny 2 Accounts Found')
+      }
+    })
+  }
+
+  getAccount = (destinyMembership, membership, manifestRequestService) => {
+    return Promise.all([
+      ItemService(this.authorize).getCharacters(destinyMembership.membershipId),
+      manifestRequestService.getInventoryItemDefinitions(),
+      manifestRequestService.getDestinyInventoryBucketDefinitions(),
+      manifestRequestService.getStatsDefinitions()
+    ]).then(([characters, inventoryDefinitions, bucketDefinitions, statsDefinitions]) => {
+      removeSplash();
+      const charactersByID = characters;
+      this.state.firebaseService.insertOrUpdateCharacters(membership.bungieNetUser.membershipId, charactersByID);
+      
+      const characterArray = Object.keys(characters).map((characterId) => characters[characterId]);
+      const vaultColumns = calculateVaultColumns(characterArray, this.state.clientWidth);
+      
+      this.setState({
+        characters: characterArray,
+        charactersByID,
+        vaultColumns,
+        inventoryDefinitions,
+        bucketDefinitions,
+        statsDefinitions
+      });     
+
+      return this.updateItems(destinyMembership.membershipId);
     })
   }
 
@@ -142,7 +162,7 @@ class Store extends Component {
       clearTimeout(inventoryPollingInterval);
     }
     const instance = Date.now();
-    console.log('Start Poll', instance);
+    // console.log('Start Poll', instance);
     inventoryPollingDelay = setTimeout(() => {
       this.inventoryPoll(0, instance);
     }, 15000);
@@ -153,7 +173,7 @@ class Store extends Component {
   }
 
   inventoryPoll = (count, instance) => {
-    console.log('Poll', count, instance)            
+    // console.log('Poll', count, instance)            
     if (!this.state.inventoryPolling) return;
     const basePollingInterval = 10000;
     const ppm = 60000 / basePollingInterval;
@@ -167,7 +187,7 @@ class Store extends Component {
         this.updateCharacters(this.state.destinyMembership.membershipId)
       ]).then(() => {
         if (!this.state.inventoryPolling) return;
-        console.log('Poll Data', count, instance)        
+        // console.log('Poll Data', count, instance)        
         return this.inventoryPoll(count + 1, instance);
       })
       .catch((error) => {
@@ -178,13 +198,12 @@ class Store extends Component {
 
   updateItems = (destinyMembershipID) => {
     return ItemService(this.authorize).getItems(this.state.clientWidth, this.state.characters, destinyMembershipID, this.state.inventoryDefinitions, this.state.bucketDefinitions, this.state.statsDefinitions).then((items) => {
-      // this.state.firebaseService.insertOrUpdateItems(this.state.membership.bungieNetUser.membershipId, flattenBuckets(items));
       this.setState({items})}
     );
   }
 
   stopInventoryPolling = () => {
-    console.log('Stop Polling')
+    // console.log('Stop Polling')
     clearTimeout(inventoryPollingInterval);
     clearTimeout(inventoryPollingDelay);
 
@@ -232,7 +251,7 @@ class Store extends Component {
 
   moveItem = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID) => {
     return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID)
-      .then(this.updateCharacters).then(this.addNotification('Success'))
+      .then(() => this.updateCharacters(this.state.destinyMembership.membershipId)).then(this.addNotification('Success'))
       .catch((error) => {
         this.addNotification(error.message);
         throw new Error(error.message);
@@ -270,8 +289,23 @@ class Store extends Component {
     return Promise.resolve();
   }
 
-  updateCharacters = () => {
-    return ItemService(this.authorize).getCharacters(this.state.destinyMembership.membershipId).then((characters) => {
+  handleAccountChange = (event, index, destinyMembership) => {
+    this.setState({
+      destinyMembership
+    });
+
+    store.set('Vault::AccountIndex', this.state.membership.destinyMemberships.indexOf(destinyMembership));
+
+    return Promise.all([
+      this.updateCharacters(destinyMembership.membershipId),
+      this.updateItems(destinyMembership.membershipId)
+    ]).catch((error) => {
+      console.log(error.message)
+    });
+  }
+
+  updateCharacters = (membershipID) => {
+    return ItemService(this.authorize).getCharacters(membershipID).then((characters) => {
       this.setState({
         characters: Object.keys(characters).map((characterId) => characters[characterId]),
         charactersByID: characters
