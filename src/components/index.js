@@ -15,6 +15,7 @@ import SnackbarContainer from './SnackbarContainer';
 import UserMenu from './UserMenu';
 import Landing from './Landing';
 import TopBar from './TopBar';
+import TwitterBadge from './TwitterBadge';
 
 export {
   Cell,
@@ -33,5 +34,6 @@ export {
   SnackbarContainer,
   UserMenu,
   Landing,
-  TopBar
+  TopBar,
+  TwitterBadge
 };
