@@ -5,7 +5,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import FlatButton from 'material-ui/FlatButton';
 import {muiThemeDeclaration} from './components/styleguide';
-import {InventoryGrid, SnackbarContainer, LocationsRow, Landing, TopBar, TwitterBadge} from './components';
+import {InventoryGrid, SnackbarContainer, LocationsRow, Landing, TopBar} from './components';
 import Reducer from './Reducer';
 
 injectTapEventPlugin();
@@ -48,6 +48,7 @@ class App extends Component {
                   selectedAccount={store.destinyMembership}
                   handleAccountChange={actions.handleAccountChange}
                   query={store.query}
+                  onFeedback={actions.onFeedback}
                   SignInButton={SignInButton}/>
 
                 {store.authenticated
@@ -71,7 +72,6 @@ class App extends Component {
               </div>
             }
           </Reducer>
-          <TwitterBadge/>
         </div>
       </MuiThemeProvider>
     );
