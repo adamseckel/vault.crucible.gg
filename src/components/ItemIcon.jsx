@@ -1,6 +1,7 @@
 import React from 'react';
-import {palette} from './styleguide';
+import {palette, Row} from './styleguide';
 import {css} from 'emotion';
+import FontIcon from 'material-ui/FontIcon';
 
 const itemStyle = css`
   width: 45px;
@@ -10,6 +11,7 @@ const itemStyle = css`
   user-select: none;
   border: 2px solid ${palette.stroke};
   position: relative;
+  background-color: ${palette.background};
 `;
 
 const statStyle = css`
@@ -25,17 +27,15 @@ const statStyle = css`
 `;
 
 export default(props) => {
-  if (!props.item && !props.item.definition) return;
+  if (!props.item) return;
   return (
-    <div className={itemStyle}
-      style={{
-        backgroundImage: `url(https://bungie.net${props.item.displayProperties.icon})`
-      }}>
+    <Row className={itemStyle} style={{backgroundImage: `url(https://bungie.net${props.item.displayProperties.icon})`}}>
       {props.item.instance && props.item.instance.primaryStat && props.item.instance.primaryStat.value && 
         <span css={statStyle}>
           {props.item.instance.primaryStat.value || 0}
         </span>
       }
-    </div>
+      {props.item.redacted && <FontIcon className="material-icons" color={palette.stroke}> lock </FontIcon>}
+    </Row>
   );
 };

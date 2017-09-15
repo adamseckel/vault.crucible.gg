@@ -78,17 +78,27 @@ export default function(getBungieRequest) {
           return inventory.data.items.concat(equipment.data.items).map((rawItem) => {
             const {classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, perks, sockets, stats, redacted} = manifest[rawItem.itemHash];
             const instance = itemComponents.instances.data[rawItem.itemInstanceId];
-            return Object.assign(rawItem,
-              {characterID: key},
-              {id: rawItem.itemHash, itemId: rawItem.itemHash, classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, perks, sockets, stats, redacted},
-              {instance}
-            )
+            return {
+              ...rawItem,
+              characterID: key,
+              id: rawItem.itemHash,
+              itemId: rawItem.itemHash,
+              classType,
+              displayProperties,
+              equippable,
+              inventory,
+              itemTypeDisplayName,
+              nonTransferrable,
+              perks,
+              sockets,
+              stats,
+              redacted,
+              instance
+            }
           });
-        }).reduce((a, b) => {
-          return a.concat(b);
-        }, []).filter((item) => {
-          return item.displayProperties.hasIcon && item.equippable && !item.redacted;
-        }).reduce(reduceToBuckets, {});
+        })
+        .reduce((a, b) => a.concat(b), [])
+        .reduce(reduceToBuckets, {});
 
         const vaultColumns = Math.floor((clientWidth - 90 - (271 * locations.filter((character) => {
           return character.key !== 'vault';
