@@ -17,6 +17,7 @@
 .env.production.local
 manifest.content
 manifest.zip
+/public/manifest
 
 npm-debug.log*
 yarn-debug.log*
