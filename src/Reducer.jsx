@@ -85,7 +85,12 @@ class Reducer extends Component {
     const destinyMembership = membership.destinyMemberships[accountIndex || 0];
     const authenticated = true;
     const bungieRequestService = BungieRequestService(authorization, this.state.apiKey.key, destinyMembership.membershipType);
-    this.state.firebaseService.insertOrUpdateUserAndTrackVisit(membership.bungieNetUser);
+
+    try {
+      this.state.firebaseService.insertOrUpdateUserAndTrackVisit(membership.bungieNetUser);
+    } catch (e) {
+      this.state.firebaseService.trackError(`Failed to track visist: ${e.message}`);        
+    }
 
     this.setState({
       bungieRequestService,
@@ -103,6 +108,7 @@ class Reducer extends Component {
       if (accounts > 1 && accountIndex < accounts) {
         return this.setMembership(membership, authorization, manifestRequestService, accountIndex + 1)
       } else {
+        this.state.firebaseService.trackError('No Destiny 2 Accounts Found');        
         throw new Error('No Destiny 2 Accounts Found')
       }
     })
@@ -168,7 +174,13 @@ class Reducer extends Component {
     
     inventoryPollingInterval = setTimeout(() => {
       if (!this.state.authenticated) return;
-      this.state.firebaseService.trackPollEventByBungieID(this.state.membership.bungieNetUser.membershipId, {count});      
+
+      try {
+        this.state.firebaseService.trackPollEventByBungieID(this.state.membership.bungieNetUser.membershipId, {count});      
+      } catch (e) {
+        this.state.firebaseService.trackError(`Failed to track poll: ${e.message}`);        
+      }
+  
       return Promise.all([
         this.updateItems(this.state.destinyMembership.membershipId),
         this.updateCharacters(this.state.destinyMembership.membershipId)
@@ -213,6 +225,12 @@ class Reducer extends Component {
     const toVault = lastCharacterID === 'vault';
     const fromVault = initialCharacterID === 'vault';
     this.state.firebaseService.trackTransferByBungieID(this.state.membership.bungieNetUser.membershipId, {itemID: itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID : shouldUnequipReplacementItemID ? shouldUnequipReplacementItemID : false});
+
+    try {
+      this.state.firebaseService.trackTransferByBungieID(this.state.membership.bungieNetUser.membershipId, {itemID: itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID : shouldUnequipReplacementItemID ? shouldUnequipReplacementItemID : false});
+    } catch (e) {
+      this.state.firebaseService.trackError(`Failed to track transfer: ${e.message}`);        
+    }
 
     if (shouldEquip && lastCharacterID === initialCharacterID) {
       return ItemService(this.authorize).equipItem(itemId, lastCharacterID);

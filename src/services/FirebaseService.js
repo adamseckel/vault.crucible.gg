@@ -1,6 +1,6 @@
 export default function(db) {
   return {
-    insertOrUpdateUserAndTrackVisit({membershipId, locale, blizzardDisplayName, displayName, psnDisplayName, xboxDisplayName}) {
+    insertOrUpdateUserAndTrackVisit({membershipId, locale, blizzardDisplayName = 'None', displayName, psnDisplayName = 'None', xboxDisplayName = 'None'}) {
       return Promise.all([
         db.child('users-by-bungie-id').child(membershipId).update({
           locale,

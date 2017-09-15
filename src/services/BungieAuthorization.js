@@ -5,7 +5,7 @@ export default function (apiKey) {
   return store
     .get('Vault::Authorization')
     .then((localStorageAuth) => {
-      if (window.location.href.includes('authorize')) {
+      if (window.location.href.indexOf('authorize') > -1) {
         const authCode = new URLSearchParams(window.location.search).get("code");
         return getAuthorization(apiKey, authCode, 'authorization_code').then((authorization) => {
           // console.log('Authorization: Got initial auth')  
