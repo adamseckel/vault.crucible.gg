@@ -190,6 +190,10 @@ class Reducer extends Component {
     );
   }
 
+  onFeedback = () => {
+    return window.open('https://twitter.com/intent/tweet?text=@hemlok&hashtags=cruciblegg', '_blank');
+  }
+
   stopInventoryPolling = () => {
     devLog('Stop Polling')
     clearTimeout(inventoryPollingInterval);

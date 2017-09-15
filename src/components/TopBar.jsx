@@ -29,10 +29,21 @@ const accountTypeMap = {
   4: 'BNET'
 };
 
-export default({className, style, searchForItem, authenticated, onReload, query, onLogout, onAuthorize, destinyAccounts, selectedAccount, handleAccountChange, SignInButton}) => {
+const StyledDropdown = styled(DropDownMenu)`
+  margin-bottom: 6px;
+  margin-right: -30px;
+  & div {
+    color: ${palette.secondaryText} !important;
+  }
+`
+
+export default({className, style, searchForItem, authenticated, onReload, query, onLogout, onAuthorize, onFeedback, destinyAccounts, selectedAccount, handleAccountChange, SignInButton}) => {
   function mapAccounts(accounts) {
     return accounts && accounts.map((account) => {
-      return <MenuItem key={account.membershipType} value={account} primaryText={accountTypeMap[account.membershipType]} />
+      return <MenuItem key={account.membershipType}
+        style={{color: palette.secondaryText}}
+        value={account}
+        primaryText={accountTypeMap[account.membershipType]} />
     });
   }
 
@@ -54,9 +65,15 @@ export default({className, style, searchForItem, authenticated, onReload, query,
     <Row justify='end' css={`marginRight: 28px;`}>
       {authenticated
         ? <Row justify='end' css={`margin-right: -15px`}>
-            <DropDownMenu css={`margin-bottom: 6px; margin-right: -20px;`} value={selectedAccount} onChange={handleAccountChange}>
+            <StyledDropdown
+              underlineStyle={{border: 'none'}}
+              value={selectedAccount}
+              onChange={handleAccountChange}>
               {mapAccounts(destinyAccounts)}
-            </DropDownMenu>
+            </StyledDropdown>
+            <IconButton onTouchTap={onFeedback} tooltip="Feedback">
+              <FontIcon color={palette.secondaryText} className='material-icons'> help_outline </FontIcon>
+            </IconButton>
             <IconButton onTouchTap={onLogout} tooltip="Logout">
               <FontIcon color={palette.secondaryText} className='material-icons'> exit_to_app </FontIcon>
             </IconButton>
