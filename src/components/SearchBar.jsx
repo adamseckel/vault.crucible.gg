@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import FontIcon from 'material-ui/FontIcon';
 import TextField from 'material-ui/TextField';
+import IconButton from 'material-ui/IconButton';
 import {palette, animations, z, Row} from './styleguide';
 import styled from 'emotion/react';
 
@@ -39,18 +40,24 @@ const SearchIcon = styled(FontIcon)`
   z-index: 3;
 `;
 
+const ClearIcon = styled(FontIcon)`
+  color: ${palette.stroke} !important;
+`;
+
 const TextBox = styled(TextField)`
   z-index: 3;
   & div {
-    color: ${props => props.focused
-  ? palette.stroke
-  : palette.secondaryText} !important;
+    color: ${props => props.focused ? palette.stroke : palette.secondaryText} !important;
   }
   & input {
-    color: ${props => props.focused
-    ? palette.stroke
-    : palette.secondaryText} !important;
+    color: ${props => props.focused ? palette.stroke : palette.secondaryText} !important;
   }
+`;
+
+const ClearButton = styled(IconButton)`
+  opacity: ${props => props.focused ? 1 : 0};
+  transition: opacity .3s ease;
+  z-index: 3 !important;
 `;
 
 class SearchBar extends Component {
@@ -81,7 +88,11 @@ class SearchBar extends Component {
           hintText="Search for an Item"
           underlineShow={false}
           fullWidth={true}
+          value={this.props.query}
           onChange={this.props.onChange}/>
+        <ClearButton focused={this.state.isSearchFocused} onTouchTap={() => this.props.onChange('', '')}>
+          <ClearIcon className="material-icons">clear</ClearIcon>
+        </ClearButton>
       </SearchBox>
     );
   }

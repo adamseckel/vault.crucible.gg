@@ -14,6 +14,11 @@ const vault = {
 
 let inventoryPollingInterval, inventoryPollingDelay;
 
+function devLog(log) {
+  if (process.env.NODE_ENV === 'production') return;
+  console.log(log)
+}
+
 function calculateVaultColumns(characters, gridWidth) {
   return Math.floor((gridWidth - 90 - (271 * characters.filter((store) => {
     return store.key !== 'vault';
@@ -28,26 +33,7 @@ function removeSplash() {
   }, 400);
 }
 
-// function flattenBuckets(buckets) {
-//   return Object.keys(buckets).map((bucketKey) => {
-//     return Object.keys(buckets[bucketKey].items).map((characterID) => {
-//       return buckets[bucketKey].items[characterID];
-//     }).reduce((a, b) => {
-//       return a.concat((Array.isArray(b)
-//         ? b
-//         : []));
-//     }).map((item) => {
-//       return [item.itemId, item];
-//     }).reduce((o, [key, val]) => {
-//       o[key] = val;
-//       return o;
-//     }, {});
-//   }).reduce((a, b) => {
-//     return Object.assign(a, b);
-//   }, {})
-// }
-
-class Store extends Component {
+class Reducer extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -89,7 +75,8 @@ class Store extends Component {
       })
     })
     .catch((error) => {
-      removeSplash();      
+      removeSplash();
+      this.state.firebaseService.trackError(error.message);
       console.log(`Start Up Error: ${error.message}`);
     })
   }
@@ -162,7 +149,7 @@ class Store extends Component {
       clearTimeout(inventoryPollingInterval);
     }
     const instance = Date.now();
-    // console.log('Start Poll', instance);
+    devLog('Start Poll', instance);
     inventoryPollingDelay = setTimeout(() => {
       this.inventoryPoll(0, instance);
     }, 15000);
@@ -173,7 +160,7 @@ class Store extends Component {
   }
 
   inventoryPoll = (count, instance) => {
-    // console.log('Poll', count, instance)            
+    devLog('Poll', count, instance)            
     if (!this.state.inventoryPolling) return;
     const basePollingInterval = 10000;
     const ppm = 60000 / basePollingInterval;
@@ -187,10 +174,11 @@ class Store extends Component {
         this.updateCharacters(this.state.destinyMembership.membershipId)
       ]).then(() => {
         if (!this.state.inventoryPolling) return;
-        // console.log('Poll Data', count, instance)        
+        devLog('Poll Data', count, instance)        
         return this.inventoryPoll(count + 1, instance);
       })
       .catch((error) => {
+        this.state.firebaseService.trackError(error.message);
         console.log(`Polling Error: ${error.message}`);
       });
     }, pollDelay);
@@ -203,7 +191,7 @@ class Store extends Component {
   }
 
   stopInventoryPolling = () => {
-    // console.log('Stop Polling')
+    devLog('Stop Polling')
     clearTimeout(inventoryPollingInterval);
     clearTimeout(inventoryPollingDelay);
 
@@ -251,9 +239,10 @@ class Store extends Component {
 
   moveItem = (itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID) => {
     return this.createTransferPromise(itemReferenceHash, itemId, lastCharacterID, initialCharacterID, shouldEquip, shouldUnequipReplacementItemID)
-      .then(() => this.updateCharacters(this.state.destinyMembership.membershipId)).then(this.addNotification('Success'))
+      .then(() => this.updateCharacters(this.state.destinyMembership.membershipId).then(this.addNotification('Success')))
       .catch((error) => {
         this.addNotification(error.message);
+        this.state.firebaseService.trackError(error.message);
         throw new Error(error.message);
       });
   }
@@ -300,6 +289,7 @@ class Store extends Component {
       this.updateCharacters(destinyMembership.membershipId),
       this.updateItems(destinyMembership.membershipId)
     ]).catch((error) => {
+      this.state.firebaseService.trackError(error.message);
       console.log(error.message)
     });
   }
@@ -351,10 +341,10 @@ class Store extends Component {
   render() {
     return (
       <div ref='client'>
-        {this.props.children({state: this.state, actions: this})}
+        {this.props.children({store: this.state, actions: this})}
       </div>
     );
   }
 }
 
-export default Store;
+export default Reducer;

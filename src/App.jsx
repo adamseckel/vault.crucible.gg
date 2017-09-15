@@ -6,7 +6,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import FlatButton from 'material-ui/FlatButton';
 import {muiThemeDeclaration} from './components/styleguide';
 import {InventoryGrid, SnackbarContainer, LocationsRow, Landing, TopBar, TwitterBadge} from './components';
-import Store from './Store';
+import Reducer from './Reducer';
 
 injectTapEventPlugin();
 
@@ -35,41 +35,42 @@ class App extends Component {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div className='App'>
-          <Store firebaseService={this.props.firebaseService} apiKey={this.props.apiKey}>
-            {({state, actions}) =>
+          <Reducer firebaseService={this.props.firebaseService} apiKey={this.props.apiKey}>
+            {({store, actions}) =>
               <div>
                 <StyledTopBar 
                   searchForItem={actions.searchForItem}
-                  authenticated={state.authenticated}
+                  authenticated={store.authenticated}
                   onReload={actions.onReload}
                   onLogout={actions.onLogout}
                   onAuthorize={actions.onAuthorize}
-                  destinyAccounts={state.membership.destinyMemberships}
-                  selectedAccount={state.destinyMembership}
+                  destinyAccounts={store.membership.destinyMemberships}
+                  selectedAccount={store.destinyMembership}
                   handleAccountChange={actions.handleAccountChange}
+                  query={store.query}
                   SignInButton={SignInButton}/>
 
-                {state.authenticated
+                {store.authenticated
                   ? <div>
-                    <LocationsRow characters={state.characters} vault={state.vault} />
+                    <LocationsRow characters={store.characters} vault={store.vault} />
                     <InventoryGrid 
                       moveItem={actions.moveItem}
                       getItemDetail={actions.getItemDetail}
-                      vaultColumns={state.vaultColumns}
-                      characters={state.charactersByID}
-                      clientWidth={state.clientWidth}
-                      clientXY={state.clientXY}
-                      items={state.items}
+                      vaultColumns={store.vaultColumns}
+                      characters={store.charactersByID}
+                      clientWidth={store.clientWidth}
+                      clientXY={store.clientXY}
+                      items={store.items}
                       startInventoryPolling={actions.startInventoryPolling}
                       stopInventoryPolling={actions.stopInventoryPolling}
-                      query={state.query}/>
+                      query={store.query}/>
                   </div>
                   : <Landing onAuthorize={actions.onAuthorize} SignInButton={SignInButton}/>
                 }
-                <StyledSnackbarContainer messages={state.notifications}/>
+                <StyledSnackbarContainer messages={store.notifications}/>
               </div>
             }
-          </Store>
+          </Reducer>
           <TwitterBadge/>
         </div>
       </MuiThemeProvider>

@@ -48,6 +48,7 @@ function order(items) {
           equippable: item.equippable,
           quality: item.inventory && item.inventory.tierTypeName && item.inventory.tierTypeName.toLowerCase(),
           nonTransferrable: item.inventory.nonTransferrableOriginal,
+          redacted: item.redacted,
           equipped: item.instance.isEquipped,
           itemTypeName: item.itemTypeDisplayName
         }
@@ -111,65 +112,54 @@ class ItemRow extends Component {
   // }
 
   handleMouseMove = ({pageX, pageY}) => {
-    const {
-      order,
-      lastItem,
-      lastPress,
-      isPressed,
-      mouseCircleDelta: [dx, dy]
-    } = this.state;
+    const { order, lastItem, isPressed, mouseCircleDelta: [dx, dy]} = this.state;
     if (isPressed) {
-      let error;
       const mouseXY = [
         pageX - dx,
         pageY - dy
       ];
       const goal = mouseXY[0];
-      const column = this
-        .props
-        .characterLayout
-        .reduce((prev, curr) => {
-          return curr[0] > goal ? prev : (prev[0] < curr[0] ? curr : prev);
-        }, [-Infinity]);
-
-      const characterIndex = this
-        .props
-        .characterLayout
-        .indexOf(column);
+      const column = this.props.characterLayout.reduce((prev, curr) => {
+        return curr[0] > goal ? prev : (prev[0] < curr[0] ? curr : prev);
+      }, [-Infinity]);
+        
+      const characterIndex = column[0] === -Infinity ? 0 : this.props.characterLayout.indexOf(column);
 
       const characterID = this.props.characters[Object.keys(this.props.characters)[characterIndex]]
         ? this.props.characters[Object.keys(this.props.characters)[characterIndex]].characterId
         : 'vault';
 
-      const proposedDestinationItemCount = order.filter((item) => {
+      const columns = (Object.keys(this.props.characters).length * 4) + this.props.vaultColumns;
+
+      const col = clamp(Math.floor(mouseXY[0] / width - characterIndex), 0, columns);
+      const row = clamp(Math.floor(mouseXY[1] / height), 0, 2);
+
+
+      const characterItems = order.filter((item) => {
         return item.characterID === characterID;
-      }).filter((item) => {
-        return item.id !== lastPress;
-      }).length;
+      });
 
-      if (characterID === 'vault' ? proposedDestinationItemCount > 100 : proposedDestinationItemCount > 9) {
-        return this.setState(Object.assign({mouseXY}));
+      const finalCol = col - (characterIndex * 4);
+      const finalFinalCol = (row && characterID !== 'vault') ? finalCol - 2 : finalCol;
+      const index = row * (characterID === 'vault' ? this.props.vaultColumns : 4) + finalFinalCol;
+
+      const currentIndexItem = characterItems[index];
+      const newIndex = order.indexOf(currentIndexItem) === -1 ? order.length : order.indexOf(currentIndexItem);
+
+      try {
+        const proposedOrder = reinsert(order, characterID, order.indexOf(lastItem), newIndex)
+        this.setState({
+          mouseXY,
+          order: proposedOrder,
+          lastCharacter: characterID
+        });
       }
-
-      const col = clamp(Math.floor(mouseXY[0] / width), 0, (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns));
-      const row = clamp(Math.floor(mouseXY[1] / height), 0, Math.floor(this.state.order.length / (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns)));
-      let index = row * (Object.keys(this.props.characters).length * 4 + this.props.vaultColumns) + col;
-
-      let newOrder = true;
-      let proposedOrder = reinsert(order, characterID, order.indexOf(lastItem), index);
-
-      const update = {
-        mouseXY,
-        error: !!error,
-        errorMessage: error
+      catch (e) {
+        console.log(e.message, lastItem)
+        this.setState({
+          mouseXY,
+        });
       }
-
-      if (newOrder) {
-        update.order = proposedOrder;
-        update.lastCharacter = characterID;
-      }
-
-      this.setState(update);
     }
   }
 
@@ -203,10 +193,13 @@ class ItemRow extends Component {
     if (_.isEqual(nextProps, this.props)) {
       return false;
     }
-    this.setState({
-      order: order(nextProps.items),
-      items: flattenItems(nextProps.items)
-    });
+
+    if (!_.isEqual(nextProps.items, this.props.items)) {
+      this.setState({
+        order: order(nextProps.items),
+        items: flattenItems(nextProps.items)
+      });
+    }
   } 
 
   handleMouseUp = () => {
@@ -224,7 +217,6 @@ class ItemRow extends Component {
 
     if (!this.state.lastItem || this.state.lastItemIndex === undefined) return;
     const {itemInstanceId, itemHash} = this.state.items[this.state.lastItem.id];
-    console.log( this.state.items[this.state.lastItem.id])
 
     const shouldEquip = this.state.order.filter((item) => {
       return item.characterID === this.state.lastCharacter;
@@ -233,8 +225,8 @@ class ItemRow extends Component {
     const shouldUnequip = this.state.lastOrder.filter((item) => {
       return item.characterID === this.state.lastCharacter;
     }).indexOf(this.state.lastItem) === 0;
-    
-    if (!shouldEquip && !shouldUnequip && this.state.lastCharacter === this.state.initialCharacter) {
+
+    if ((this.state.lastCharacter === 'vault' || (!shouldEquip && !shouldUnequip)) && this.state.lastCharacter === this.state.initialCharacter) {
       return;
     }
 

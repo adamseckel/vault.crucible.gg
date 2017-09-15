@@ -20,6 +20,7 @@ const ItemContainer = styled.div `
   userSelect: none;
   margin: 0 5px 5px 0;
   borderRadius: 4px;
+  transition: opacity .2s ease;
 `;
 
 const springSetting1 = {
@@ -52,7 +53,7 @@ class InventoryBucket extends Component {
     if (!query || query === '') return true;
     return ['common', 'rare', 'legendary', 'exotic'].indexOf(query) >= 0
       ? item.quality.toLowerCase().indexOf(query.toLowerCase()) >= 0
-      : item.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || item.itemTypeName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+      : item.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || (item.itemTypeName && item.itemTypeName.toLowerCase().indexOf(query.toLowerCase()) >= 0);
   }
 
   renderDraggableInventoryItems = (items) => {
@@ -63,13 +64,12 @@ class InventoryBucket extends Component {
     return order.length > 0
       ? order.filter((item) => {
         return item.characterID === characterId;
-      }).filter((item) => {
-        return this.returnQuery(item, this.props.query);
       }).map((item, index) => {
         const key = item.id;
         let style;
         let x;
         let y;
+        const filtered = !this.returnQuery(item, this.props.query);
         const visualPosition = order.filter((item) => {
           return item.characterID === characterId;
         }).indexOf(item);
@@ -104,6 +104,7 @@ class InventoryBucket extends Component {
                 WebkitTransform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
                 transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
                 boxShadow: `0px 3px 10px rgba(0,0,0, ${boxShadow1}), 0px 3px 10px rgba(0,0,0, ${boxShadow2})`,
+                opacity: filtered ? .2 : 1,
                 zIndex: (key === lastPress && isPressed)
                   ? 1200
                   : visualPosition

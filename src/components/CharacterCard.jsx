@@ -19,6 +19,7 @@ const StyledCard = styled(Row)`
   min-width: ${props => !props.vault ? '240px' : 'none'};
   max-width: ${props => !props.vault ? '240px' : 'none'};
   height: 50px;
+  transition: background-image 1s ease;
   background-image: ${props => `url(https://www.bungie.net${props.emblem})`};
 `;
 
