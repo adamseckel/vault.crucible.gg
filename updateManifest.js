@@ -38,6 +38,8 @@ function getManifest(manifestVersion){
 		let en_path = _.last(en.split('/'));
 		let manifestVersion = data.Response.version;
 
+		if (!data.Response.version) throw new Error('No Manifest Version');
+
 		const newManifestVersion = `export const manifestVersion = '${manifestVersion}'`;
 
 		return fs.writeFile('./src/manifestVersion.js', newManifestVersion, 'utf8', (err) => {
@@ -55,7 +57,7 @@ function getManifest(manifestVersion){
 			};
 	
 			return request(options).on('response', (res, body) => {
-				console.log(res.statusCode === 200 && 'Manifest Fetched');
+				console.log(res.statusCode === 200 && 'Latest Manifest Fetched');
 			}).pipe(outStream).on('finish', () => {
 				let zip = new SZIP({
 					file: './manifest.zip',
