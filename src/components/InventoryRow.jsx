@@ -202,6 +202,18 @@ class ItemRow extends Component {
     }
   } 
 
+  shouldComponentUpdate = (nextProps, nextState) => {
+    if (!_.isEqual(nextProps.items, this.props.items)) {
+      return true
+    }
+      
+    if (_.isEqual(nextProps, this.props) && _.isEqual(nextState, this.state)) {
+      return false;
+    }
+
+    return true;
+  }
+
   handleMouseUp = () => {
     this.setState({
       isPressed: false,

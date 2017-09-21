@@ -3,6 +3,10 @@ import styled from 'emotion/react';
 import {palette} from './styleguide';
 import {Row, Text} from './styleguide';
 import {fade} from 'material-ui/utils/colorManipulator';
+import _ from 'lodash';
+
+const magazineStatHash = '3871231066';
+const numericStatHashes = [4284893193, 3871231066];
 
 const StatRow = styled(Row)`
   margin-bottom: 2px;
@@ -12,24 +16,18 @@ const StatRow = styled(Row)`
   }
 `;
 
-const StatIcon = styled.img`
-  width: 20px;
-  margin-right: 8px;
-  opacity: .6;
-`;
-
 const StatLabel = styled(Text)`
-  max-width: 85px;
-  min-width: 85px;
+  max-width: 100px;
+  min-width: 100px;
   margin-right: 8px;
 `;
 
 const BarBackground = styled(Row)`
   background-color: ${fade(palette.secondaryText, .2)};
-  height: 20px;
+  height: 16px;
   position: relative;
   padding: 4px;
-  width: 203px;
+  width: 185px;
   border-radius: 4px;
   overflow: hidden;
 `;
@@ -52,32 +50,32 @@ const BarFill = styled.div`
 `;
 
 export default(props) => {
-  function mapStats(stats) {
-    return stats.map((stat) => 
-      props.itemStatType === 'ATTACK'
-        ? <StatRow layout='start' key={stat.statName}>
-          <StatLabel right gray>{stat.statName}</StatLabel>
-          {stat.statName !== 'Magazine'
-            ? <BarBackground grow justify='start'>
-                <StatValueLabel gray>{stat.value}</StatValueLabel>
-                <BarFill width={stat.value / stat.maximumValue}></BarFill>
-              </BarBackground>
-            : <Row grow justify='start' css={`height: 28px;`}>
-              <StatLabel gray> {stat.value} </StatLabel>
-            </Row>
-          }
-        </StatRow>
-        : stat.value > 0 && <StatRow layout='start'>
-            {stat.icon ? <StatIcon src={`https://bungie.net${stat.icon}`}/> : undefined}
-            <StatLabel css={`color: ${palette.secondaryText} !important;`}>{stat.statName}</StatLabel>
-            <Row grow justify='start' css={`height: 28px;`}>
-              <StatLabel gray> +{stat.value} </StatLabel>
-            </Row>
-          </StatRow>
+  function renderStat(item, stat, definitions) {
+    return (
+      <StatRow layout='start' key={stat.statHash}>
+        <StatLabel right size='0' gray>{definitions[stat.statHash].displayProperties.name}</StatLabel>
+        {!numericStatHashes.includes(stat.statHash)
+          ? <BarBackground grow justify='start'>
+              <StatValueLabel size='0' gray>{stat.value}</StatValueLabel>
+              <BarFill width={stat.value / stat.maximumValue}></BarFill>
+            </BarBackground>
+          : <Row grow justify='start' css={`height: 18px;`}>
+            <StatLabel size='0' gray> {stat.value} </StatLabel>
+          </Row>
+        }
+      </StatRow>
     );
   }
 
+  function mapStats(item, definitions) {
+    const hasMagazine = Object.keys(item.stats).includes(magazineStatHash);
+    return _.sortBy(Object.keys(item.stats), (statHash) => definitions[statHash].index)
+      .filter((statHash) => statHash !== magazineStatHash)
+      .concat(hasMagazine ? [magazineStatHash] : [])
+      .map((statHash) => renderStat(item, item.stats[statHash], definitions));
+  }
+
   return <div {...{className: props.className, style: props.style}}>
-    {props.stats ? mapStats(props.stats) : undefined}
+    {mapStats(props.item, props.statsDefinitions)}
   </div>
 };

@@ -3,13 +3,8 @@ import styled from 'emotion/react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {ItemDetail, InventoryRow} from './index';
 import {Column} from './styleguide';
-import {Motion, spring} from 'react-motion';
 import _ from 'lodash';
 
-const minimizeYSpringSetting = {
-  stiffness: 150,
-  damping: 15
-};
 // const otherBuckets = [284967655,  1269569095,   2025709351,  2973005342, 3054419239, 3313201758,  4274335291];
 
 const bucketHashOrder = [1498876634, 2465295065, 953998645, 4023194814, 3448274439, 3551918588, 14239492, 20886954, 1585787867];
@@ -48,7 +43,7 @@ function calculateLayout(characters, vaultColumns) {
 function calculateMouseXY(e, clientXY, cardHeight) {
   const [width, height] = clientXY;
   const {pageX, pageY, screenY} = e;
-  const offsetY = height - screenY + 95 - cardHeight;
+  const offsetY = height - screenY + 75 - cardHeight;
   const optimalY = (pageY - 130 + cardHeight - 30);
 
   const x = width - 400 < pageX ? pageX - 380 : pageX;
@@ -153,38 +148,30 @@ class InventoryGrid extends Component {
 
   renderRows = () => {
     if (!this.props.items || !Object.keys(this.props.items).length) return;
-    let rowOffset = 0
     const layout = calculateLayout(this.props.characters, this.props.vaultColumns);
     const characterLayout = calculateCharacterLayout(this.props.characters);
-    const {handleItemHover, handleItemMouseLeave} = this;
-    return this.state.rows.map((bucketKey) => {
-      let rowStyle = {
-        translateY: spring(rowOffset, minimizeYSpringSetting)
-      }
-      rowOffset += this.state.minimizedRows[bucketKey]
-        ? 40
-        : this.props.items[bucketKey].rowHeight + 30;
-      return (
-        <Motion style={rowStyle} key={bucketKey}>
-          {({translateY}) => 
-            <InventoryRow {...{bucketKey, layout, characterLayout, handleItemHover, handleItemMouseLeave}}
-              key={bucketKey}
-              query={this.props.query}
-              characters={this.props.characters}
-              items={this.props.items[bucketKey].items}
-              title={this.props.items[bucketKey].name}
-              height={this.props.items[bucketKey].rowHeight}
-              minimize={this.toggleRow}
-              moveItem={this.props.moveItem}
-              render={this.state.hiddenRows[bucketKey]}
-              vaultColumns={this.props.vaultColumns}
-              stopInventoryPolling={this.stopInventoryPolling}
-              startInventoryPolling={this.startInventoryPolling}
-              clientWidth={this.props.clientWidth}/>
-          }
-        </Motion>
-      );
-    });
+    
+    return this.state.rows.map((bucketKey) => 
+      <InventoryRow
+        key={bucketKey}
+        query={this.props.query}
+        characters={this.props.characters}
+        bucketKey={bucketKey}
+        layout={layout}
+        characterLayout={characterLayout}
+        items={this.props.items[bucketKey].items}
+        title={this.props.items[bucketKey].name}
+        height={this.props.items[bucketKey].rowHeight}
+        minimize={this.toggleRow}
+        moveItem={this.props.moveItem}
+        render={this.state.hiddenRows[bucketKey]}
+        vaultColumns={this.props.vaultColumns}
+        stopInventoryPolling={this.stopInventoryPolling}
+        startInventoryPolling={this.startInventoryPolling}
+        handleItemHover={this.handleItemHover}
+        handleItemMouseLeave={this.handleItemMouseLeave}
+        clientWidth={this.props.clientWidth}/>
+    );
   }
 
   render() {
@@ -197,6 +184,8 @@ class InventoryGrid extends Component {
             <ItemDetail 
               item={this.state.hoveredItem}
               saveDetailHeight={this.saveDetailHeight}
+              statsDefinitions={this.props.statsDefinitions}
+              perksDefinitions={this.props.perksDefinitions}
               render={this.state.detailHeight ? true : false}/>
         </Column>}
         {this.renderRows()}

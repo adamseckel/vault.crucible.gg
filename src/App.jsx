@@ -62,6 +62,8 @@ class App extends Component {
                       clientWidth={store.clientWidth}
                       clientXY={store.clientXY}
                       items={store.items}
+                      statsDefinitions={store.statsDefinitions}
+                      perksDefinitions={store.perksDefinitions}
                       startInventoryPolling={actions.startInventoryPolling}
                       stopInventoryPolling={actions.stopInventoryPolling}
                       query={store.query}/>
