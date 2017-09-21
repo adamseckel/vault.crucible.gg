@@ -119,8 +119,9 @@ class Reducer extends Component {
       ItemService(this.authorize).getCharacters(destinyMembership.membershipId),
       manifestRequestService.getInventoryItemDefinitions(),
       manifestRequestService.getDestinyInventoryBucketDefinitions(),
-      manifestRequestService.getStatsDefinitions()
-    ]).then(([characters, inventoryDefinitions, bucketDefinitions, statsDefinitions]) => {
+      manifestRequestService.getStatsDefinitions(),
+      manifestRequestService.getPerksDefinitions(),
+    ]).then(([characters, inventoryDefinitions, bucketDefinitions, statsDefinitions, perksDefinitions]) => {
       removeSplash();
       const charactersByID = characters;
       this.state.firebaseService.insertOrUpdateCharacters(membership.bungieNetUser.membershipId, charactersByID);
@@ -134,7 +135,8 @@ class Reducer extends Component {
         vaultColumns,
         inventoryDefinitions,
         bucketDefinitions,
-        statsDefinitions
+        statsDefinitions,
+        perksDefinitions
       });     
 
       return this.updateItems(destinyMembership.membershipId);

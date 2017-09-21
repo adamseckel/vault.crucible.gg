@@ -59,6 +59,7 @@ const damageTypeColorMap = {
   'arc': '#85c5ec',
   'void': '#b184c5'
 };
+
 const bgColor = fade(palette.darkText, 0.95);
 
 const damageTypeIconMap = {
@@ -99,19 +100,20 @@ export default(props) => {
   const damageIconPath = damageTypeIconMap[damageType];
   const primaryStatType = props.item.instance && props.item.instance.primaryStat && primaryStatHashMap[props.item.instance.primaryStat.statHash];
 
-  function renderStats(stats, item) {
-    return stats && <Column justify='start' align='start'>
+  function renderStats(statsDefinitions, item) {
+    return item.stats && <Column justify='start' align='start'>
       <Divider css={`opacity: 0.4;`}/>
-      <ItemStats stats={stats} itemStatType={item.primaryStat && primaryStatType}/>
+      <ItemStats statsDefinitions={statsDefinitions} item={item} itemStatType={primaryStatType}/>
     </Column>
   }
 
-  function renderPerks(perks) {
-    return perks && <Column justify='start' align='start'>
+  function renderPerks(perksDefinitions, item) {
+    return item.perks && item.perks.length > 0 && <Column justify='start' align='start'>
       <Divider css={`opacity: 0.4;`}/>      
-      <ItemPerks {...{perks}}/>
+      <ItemPerks perksDefinitions={perksDefinitions} perks={item.perks}/>
     </Column>
   }
+
   return <div {...{style: props.style, className: props.className}} css={`min-width: 325px; max-width: 325px;`}>
     {props.item && <ReactHeight onHeightReady={props.saveDetailHeight}>
       <ItemHeader rarity={rarityColor} render={props.render}>
@@ -127,8 +129,9 @@ export default(props) => {
           <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
         </Column>
 
-        {renderStats(props.stats, props.item)}
-        {renderPerks(props.perks)}
+        {renderStats(props.statsDefinitions, props.item)}
+        {renderPerks(props.perksDefinitions, props.item)}
+
       </ItemDetails>
     </ReactHeight>}
   </div>

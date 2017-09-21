@@ -33,8 +33,16 @@ export default function(manifestVersion) {
       return manifestRequest.get('DestinyItemTierTypeDefinition.json').then(handleManifestResponse);
     },
 
+    getDestinyStatGroupDefinition() {
+      return manifestRequest.get('DestinyStatGroupDefinition.json').then(handleManifestResponse);
+    },
+
     getDestinyInventoryBucketDefinitions() {
       return manifestRequest.get('DestinyInventoryBucketDefinition.json').then(handleManifestResponse);
+    },
+
+    getDestinyTalentGridDefinition() {
+      return manifestRequest.get('DestinyTalentGridDefinition.json').then(handleManifestResponse);
     }
   };
 

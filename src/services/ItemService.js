@@ -76,8 +76,11 @@ export default function(getBungieRequest) {
       return Promise.all(requests).then((locations) => {
         const itemBuckets = locations.map(({inventory = {data: {items: []}}, equipment = {data: {items: []}}, itemComponents, key}) => {
           return inventory.data.items.concat(equipment.data.items).map((rawItem) => {
-            const {classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, perks, sockets, stats, redacted} = manifest[rawItem.itemHash];
+            const {classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, sockets, redacted} = manifest[rawItem.itemHash];
             const instance = itemComponents.instances.data[rawItem.itemInstanceId];
+            const stats = itemComponents.stats.data[rawItem.itemInstanceId];
+            const perks = itemComponents.perks.data[rawItem.itemInstanceId];
+            
             return {
               ...rawItem,
               characterID: key,
@@ -89,9 +92,9 @@ export default function(getBungieRequest) {
               inventory,
               itemTypeDisplayName,
               nonTransferrable,
-              perks,
               sockets,
-              stats,
+              perks: perks && perks.perks,
+              stats: stats && stats.stats,
               redacted,
               instance
             }
