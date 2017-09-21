@@ -66,7 +66,7 @@ class Reducer extends Component {
   }
 
   componentDidMount() {
-    const manifestRequestService = ManifestRequestService('beta');
+    const manifestRequestService = ManifestRequestService(this.props.manifestVersion);
     return store.get('Vault::AccountIndex').then((savedAccountIndex) => {
       return BungieAuthorizationService(this.state.apiKey).then((authorization) => {
         return BungieRequestService(authorization, this.state.apiKey.key).getMembershipById().then((membership) => {
