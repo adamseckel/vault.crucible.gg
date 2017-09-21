@@ -15,3 +15,4 @@ Roadmap:
 - Sort Items by power level
 - Postmaster
 - 'Profile Inventory' Management (i.e. mods and shaders between ALL CHARACTERS and VAULT)
+- STATS Page for global usage metrics, items owned, most equipped items, etc
