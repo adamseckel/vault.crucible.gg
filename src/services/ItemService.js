@@ -79,7 +79,6 @@ export default function(getBungieRequest) {
             const {classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, sockets, redacted} = manifest[rawItem.itemHash];
             const instance = itemComponents.instances.data[rawItem.itemInstanceId];
             const stats = itemComponents.stats.data[rawItem.itemInstanceId];
-            // console.log({itemComponents})
             const perks = itemComponents.perks.data[rawItem.itemInstanceId];
             
             return {
