@@ -35,7 +35,7 @@ class App extends Component {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div className='App'>
-          <Reducer firebaseService={this.props.firebaseService} apiKey={this.props.apiKey}>
+          <Reducer manifestVersion={this.props.manifestVersion} firebaseService={this.props.firebaseService} apiKey={this.props.apiKey}>
             {({store, actions}) =>
               <div>
                 <StyledTopBar 

@@ -4,6 +4,7 @@ import App from './App.jsx';
 import registerServiceWorker from './registerServiceWorker';
 import firebase from 'firebase';
 import {FirebaseService} from './services';
+import {manifestVersion} from './manifestVersion';
 
 const database = firebase.initializeApp({
   apiKey: "AIzaSyDJo3DWxyZXBaCDDmYGZewRro-l4QKy9UI",
@@ -19,5 +20,5 @@ const apiKey = {
   client_secret: process.env.REACT_APP_CLIENT_SECRET || 'm7aOvxvaLgAfeLkT4QC6mg1fyl81iZBt5ptzkq4Pay0'
 };
 
-ReactDOM.render(<App {... {apiKey, firebaseService: FirebaseService(database.ref(process.env.NODE_ENV || 'development'))}}/>, document.getElementById('root'));
+ReactDOM.render(<App {... {apiKey, manifestVersion, firebaseService: FirebaseService(database.ref(process.env.NODE_ENV || 'development'))}}/>, document.getElementById('root'));
 registerServiceWorker();
