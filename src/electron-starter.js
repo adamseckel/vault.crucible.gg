@@ -19,10 +19,9 @@ let authWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600,
-    titleBarStyle: 'hiddenInset',
-    vibrancy: 'titlebar',
-    nativeWindowOpen: true
+  mainWindow = new BrowserWindow({width: 1000, height: 600,
+    titleBarStyle: 'default',
+    autoHideMenuBar: true,
   })
 
   // load the index.html of the app.

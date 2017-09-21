@@ -20,27 +20,20 @@ const ItemContainer = styled.div `
   userSelect: none;
   margin: 0 5px 5px 0;
   borderRadius: 4px;
+  transition: opacity .2s ease;
 `;
 
 const springSetting1 = {
   stiffness: 180,
   damping: 10
 };
+
 const springSetting2 = {
   stiffness: 200,
   damping: 17
 };
 
 class InventoryBucket extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      columns: this.props.vault
-        ? Math.floor(547 / 54)
-        : 3
-    };
-  }
-
   shouldComponentUpdate = (nextProps, nextState) => {
     if (_.isEqual(nextProps, this.props) && _.isEqual(nextState, this.state)) {
       return false;
@@ -57,21 +50,10 @@ class InventoryBucket extends Component {
   }
 
   returnQuery(item, query) {
-    if (!query || query === '') {
-      return true;
-    }
+    if (!query || query === '') return true;
     return ['common', 'rare', 'legendary', 'exotic'].indexOf(query) >= 0
-      ? item
-        .quality
-        .toLowerCase()
-        .indexOf(query.toLowerCase()) >= 0
-      : item
-        .name
-        .toLowerCase()
-        .indexOf(query.toLowerCase()) >= 0 || item
-        .itemTypeName
-        .toLowerCase()
-        .indexOf(query.toLowerCase()) >= 0;
+      ? item.quality.toLowerCase().indexOf(query.toLowerCase()) >= 0
+      : item.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || (item.itemTypeName && item.itemTypeName.toLowerCase().indexOf(query.toLowerCase()) >= 0);
   }
 
   renderDraggableInventoryItems = (items) => {
@@ -82,13 +64,12 @@ class InventoryBucket extends Component {
     return order.length > 0
       ? order.filter((item) => {
         return item.characterID === characterId;
-      }).filter((item) => {
-        return this.returnQuery(item, this.props.query);
       }).map((item, index) => {
         const key = item.id;
         let style;
         let x;
         let y;
+        const filtered = !this.returnQuery(item, this.props.query);
         const visualPosition = order.filter((item) => {
           return item.characterID === characterId;
         }).indexOf(item);
@@ -114,7 +95,6 @@ class InventoryBucket extends Component {
           };
         }
         
-        const rawItem = this.props.items[item.id];
         return (
           <Motion style={style} key={key}>
             {({translateX, translateY, scale, boxShadow1, boxShadow2}) =>
@@ -124,15 +104,16 @@ class InventoryBucket extends Component {
                 WebkitTransform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
                 transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
                 boxShadow: `0px 3px 10px rgba(0,0,0, ${boxShadow1}), 0px 3px 10px rgba(0,0,0, ${boxShadow2})`,
+                opacity: filtered ? .2 : 1,
                 zIndex: (key === lastPress && isPressed)
                   ? 1200
                   : visualPosition
                 }}
-                onMouseEnter={(e) => this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id])}
-                onMouseLeave={() => this.props.handleItemMouseLeave(item.id)}
+                onMouseEnter={(e) => !this.props.isPressed ? this.props.handleItemHover(item.id, this.props.characterId, this.props.items[item.id], e) : undefined}
+                onMouseLeave={() => this.props.handleItemMouseLeave(item.itemID)}
                 onMouseDown={(e) => this.props.handleMouseDown(key, this.props.characterId, item, index, [x, y], e)}
                 onTouchStart={(e) => this.props.handleTouchStart(key, this.props.characterId, item, index, [x, y], e)}>
-                  {ItemIcon({key, item: rawItem})}
+                  {ItemIcon({key, item: this.props.items[item.id]})}
               </ItemContainer>
             }
           </Motion>

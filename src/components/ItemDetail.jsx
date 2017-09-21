@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'emotion/react';
 import {palette, z} from './styleguide';
 import {keyframes} from 'emotion';
-import {Row, Column, Text} from './styleguide';
+import {Row, Column, Text, Divider} from './styleguide';
 import {ItemStats, ItemPerks, ItemDescription} from './index';
 import {fade} from 'material-ui/utils/colorManipulator';
+import {ReactHeight} from 'react-height';
 
 const containerPadding = '12px';
 
@@ -34,104 +35,104 @@ const rarityColorMap = {
   legendary: palette.legendary,
   exotic: palette.exotic,
   common: palette.common,
+  uncommon: palette.uncommon,
   rare: palette.rare
 };
 
 const damageHashMap = {
-  3373582085: 'damage-kinetic',
-  1847026933: 'damage-solar',
-  2303181850: 'damage-arc',
-  3454344768: 'damage-void'
+  0: 'none',
+  1: 'kinetic',
+  3: 'solar',
+  2: 'arc',
+  4: 'void',
+  5: 'raid'
 };
 
 const primaryStatHashMap = {
-  368428387: 'ATTACK',
+  1480404414: 'ATTACK',
   3897883278: 'DEFENSE'
 };
 
 const damageTypeColorMap = {
-  'damage-kinetic': palette.background,
-  'damage-solar': '#f2721b',
-  'damage-arc': '#85c5ec',
-  'damage-void': '#b184c5'
+  'kinetic': palette.background,
+  'solar': '#f2721b',
+  'arc': '#85c5ec',
+  'void': '#b184c5'
 };
-
-const damageTypeIconMap = {
-  'damage-kinetic': '/img/destiny_content/damage_types/kinetic.png',
-  'damage-solar': '/img/destiny_content/damage_types/thermal.png',
-  'damage-arc': '/img/destiny_content/damage_types/arc.png',
-  'damage-void': '/img/destiny_content/damage_types/void.png'
-};
-
-const ItemDetails = styled.div `
-  width: 325px;
-`;
-
-const ItemHeader = styled.div`
-  background-color: ${props => fade(props.rarity, .95)};
-  padding: ${containerPadding};
-  border-radius: 4px;
-  margin-bottom: 2px;
-  animation: ${frames} 550ms ease-in-out 1;
-  box-shadow: ${z.z2};
-  -webkit-backdrop-filter: blur(10px);
-`;
 
 const bgColor = fade(palette.darkText, 0.95);
 
-const ItemSection = styled(Column)`
-  padding: ${containerPadding};
-  background-color: ${bgColor};
+const damageTypeIconMap = {
+  'kinetic': '/img/destiny_content/damage_types/kinetic.png',
+  'solar': '/img/destiny_content/damage_types/thermal.png',
+  'arc': '/img/destiny_content/damage_types/arc.png',
+  'void': '/img/destiny_content/damage_types/void.png'
+};
+
+const ItemHeader = styled.div`
+  background-color: ${props => fade(props.rarity, .95)};
+  animation: ${props => props.render ? `${frames} 550ms 1 ease-in-out forwards` : 'none'};
+  padding: ${containerPadding}; 
   border-radius: 4px;
-  animation : ${frames} 550ms 1 ease-in-out forwards;
   margin-bottom: 2px;
-  opacity: 0;
+  opacity: 0;  
   box-shadow: ${z.z2};
   -webkit-backdrop-filter: blur(10px);
+  user-select: none;  
+`;
+
+const ItemDetails = styled.div`
+  background-color: ${bgColor};
+  border-radius: 4px;
+  opacity: 0;  
+  animation: ${props => props.render ? `${frames} 550ms 1 ease-in-out forwards` : 'none'};
+  animation-delay: 100ms;
+  box-shadow: ${z.z2};  
+  -webkit-backdrop-filter: blur(10px);
+  padding: ${containerPadding};
+  user-select: none;  
 `;
 
 export default(props) => {
-  const rarityColor = rarityColorMap[props.item.definition.tierTypeName.toLowerCase()];
-  const damageType = damageHashMap[props.item.damageTypeHash]
+  const rarityColor = rarityColorMap[props.item.inventory.tierTypeName.toLowerCase()];
+  const damageType = props.item && props.item.instance && damageHashMap[props.item.instance.damageType];
   const damageColor = damageTypeColorMap[damageType];
   const damageIconPath = damageTypeIconMap[damageType];
-  const primaryStatType = props.item.primaryStat ? primaryStatHashMap[props.item.primaryStat.statHash] : undefined;
+  const primaryStatType = props.item.instance && props.item.instance.primaryStat && primaryStatHashMap[props.item.instance.primaryStat.statHash];
 
-  function renderStats(stats, item) {
-    return stats
-      ? <ItemSection justify='start' align='start' style={{animationDelay: '200ms'}}>
-        <ItemStats stats={stats} itemStatType={item.primaryStat ? primaryStatType : undefined}/>
-      </ItemSection>
-      : undefined;
+  function renderStats(statsDefinitions, item) {
+    return item.stats && <Column justify='start' align='start'>
+      <Divider css={`opacity: 0.4;`}/>
+      <ItemStats statsDefinitions={statsDefinitions} item={item} itemStatType={primaryStatType}/>
+    </Column>
   }
 
-  function renderPerks(perks) {
-    return perks
-      ? <ItemSection justify='start' align='start' style={{animationDelay: '300ms'}}>
-        <ItemPerks {...{perks}}/>
-      </ItemSection>
-      : undefined;
+  function renderPerks(perksDefinitions, item) {
+    return item.perks && item.perks.length > 0 && <Column justify='start' align='start'>
+      <Divider css={`opacity: 0.4;`}/>      
+      <ItemPerks perksDefinitions={perksDefinitions} perks={item.perks}/>
+    </Column>
   }
 
-  return <div {...{style: props.style, className: props.className}} css={`position: absolute; z-index: 1000;`}>
-    {props.item 
-      ? <ItemDetails>
-          <ItemHeader rarity={rarityColor}>
-            <Text white size={2} bold>{props.item.definition.itemName.toUpperCase()}</Text>
-            <Row justify='space-between' css={`margin-top: 4px;`}>
-              <Text>{props.item.definition.itemTypeName}</Text>
-              <Text>{props.item.definition.tierTypeName}</Text>
-            </Row>
-          </ItemHeader>
+  return <div {...{style: props.style, className: props.className}} css={`min-width: 325px; max-width: 325px;`}>
+    {props.item && <ReactHeight onHeightReady={props.saveDetailHeight}>
+      <ItemHeader rarity={rarityColor} render={props.render}>
+        <Text white size={2} bold>{props.item.displayProperties.name.toUpperCase()}</Text>
+        <Row justify='space-between' css={`margin-top: 4px;`}>
+          <Text>{props.item.itemTypeDisplayName}</Text>
+          <Text>{props.item.inventory.tierTypeName}</Text>
+        </Row>
+      </ItemHeader>
 
-          <ItemSection justify='start' align='start' style={{animationDelay: '100ms'}}>
-            <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
-          </ItemSection>
+      <ItemDetails render={props.render}>
+        <Column justify='start' align='start' >
+          <ItemDescription item={props.item} {...{damageType, damageColor, damageIconPath, primaryStatType}}/>
+        </Column>
 
-          {renderStats(props.stats, props.item)}
-          {renderPerks(props.perks)}
-        </ItemDetails>
-      : undefined
-    }
+        {renderStats(props.statsDefinitions, props.item)}
+        {renderPerks(props.perksDefinitions, props.item)}
+
+      </ItemDetails>
+    </ReactHeight>}
   </div>
 };

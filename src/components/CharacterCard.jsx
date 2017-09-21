@@ -4,7 +4,7 @@ import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import vaultIcon from './icon_vault.png';
 import styled from 'emotion/react';
-import {Text, Row, palette, animations} from './styleguide';
+import {Text, Row, Column, palette, animations} from './styleguide';
 
 const CardContainer = styled(Card)`
   composes: ${animations.fadeIn};
@@ -13,35 +13,35 @@ const CardContainer = styled(Card)`
 `;
 
 const StyledCard = styled(Row)`
+  user-select: none;
   background-size: cover;
   padding: 0 0 0 10px;
-  min-width: ${props => !props.vault
-  ? '240px'
-  : 'none'};
-  max-width: ${props => !props.vault
-    ? '240px'
-    : 'none'};
+  min-width: ${props => !props.vault ? '240px' : 'none'};
+  max-width: ${props => !props.vault ? '240px' : 'none'};
   height: 50px;
+  transition: background-image 1s ease;
   background-image: ${props => `url(https://www.bungie.net${props.emblem})`};
 `;
 
 const Emblem = styled.img `
   width: 34px;
   height: 34px;
-  filter: ${props => props.vault
-  ? ' invert(100%)'
-  : 'none'};
+  margin-right: 10px;
+  filter: ${props => props.vault ? 'invert(100%)' : 'none'};
 `;
 
 const Container = styled.div `
   text-align: left;
   margin-left: 10px;
   flex-grow: 1;
+  margin-left: ${props => props.vault ? '0' : '40px'};
 `;
 
 const raceHashMap = {
   3887404748: 'Human',
-  2803282938: 'Awoken'
+  2803282938: 'Awoken',
+  898834093: 'Exo',
+  full: '  .'
 };
 
 const classHashMap = {
@@ -55,40 +55,41 @@ const defaultCharacter = {
   backgroundPath: undefined,
   emblemPath: undefined,
   characterLevel: undefined,
-  characterBase: {
-    classHash: undefined,
-    raceHash: undefined,
-    powerLevel: undefined
+  classHash: undefined,
+  raceHash: undefined,
+  light: undefined,
+  levelProgression: {
+    level: undefined
   }
 };
 
 export default({vault, character = defaultCharacter}) => {
+  // function renderDropdownButton() {
+  //   return (
+  //     <IconButton>
+  //       <FontIcon className="material-icons" color={vault ? palette.darkText : palette.lightText}>arrow_drop_down_circle</FontIcon>
+  //     </IconButton>
+  //   );
+  // }
+
   return (
-    <CardContainer zDepth={2} data-grow>
+    <CardContainer zDepth={2} grow>
       <StyledCard
         vault={vault}
-        emblem={character.backgroundPath}
+        emblem={character.emblemBackgroundPath}
         justify='space-between'>
-        {character.emblemPath ? <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/> : undefined}
-        <Container>
-          <Text uppercase white={!vault}>
-            {classHashMap[character.characterBase.classHash]}
-          </Text>
-          <Text white={!vault} size={0} light>{raceHashMap[character.characterBase.raceHash]}</Text>
+        
+        {vault && <Emblem vault={vault} src={vault ? vaultIcon : `https://www.bungie.net${character.emblemPath}`}/>}
+        
+        <Container vault={vault}>
+          <Text uppercase white={!vault}> {classHashMap[character.classHash]} </Text>
+          <Text white={!vault} size={0} light> {raceHashMap[character.raceHash]} </Text>
         </Container>
-        <div data-grow style={{
-          textAlign: 'right'
-        }}>
-          <Text uppercase lightLevel>{character.characterBase.powerLevel}</Text>
-          <Text size={0} uppercase light white={!vault}>{character.characterLevel}</Text>
-        </div>
-        <IconButton>
-          <FontIcon
-            className="material-icons"
-            color={vault
-            ? palette.darkText
-            : palette.lightText}>arrow_drop_down_circle</FontIcon>
-        </IconButton>
+
+        <Column justify='center' align='end' grow css={`margin-right: 10px;`}>
+          <Text right uppercase lightLevel>{character.light}</Text>
+          <Text right size={0} uppercase light white={!vault}>{character.levelProgression.level}</Text>
+        </Column>
       </StyledCard>
     </CardContainer>
   );

@@ -2,26 +2,12 @@ import React, {Component} from 'react';
 import styled from 'emotion/react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {ItemDetail, InventoryRow} from './index';
-import {Motion, spring} from 'react-motion';
+import {Column} from './styleguide';
 import _ from 'lodash';
 
-const minimizeYSpringSetting = {
-  stiffness: 150,
-  damping: 15
-};
+// const otherBuckets = [284967655,  1269569095,   2025709351,  2973005342, 3054419239, 3313201758,  4274335291];
 
-const bucketHashOrder = [
-  1498876634,
-  2465295065,
-  953998645,
-  4023194814,
-  3448274439,
-  3551918588,
-  14239492,
-  20886954,
-  1585787867,
-  434908299
-]
+const bucketHashOrder = [1498876634, 2465295065, 953998645, 4023194814, 3448274439, 3551918588, 14239492, 20886954, 1585787867];
 
 const Grid = styled.div `
   padding: 0px 40px 20px;
@@ -52,6 +38,18 @@ function calculateLayout(characters, vaultColumns) {
     o[key] = val;
     return o;
   }, {});
+}
+
+function calculateMouseXY(e, clientXY, cardHeight) {
+  const [width, height] = clientXY;
+  const {pageX, pageY, screenY} = e;
+  const offsetY = height - screenY + 75 - cardHeight;
+  const optimalY = (pageY - 130 + cardHeight - 30);
+
+  const x = width - 400 < pageX ? pageX - 380 : pageX;
+  const y = offsetY > 0 ? optimalY : optimalY + offsetY;
+
+  return [x, y];
 }
 
 function calculateCharacterLayout(characters) {
@@ -102,33 +100,35 @@ class InventoryGrid extends Component {
   }
 
   onHover = (e) => {
-    const {pageX, pageY} = e;
     this.setState({
-      mouseXY: [pageX, pageY - 200]
-    })
+      mouseXY: calculateMouseXY(e, this.props.clientXY, this.state.detailHeight)
+    });
   }
 
   handleItemMouseLeave = () => {
     this.setState({
       hoveredItemID: undefined,
       hoveredItem: undefined,
-      previouslyHoveredItemID: this.state.hoveredItemID
+      detailHeight: undefined,
     });
     this.startInventoryPolling();
 
     window.removeEventListener('mousemove', this.onHover);
   }
 
-  handleItemHover = (hoveredItemID, characterID, hoveredItem) => {    
+  handleItemHover = (hoveredItemID, characterID, hoveredItem, e) => {    
     window.addEventListener('mousemove', this.onHover)
     this.stopInventoryPolling();
-
-    const isLastItem = hoveredItemID === this.state.previouslyHoveredItemID;
-
+    const {pageX, pageY, screenY} = e;
+    
     this.setState({
       hoveredItemID: undefined,
       hoveredItem: undefined,
-      hoveredItemDetails: isLastItem ? this.state.hoveredItemDetails : {}
+      lastEvent: {
+        pageX,
+        pageY,
+        screenY
+      }
     });
 
     setImmediate(() => {
@@ -137,87 +137,59 @@ class InventoryGrid extends Component {
         hoveredItem
       });
     });
+  }
 
-    if (isLastItem) return;
-
-    this.props.getItemDetail(characterID, hoveredItemID).then(({data, definitions}) => {
-      const item = data.item;
-      
-      const stats = item.stats.length ? item.stats.map((stat) => {
-        return Object.assign(stat, definitions.stats[stat.statHash]);
-      }) : undefined;
-
-      const perks = item.perks.length ? item.perks.map((perk) => {
-        return Object.assign(perk, definitions.perks[perk.perkHash])
-      }) : undefined;
-
-      if (stats || perks) {
-        this.setState({
-          hoveredItemDetails: {
-            stats,
-            perks
-          }
-        });
-      }
-    }).catch((error) => {
-      // Currently Vault does not allow item Details. Fixed in D2.
-      console.log(error.message)
+  saveDetailHeight = (detailHeight) => {
+    this.setState({
+      detailHeight,
+      mouseXY: calculateMouseXY(this.state.lastEvent, this.props.clientXY, detailHeight)
     });
   }
 
   renderRows = () => {
-    if (!Object.keys(this.props.items).length) return;
-    let rowOffset = 0
+    if (!this.props.items || !Object.keys(this.props.items).length) return;
     const layout = calculateLayout(this.props.characters, this.props.vaultColumns);
     const characterLayout = calculateCharacterLayout(this.props.characters);
-
-    const {handleItemHover, handleItemMouseLeave} = this;
-    return this.state.rows.map((bucketKey) => {
-        let rowStyle = {
-          translateY: spring(rowOffset, minimizeYSpringSetting)
-        }
-        rowOffset += this.state.minimizedRows[bucketKey]
-          ? 40
-          : this.props.items[bucketKey].rowHeight + 30;
-        return (
-          <Motion style={rowStyle} key={bucketKey}>
-            {({translateY}) => 
-              <InventoryRow {...{bucketKey, layout, characterLayout, handleItemHover, handleItemMouseLeave}}
-                key={bucketKey}
-                query={this.props.query}
-                characters={this.props.characters}
-                items={this.props.items[bucketKey].items}
-                title={this.props.items[bucketKey].name}
-                height={this.props.items[bucketKey].rowHeight}
-                minimize={this.toggleRow}
-                moveItem={this.props.moveItem}
-                render={this.state.hiddenRows[bucketKey]}
-                vaultColumns={this.props.vaultColumns}
-                stopInventoryPolling={this.stopInventoryPolling}
-                startInventoryPolling={this.startInventoryPolling}
-                clientWidth={this.props.clientWidth}/>
-            }
-          </Motion>
-        );
-      });
+    
+    return this.state.rows.map((bucketKey) => 
+      <InventoryRow
+        key={bucketKey}
+        query={this.props.query}
+        characters={this.props.characters}
+        bucketKey={bucketKey}
+        layout={layout}
+        characterLayout={characterLayout}
+        items={this.props.items[bucketKey].items}
+        title={this.props.items[bucketKey].name}
+        height={this.props.items[bucketKey].rowHeight}
+        minimize={this.toggleRow}
+        moveItem={this.props.moveItem}
+        render={this.state.hiddenRows[bucketKey]}
+        vaultColumns={this.props.vaultColumns}
+        stopInventoryPolling={this.stopInventoryPolling}
+        startInventoryPolling={this.startInventoryPolling}
+        handleItemHover={this.handleItemHover}
+        handleItemMouseLeave={this.handleItemMouseLeave}
+        clientWidth={this.props.clientWidth}/>
+    );
   }
 
   render() {
-    const [x, y] = this.state.mouseXY || [0,0];
     return (
       <Grid>
-        {
-          this.state.hoveredItemID
-            ? <ItemDetail style={{
-              transform: `translate3d(${x}px, ${y}px, 0)`
-            }}
-            item={this.state.hoveredItem}
-            stats={this.state.hoveredItemDetails.stats}
-            perks={this.state.hoveredItemDetails.perks}
-            />
-            : undefined
-        }
+        {this.state.hoveredItemID && <Column align='end' justify='end' css={`position: absolute; z-index: 2000; overflow: visible; height: 1px;`}
+          style={{
+            transform: `translate3d(${this.state.mouseXY[0]}px, ${this.state.mouseXY[1]}px, 0)`
+          }}>
+            <ItemDetail 
+              item={this.state.hoveredItem}
+              saveDetailHeight={this.saveDetailHeight}
+              statsDefinitions={this.props.statsDefinitions}
+              perksDefinitions={this.props.perksDefinitions}
+              render={this.state.detailHeight ? true : false}/>
+        </Column>}
         {this.renderRows()}
+        <div></div>
       </Grid>
     );
   }

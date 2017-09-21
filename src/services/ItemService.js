@@ -1,28 +1,18 @@
 import store from './localStoreService';
 
-function mapItems(items, definitions, buckets, storeID) {
-  items.forEach((item) => {
-    const bucketHash = storeID === 'vault' ? [definitions.items[item.itemHash].bucketTypeHash] : item.bucketHash;
-    if (buckets[bucketHash] && buckets[bucketHash].items[storeID]) {
-      buckets[bucketHash].items[storeID].push(Object.assign(item, {
-        definition: definitions.items[item.itemHash]
-      }));
-    } else if (buckets[bucketHash] && !buckets[bucketHash].items[storeID]) {
-      buckets[bucketHash].items[storeID] = [Object.assign(item, {
-        definition: definitions.items[item.itemHash]
-      })];
-    } else if (!buckets[bucketHash]) {
-      buckets[bucketHash] = {
-        name: definitions.buckets[bucketHash].bucketName,
-        count: definitions.buckets[bucketHash].itemCount,
-        items: {
-          [storeID]: [Object.assign(item, {
-            definition: definitions.items[item.itemHash]
-          })]
-        }
+function reduceToBuckets(buckets, item) {
+  if (buckets[item.inventory.bucketTypeHash] && buckets[item.inventory.bucketTypeHash].items[item.characterID]) {
+    buckets[item.inventory.bucketTypeHash].items[item.characterID].push(item);
+  } else if (buckets[item.inventory.bucketTypeHash] && !buckets[item.inventory.bucketTypeHash].items[item.characterID]) {
+    buckets[item.inventory.bucketTypeHash].items[item.characterID] = [item];
+  } else if (!buckets[item.inventory.bucketTypeHash]) {
+    buckets[item.inventory.bucketTypeHash] = {
+      items: {
+        [item.characterID]: [item]
       }
     }
-  });
+  }
+  return buckets;
 }
 
 function calculateRowHeight(bucketItems, vaultColumns) {
@@ -33,27 +23,10 @@ function calculateRowHeight(bucketItems, vaultColumns) {
   });
 }
 
-function orderByRarity(bucketItems) {
-  const rarity = ['common', 'rare', 'legendary', 'exotic'];
-  return Object.keys(bucketItems.items).map((characterID) => {
-    return [characterID, bucketItems.items[characterID].sort((a, b) => {
-      return rarity.indexOf(a.definition.tierTypeName.toLowerCase()) < rarity.indexOf(b.definition.tierTypeName.toLowerCase());
-    })];
-  }).reduce((o, [key, val]) => {
-    o[key] = val;
-    return o
-  }, {});
-}
-
-export default function(bungieRequestService, rawMembership) {
+export default function(getBungieRequest) {
   return {
-    buckets: {},
-    rawMembership,
     getCharacters(destinyMembershipID) {
-      return bungieRequestService.getAccountCharacters(destinyMembershipID).then(({data}) => {
-        this.characters = data.characters;
-        return this.characters;
-      });
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getAccountCharacters(destinyMembershipID).then(({characters}) => characters.data));
     },
 
     getCachedItems() {
@@ -61,76 +34,85 @@ export default function(bungieRequestService, rawMembership) {
     },
 
     getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
-      return bungieRequestService.getItemDetail(destinyMembershipID, characterID, itemInstanceID);
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getItemDetail(destinyMembershipID, characterID, itemInstanceID));
     },
 
     moveItem(itemReferenceHash, itemID, characterId, vault) {
-      return bungieRequestService.moveItem(itemReferenceHash, itemID, characterId, vault);
+      return getBungieRequest().then((bungieRequest) => bungieRequest.moveItem(itemReferenceHash, itemID, characterId, vault));
     },
 
     equipItem(itemId, characterId) {
-      return bungieRequestService.equipItem(itemId, characterId);
+      return getBungieRequest().then((bungieRequest) => bungieRequest.equipItem(itemId, characterId));
     },
 
-    updateCharacter(characterID, characterMembershipID) {
-      return bungieRequestService.getCharacterSummaryById(characterID, characterMembershipID).then((data) => {
-        return data.Response.data.characterBase;
-      });
+    getCharacter(characterID, characterMembershipID) {
+      return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterID, characterMembershipID).then(({data}) => data));
     },
 
-    filterItems(query, filteredItems) {
-      if (query === '') {
-        return undefined;
-      }
-
-      return Object.keys((filteredItems || this.buckets)).forEach((bucketKey) => {
-        Object.keys((filteredItems || this.buckets)[bucketKey].items).forEach((storeKey) => {
-          const itemList = (filteredItems || this.buckets)[bucketKey].items[storeKey].filter((item) => {
-            return item.definition.itemName.indexOf(query) >= 0;
-          });
-          (filteredItems || this.buckets)[bucketKey].items[storeKey] = itemList;
-        })
-      });
-    },
-
-    getItems(clientWidth) {
-      const requests = this.characters.map((character) => {
-        const {characterId, membershipId} = character.characterBase;
-        return bungieRequestService.getCharacterById(characterId, membershipId).then(({data, definitions}) => {
+    getItems(clientWidth, characters, membershipId, manifest, bucketDefinitions, statsDefinitions) {
+      const requests = characters.map((character) => {
+        const {characterId, membershipId} = character;
+        return getBungieRequest().then((bungieRequest) => bungieRequest.getCharacterById(characterId, membershipId).then(({character, inventory, equipment, itemComponents}) => {
           return {
-            inventory: {data, definitions},
+            character,
+            inventory,
+            equipment,
+            itemComponents,
             key: characterId
           };
-        })
+        }));
       });
 
       requests.push(
-        bungieRequestService.getVaultSummary().then(({data, definitions}) => {
+        getBungieRequest().then((bungieRequest) => bungieRequest.getProfileInventory(membershipId).then(({profileInventory, itemComponents}) => {
           return {
-            inventory: {data, definitions},
+            inventory: profileInventory,
+            itemComponents,
             key: 'vault'
           };
         })
-      );
+      ));
 
-      return Promise.all(requests).then((characters) => {
-        const itemBuckets = {};
-        characters.forEach((character) => mapItems(character.inventory.data.items, character.inventory.definitions, itemBuckets, character.key));
+      return Promise.all(requests).then((locations) => {
+        const itemBuckets = locations.map(({inventory = {data: {items: []}}, equipment = {data: {items: []}}, itemComponents, key}) => {
+          return inventory.data.items.concat(equipment.data.items).map((rawItem) => {
+            const {classType, displayProperties, equippable, inventory, itemTypeDisplayName, nonTransferrable, sockets, redacted} = manifest[rawItem.itemHash];
+            const instance = itemComponents.instances.data[rawItem.itemInstanceId];
+            const stats = itemComponents.stats.data[rawItem.itemInstanceId];
+            const perks = itemComponents.perks.data[rawItem.itemInstanceId];
+            
+            return {
+              ...rawItem,
+              characterID: key,
+              id: rawItem.itemHash,
+              itemId: rawItem.itemHash,
+              classType,
+              displayProperties,
+              equippable,
+              inventory,
+              itemTypeDisplayName,
+              nonTransferrable,
+              sockets,
+              perks: perks && perks.perks,
+              stats: stats && stats.stats,
+              redacted,
+              instance
+            }
+          });
+        })
+        .reduce((a, b) => a.concat(b), [])
+        .reduce(reduceToBuckets, {});
 
-        delete itemBuckets[1801258597]
-        delete itemBuckets[2197472680]
-        delete itemBuckets[3284755031]
-        delete itemBuckets[375726501]
-        const vaultColumns = Math.floor((clientWidth - 90 - (271 * characters.filter((store) => {
-          return store.key !== 'vault';
+        const vaultColumns = Math.floor((clientWidth - 90 - (271 * locations.filter((character) => {
+          return character.key !== 'vault';
         }).length)) / 52);
 
         Object.keys(itemBuckets).forEach((bucketKey) => {
+          const bucket = bucketDefinitions[bucketKey];
           itemBuckets[bucketKey].rowHeight = calculateRowHeight(itemBuckets[bucketKey].items, vaultColumns);
-          itemBuckets[bucketKey].items = orderByRarity(itemBuckets[bucketKey]);
+          itemBuckets[bucketKey].name = bucket.displayProperties.name;
         });
 
-        this.buckets = itemBuckets;
         return itemBuckets;
       });
     }
