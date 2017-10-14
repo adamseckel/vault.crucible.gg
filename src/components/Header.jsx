@@ -1,7 +1,7 @@
 import React from 'react';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {Row, Text, palette, animations} from './styleguide';
 
 const StickyHeader = styled(Row)`
@@ -17,11 +17,12 @@ const StickyHeader = styled(Row)`
 const HeaderRow = styled(Row)`
   padding: 8px;
   border-radius: 4px;
+  max-height: 19px;
   border: 1px solid ${palette.stroke};
   background-color: ${palette.background};
 `;
 
-export default({minimized, onMinimize, title}) => {
+export default({minimized, nextSortName, onMinimize, handleSort, title}) => {
   function renderIcon(minimized) {
     return !minimized
       ? <FontIcon className="material-icons" color={palette.stroke}>indeterminate_check_box</FontIcon>
@@ -37,6 +38,10 @@ export default({minimized, onMinimize, title}) => {
         <Text uppercase>
           {title}
         </Text>
+        <IconButton tooltip={`Sort By ${nextSortName}`} onTouchTap={handleSort} css={`margin-right: -8px !important;`}>
+          <FontIcon className="material-icons" color={palette.secondaryText} class="material-icons">sort_by_alpha</FontIcon>
+        </IconButton>
+
       </HeaderRow>
     </StickyHeader>
   );

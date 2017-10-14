@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import muiThemeable from 'material-ui/styles/muiThemeable';
 import {ItemDetail, InventoryRow} from './index';
 import {Column} from './styleguide';

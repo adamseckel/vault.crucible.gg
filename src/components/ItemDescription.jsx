@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {Row, Text, palette} from './styleguide';
 
 const DamageIcon = styled.img`

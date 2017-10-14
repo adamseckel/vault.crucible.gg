@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {Column, Row, Text, animations, palette} from './styleguide';
 
 const FakeNativeButton = styled.div`

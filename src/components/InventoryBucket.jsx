@@ -3,7 +3,7 @@ import muiThemeable from 'material-ui/styles/muiThemeable';
 import {ItemIcon} from './index';
 import {Motion, spring} from 'react-motion';
 import _ from 'lodash';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 
 const Bucket = styled.div `
   min-width: ${props => props.vault
