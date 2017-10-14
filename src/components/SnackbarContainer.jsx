@@ -1,6 +1,6 @@
 import React from 'react';
 import {palette, Row} from './styleguide';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {Motion, spring} from 'react-motion';
 
 const height = 56;

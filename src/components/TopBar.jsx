@@ -1,6 +1,6 @@
 import React from 'react';
 import {Row, palette} from './styleguide';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {SearchBar} from './index';
 import AppBar from 'material-ui/AppBar';
 import FontIcon from 'material-ui/FontIcon';

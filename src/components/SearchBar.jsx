@@ -5,7 +5,7 @@ import FontIcon from 'material-ui/FontIcon';
 import TextField from 'material-ui/TextField';
 import IconButton from 'material-ui/IconButton';
 import {palette, animations, z, Row} from './styleguide';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 
 const SearchBox = styled(Row)`
   composes: ${animations.fadeIn};

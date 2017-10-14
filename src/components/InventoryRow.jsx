@@ -6,7 +6,7 @@ import Cell from './Cell';
 import InventoryBucket from './InventoryBucket';
 import Header from './Header';
 import VisibilitySensor from 'react-visibility-sensor';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 
 const StyledRow = styled(Row)`
   position: relative;
@@ -16,6 +16,13 @@ const StyledRow = styled(Row)`
 `;
 
 const [width, height] = [52, 52];
+
+const sortByOptions = ['negative,power', 'power', 'quality'];
+const sortByNameMap = {
+  'negative,power' : 'Power',
+  'power' : 'Power',
+  'quality': 'Quality'
+};
 
 function clamp(n, min, max) {
   return Math.max(Math.min(n, max), min);
@@ -47,10 +54,10 @@ function order(items) {
           name: item.displayProperties.name,
           equippable: item.equippable,
           quality: item.inventory && item.inventory.tierTypeName && item.inventory.tierTypeName.toLowerCase(),
-          nonTransferrable: item.inventory.nonTransferrableOriginal,
           redacted: item.redacted,
           equipped: item.instance.isEquipped,
-          itemTypeName: item.itemTypeDisplayName
+          itemTypeName: item.itemTypeDisplayName,
+          power: (item.instance.primaryStat && item.instance.primaryStat.value) || -Infinity
         }
       }), (item) => {return !item.equipped});
     })
@@ -82,6 +89,8 @@ class ItemRow extends Component {
       ], // difference between mouse and circle pos for x + y coords, for dragging
       lastPress: null, // key of the last pressed component
       isPressed: false,
+      sortBy: undefined,
+      nextSortName: 'Power',
       error: false,
       errorMessage: '',
       order: order(this.props.items),
@@ -285,6 +294,35 @@ class ItemRow extends Component {
     });
   }
 
+  handleToggleSort = () => {
+    const currentSortIndex = sortByOptions.indexOf(this.state.sortBy);
+    const newSortIndex = currentSortIndex === sortByOptions.length - 1 ? 0 : currentSortIndex + 1;
+    const sortBy = sortByOptions[newSortIndex];
+    const nextSortIndex = newSortIndex === sortByOptions.length - 1 ? 0 : newSortIndex + 1;
+    const nextSortName = sortByNameMap[sortByOptions[nextSortIndex]];
+    
+    const negative = sortBy.includes('negative');
+    const sort = negative ? sortBy.split(',')[1] : sortBy;
+    const equippedItems = Object.keys(this.props.characters).map((characterID) => {
+      return this.state.order.filter((order) => order.characterID === characterID)[0];
+    });
+
+    const equippedItemIDs = equippedItems.map((item) => {
+      return item.id;
+    });
+    
+    const orderedInventory = _.sortBy(this.state.order, (item) => item[sort]).filter((item) => {
+      return !equippedItemIDs.includes(item.id)
+    });
+
+    const newOrder = equippedItems.concat(negative ? orderedInventory.reverse() : orderedInventory);
+    this.setState({
+      sortBy,
+      nextSortName,
+      order: newOrder
+    });
+  }
+
   renderBucket(items, characterId, layout, order, query) {
     const {bucketKey} = this.props.bucketKey;
     return (
@@ -355,20 +393,23 @@ class ItemRow extends Component {
             key={this.props.title}
             title={this.props.title}
             minimized={this.state.minimized}
-            onMinimize={this.onMinimize}/> {this.state.rendered || !this.state.minimized
-            ? <StyledRow
-                justify='start'
-                align='stretch'
-                grow
-                style={{
-                minHeight: `${this.props.height}px`,
-                opacity: `${isVisible
-                  ? 1
-                  : 0}`
-              }}>
-                {this.renderRow(isVisible)}
-              </StyledRow>
-            : <div></div>
+            nextSortName={this.state.nextSortName}
+            handleSort={this.handleToggleSort}
+            onMinimize={this.onMinimize}/> 
+            {this.state.rendered || !this.state.minimized
+              ? <StyledRow
+                  justify='start'
+                  align='stretch'
+                  grow
+                  style={{
+                  minHeight: `${this.props.height}px`,
+                  opacity: `${isVisible
+                    ? 1
+                    : 0}`
+                }}>
+                  {this.renderRow(isVisible)}
+                </StyledRow>
+              : <div></div>
             }
         </div>
         }

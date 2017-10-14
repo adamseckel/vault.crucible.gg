@@ -1,6 +1,6 @@
 import React from 'react';
 import muiThemeable from 'material-ui/styles/muiThemeable';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {animations, Row} from './styleguide';
 import CharacterCard from './CharacterCard';
 import Cell from './Cell';

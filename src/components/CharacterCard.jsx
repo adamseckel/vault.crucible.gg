@@ -3,7 +3,7 @@ import Card from 'material-ui/Card';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import vaultIcon from './icon_vault.png';
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {Text, Row, Column, palette, animations} from './styleguide';
 
 const CardContainer = styled(Card)`

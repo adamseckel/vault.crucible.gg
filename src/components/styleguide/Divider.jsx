@@ -1,4 +1,4 @@
-import styled from 'emotion/react';
+import styled from 'react-emotion';
 import {palette} from './index';
 
 export default styled.hr`
