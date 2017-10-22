@@ -12,7 +12,7 @@ const FakeNativeButton = styled.div`
 `;
 
 const FakeBrowser = styled(Column)`
-  composes: ${animations.fadeInSlow};
+  ${animations.fadeInSlow};
   animation-delay: 1500ms;
   opacity: 0;
   border: 1px solid ${palette.stroke};
@@ -28,11 +28,11 @@ const FakeBrowser = styled(Column)`
 export default({className, style, onAuthorize, SignInButton}) => {
   return (
     <Row justify='space-between' css={`position: absolute; top: 60px; left: 0; right: 0; padding: 40px;`}>
-      <Column grow css={`composes: ${animations.fadeInSlow}; width: 100%; height: 100%; max-width: 40%;`}>
+      <Column grow css={`${animations.fadeInSlow}; width: 100%; height: 100%; max-width: 40%;`}>
         <Text center gray css={`opacity: 0.1; position: absolute; left: 0; right: 60%; top: -40px; bottom: 0;`} size={'max'}>2</Text>
-        <Text title light size={4} css={`composes: ${animations.fadeInSlow}; animation-delay: 500ms; opacity: 0; margin-bottom: 20px;`}>vault.crucible.gg</Text>
-        <Text gray size={2} css={`composes: ${animations.fadeInSlow}; animation-delay: 1000ms; opacity: 0; margin-bottom: 20px;`}> Fast, Simple, Gear Management for Destiny 2 </Text>
-        <SignInButton css={`composes: ${animations.fadeInSlow}; animation-delay: 1500ms; opacity: 0;`} label='Sign In' onTouchTap={onAuthorize}/>
+        <Text title light size={4} css={`${animations.fadeInSlow}; animation-delay: 500ms; opacity: 0; margin-bottom: 20px;`}>vault.crucible.gg</Text>
+        <Text gray size={2} css={`${animations.fadeInSlow}; animation-delay: 1000ms; opacity: 0; margin-bottom: 20px;`}> Fast, Simple, Gear Management for Destiny 2 </Text>
+        <SignInButton css={`${animations.fadeInSlow}; animation-delay: 1500ms; opacity: 0;`} label='Sign In' onTouchTap={onAuthorize}/>
       </Column>
       <FakeBrowser justify='start' align='stretch' css={``} grow>
         <Row justify='start' css={`height: 20px; border-bottom: 1px solid ${palette.stroke}; padding: 4px 8px;`}>

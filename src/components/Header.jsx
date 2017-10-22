@@ -5,7 +5,7 @@ import styled from 'react-emotion';
 import {Row, Text, palette, animations} from './styleguide';
 
 const StickyHeader = styled(Row)`
-  composes: ${animations.fadeIn};
+  ${animations.fadeIn};
   top: 139px;
   margin-left: -40px;
   z-index: 200;

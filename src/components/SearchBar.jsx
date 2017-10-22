@@ -8,7 +8,7 @@ import {palette, animations, z, Row} from './styleguide';
 import styled from 'react-emotion';
 
 const SearchBox = styled(Row)`
-  composes: ${animations.fadeIn};
+  ${animations.fadeIn};
   padding: 0;
   width: 100%;
   border-radius: 4px;
