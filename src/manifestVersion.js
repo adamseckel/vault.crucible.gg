@@ -1,1 +1,1 @@
-export const manifestVersion = '60088.17.09.26.2246-5'
+export const manifestVersion = '60220.17.10.04.1749-1'

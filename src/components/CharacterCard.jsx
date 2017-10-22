@@ -7,7 +7,7 @@ import styled from 'react-emotion';
 import {Text, Row, Column, palette, animations} from './styleguide';
 
 const CardContainer = styled(Card)`
-  composes: ${animations.fadeIn};
+  ${animations.fadeIn};
   overflow: hidden;
   margin: 10px 0 5px;
 `;

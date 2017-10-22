@@ -6,7 +6,7 @@ import CharacterCard from './CharacterCard';
 import Cell from './Cell';
 
 const RowContainer = styled.div`
-  composes: ${animations.fadeIn};
+  ${animations.fadeIn};
   position: fixed;
   left: 0;
   right: 0;
