@@ -152,7 +152,7 @@ class InventoryGrid extends Component {
     const characterLayout = calculateCharacterLayout(this.props.characters);
     
     return this.state.rows.map((bucketKey) => 
-      <InventoryRow
+      this.props.items[bucketKey] && <InventoryRow
         key={bucketKey}
         query={this.props.query}
         characters={this.props.characters}
