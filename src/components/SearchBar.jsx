@@ -73,7 +73,7 @@ class SearchBar extends Component {
   }
 
   blurInput = () => {
-    return this.setState({isSearchFocused: false});
+    return (this.props.query || this.props.query === '') && this.setState({isSearchFocused: false});
   }
 
   render() {
