@@ -26,8 +26,7 @@ function calculateRowHeight(bucketItems, vaultColumns) {
     .map(characterID => {
       return bucketItems[characterID]
         ? Math.ceil(
-            bucketItems[characterID].length * 52 / (characterID === 'vault' ? vaultColumns : 3) +
-              52,
+            bucketItems[characterID].length * 52 / (characterID === 'vault' ? vaultColumns : 3) + 52
           )
         : 0;
     })
@@ -42,7 +41,7 @@ export default function(getBungieRequest) {
       return getBungieRequest().then(bungieRequest =>
         bungieRequest
           .getAccountCharacters(destinyMembershipID)
-          .then(({ characters }) => characters.data),
+          .then(({ characters }) => characters.data)
       );
     },
 
@@ -52,13 +51,13 @@ export default function(getBungieRequest) {
 
     getItemDetail(destinyMembershipID, characterID, itemInstanceID) {
       return getBungieRequest().then(bungieRequest =>
-        bungieRequest.getItemDetail(destinyMembershipID, characterID, itemInstanceID),
+        bungieRequest.getItemDetail(destinyMembershipID, characterID, itemInstanceID)
       );
     },
 
     moveItem(itemReferenceHash, itemID, characterId, vault) {
       return getBungieRequest().then(bungieRequest =>
-        bungieRequest.moveItem(itemReferenceHash, itemID, characterId, vault),
+        bungieRequest.moveItem(itemReferenceHash, itemID, characterId, vault)
       );
     },
 
@@ -68,7 +67,7 @@ export default function(getBungieRequest) {
 
     getCharacter(characterID, characterMembershipID) {
       return getBungieRequest().then(bungieRequest =>
-        bungieRequest.getCharacterById(characterID, characterMembershipID).then(({ data }) => data),
+        bungieRequest.getCharacterById(characterID, characterMembershipID).then(({ data }) => data)
       );
     },
 
@@ -86,7 +85,7 @@ export default function(getBungieRequest) {
                 itemComponents,
                 key: characterId,
               };
-            }),
+            })
         );
       });
 
@@ -100,8 +99,8 @@ export default function(getBungieRequest) {
                 itemComponents,
                 key: 'vault',
               };
-            }),
-        ),
+            })
+        )
       );
 
       return Promise.all(requests).then(locations => {
@@ -146,7 +145,7 @@ export default function(getBungieRequest) {
                   instance,
                 };
               });
-            },
+            }
           )
           .reduce((a, b) => a.concat(b), [])
           .reduce(reduceToBuckets, {});
@@ -158,14 +157,14 @@ export default function(getBungieRequest) {
               locations.filter(character => {
                 return character.key !== 'vault';
               }).length) /
-            52,
+            52
         );
 
         Object.keys(itemBuckets).forEach(bucketKey => {
           const bucket = bucketDefinitions[bucketKey];
           itemBuckets[bucketKey].rowHeight = calculateRowHeight(
             itemBuckets[bucketKey].items,
-            vaultColumns,
+            vaultColumns
           );
           itemBuckets[bucketKey].name = bucket.displayProperties.name;
         });

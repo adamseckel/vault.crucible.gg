@@ -69,8 +69,8 @@ function order(items) {
         }),
         item => {
           return !item.equipped;
-        },
-      ),
+        }
+      )
     )
     .reduce((a, b) => a.concat(b), []);
 }
@@ -130,7 +130,7 @@ class ItemRow extends Component {
         (prev, curr) => {
           return curr[0] > goal ? prev : prev[0] < curr[0] ? curr : prev;
         },
-        [-Infinity],
+        [-Infinity]
       );
 
       const characterIndex =
@@ -275,7 +275,7 @@ class ItemRow extends Component {
         this.state.lastCharacter,
         this.state.initialCharacter,
         shouldEquip,
-        shouldUnequipReplacementItemID,
+        shouldUnequipReplacementItemID
       )
       .catch(error => {
         console.log('catch?', error.message);
@@ -286,7 +286,7 @@ class ItemRow extends Component {
             order,
             initialCharacter,
             order.indexOf(lastItem),
-            lastOrder.indexOf(lastItem),
+            lastOrder.indexOf(lastItem)
           ),
         });
       });
@@ -375,7 +375,7 @@ class ItemRow extends Component {
               characterId,
               this.props.layout[characterId],
               this.state.order,
-              this.props.query,
+              this.props.query
             )}
           </Cell>
         );

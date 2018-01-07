@@ -23,7 +23,7 @@ export default ({ perksDefinitions, perks, className, style }) => {
       .filter(perk => perk.visible)
       .map(perk => {
         const description = perksDefinitions[perk.perkHash].displayProperties.description.split(
-          '\n',
+          '\n'
         );
         return {
           ...perk,

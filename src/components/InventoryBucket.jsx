@@ -111,7 +111,7 @@ class InventoryBucket extends Component {
                             item.id,
                             this.props.characterId,
                             this.props.items[item.id],
-                            e,
+                            e
                           )
                         : undefined
                     }
@@ -123,7 +123,7 @@ class InventoryBucket extends Component {
                         item,
                         index,
                         [x, y],
-                        e,
+                        e
                       )
                     }
                     onTouchStart={e =>
@@ -133,7 +133,7 @@ class InventoryBucket extends Component {
                         item,
                         index,
                         [x, y],
-                        e,
+                        e
                       )
                     }
                   >

@@ -14,7 +14,7 @@ export default function(apiKey) {
         authorization => {
           // console.log('Authorization: Auth expired and updated')
           return store.set('Vault::Authorization', authorization);
-        },
+        }
       );
     } else if (localStorageAuth && localStorageAuth.authorizationExpiresAt > Date.now()) {
       // console.log('Authorization: Current auth has not expired')
@@ -37,7 +37,7 @@ function getAuthorization(apiKey, token, grantType) {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-      },
+      }
     )
     .then(response => {
       if (response.data.access_token) {

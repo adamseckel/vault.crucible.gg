@@ -28,7 +28,7 @@ export default function(authorization, apiKey, membershipType, fakeMembershipID)
     getAccountCharacters(destinyMembershipID) {
       return bungieRequest
         .get(
-          `/Destiny2/${membershipType}/Profile/${destinyMembershipID}/?components=200&definitions`,
+          `/Destiny2/${membershipType}/Profile/${destinyMembershipID}/?components=200&definitions`
         )
         .then(handleBungieResponse);
     },
@@ -36,7 +36,7 @@ export default function(authorization, apiKey, membershipType, fakeMembershipID)
     getProfileInventory(destinyMembershipID) {
       return bungieRequest
         .get(
-          `/Destiny2/${membershipType}/Profile/${destinyMembershipID}/?components=102,300,302,304&definitions=true`,
+          `/Destiny2/${membershipType}/Profile/${destinyMembershipID}/?components=102,300,302,304&definitions=true`
         )
         .then(handleBungieResponse);
     },
@@ -44,7 +44,7 @@ export default function(authorization, apiKey, membershipType, fakeMembershipID)
     getCharacterById(characterID, destinyMembershipID) {
       return bungieRequest
         .get(
-          `/Destiny2/${membershipType}/Profile/${destinyMembershipID}/Character/${characterID}/?components=200,201,205,300,302,304`,
+          `/Destiny2/${membershipType}/Profile/${destinyMembershipID}/Character/${characterID}/?components=200,201,205,300,302,304`
         )
         .then(handleBungieResponse);
     },

@@ -42,7 +42,7 @@ function calculateLayout(characters, vaultColumns) {
               (characterId === 'vault' ? 0 : 100) + index * cellWidth + 11 + width * col,
               height * row,
             ];
-          }),
+          })
         ),
       ];
     })
@@ -186,7 +186,7 @@ class InventoryGrid extends Component {
             handleItemMouseLeave={this.handleItemMouseLeave}
             clientWidth={this.props.clientWidth}
           />
-        ),
+        )
     );
   };
 

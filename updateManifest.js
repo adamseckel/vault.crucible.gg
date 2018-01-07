@@ -76,7 +76,7 @@ function getManifest(manifestVersion) {
                   exporter.save(
                     table,
                     `./public/manifest/${manifestVersion}/${table}.json`,
-                    err => console.error,
+                    err => console.error
                   );
                 });
               });
