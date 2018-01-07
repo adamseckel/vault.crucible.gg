@@ -7,7 +7,7 @@ export default props => {
   function tweet() {
     return window.open(
       'https://twitter.com/intent/tweet?text=@hemlok&hashtags=cruciblegg',
-      '_blank',
+      '_blank'
     );
   }
 

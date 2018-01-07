@@ -44,7 +44,7 @@
   },
   "prettier": {
     "single-quote": true,
-    "trailing-comma": "all",
+    "trailing-comma": "es5",
     "print-width": 100
   }
 }
