@@ -2,7 +2,7 @@ import React from 'react';
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 import styled from 'react-emotion';
-import {Row, Text, palette, animations} from './styleguide';
+import { Row, Text, palette, animations } from './styleguide';
 
 const StickyHeader = styled(Row)`
   ${animations.fadeIn};
@@ -22,27 +22,36 @@ const HeaderRow = styled(Row)`
   background-color: ${palette.background};
 `;
 
-export default({minimized, nextSortName, onMinimize, handleSort, title}) => {
+export default ({ minimized, nextSortName, onMinimize, handleSort, title }) => {
   function renderIcon(minimized) {
-    return !minimized
-      ? <FontIcon className="material-icons" color={palette.stroke}>indeterminate_check_box</FontIcon>
-      : <FontIcon className="material-icons" color={palette.stroke}>add_box</FontIcon>;
+    return !minimized ? (
+      <FontIcon className="material-icons" color={palette.stroke}>
+        indeterminate_check_box
+      </FontIcon>
+    ) : (
+      <FontIcon className="material-icons" color={palette.stroke}>
+        add_box
+      </FontIcon>
+    );
   }
 
   return (
-    <StickyHeader justify='start'>
-      <IconButton onTouchTap={onMinimize}>
-        {renderIcon(minimized)}
-      </IconButton>
-      <HeaderRow grow justify='space-between'>
-        <Text uppercase>
-          {title}
-        </Text>
-        <IconButton tooltip={`Sort By ${nextSortName}`} onTouchTap={handleSort} css={`margin-right: -8px !important;`}>
-          <FontIcon className="material-icons" color={palette.secondaryText} class="material-icons">sort_by_alpha</FontIcon>
+    <StickyHeader justify="start">
+      <IconButton onTouchTap={onMinimize}>{renderIcon(minimized)}</IconButton>
+      <HeaderRow grow justify="space-between">
+        <Text uppercase>{title}</Text>
+        <IconButton
+          tooltip={`Sort By ${nextSortName}`}
+          onTouchTap={handleSort}
+          css={`
+            margin-right: -8px !important;
+          `}
+        >
+          <FontIcon className="material-icons" color={palette.secondaryText} class="material-icons">
+            sort_by_alpha
+          </FontIcon>
         </IconButton>
-
       </HeaderRow>
     </StickyHeader>
   );
-}
+};

@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import styled from 'react-emotion';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import FlatButton from 'material-ui/FlatButton';
-import {muiThemeDeclaration} from './components/styleguide';
-import {InventoryGrid, SnackbarContainer, LocationsRow, Landing, TopBar} from './components';
+import { muiThemeDeclaration } from './components/styleguide';
+import { InventoryGrid, SnackbarContainer, LocationsRow, Landing, TopBar } from './components';
 import Reducer from './Reducer';
 
 injectTapEventPlugin();
@@ -34,11 +34,15 @@ class App extends Component {
   render() {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
-        <div className='App'>
-          <Reducer manifestVersion={this.props.manifestVersion} firebaseService={this.props.firebaseService} apiKey={this.props.apiKey}>
-            {({store, actions}) =>
+        <div className="App">
+          <Reducer
+            manifestVersion={this.props.manifestVersion}
+            firebaseService={this.props.firebaseService}
+            apiKey={this.props.apiKey}
+          >
+            {({ store, actions }) => (
               <div>
-                <StyledTopBar 
+                <StyledTopBar
                   searchForItem={actions.searchForItem}
                   authenticated={store.authenticated}
                   onReload={actions.onReload}
@@ -49,12 +53,13 @@ class App extends Component {
                   handleAccountChange={actions.handleAccountChange}
                   query={store.query}
                   onFeedback={actions.onFeedback}
-                  SignInButton={SignInButton}/>
+                  SignInButton={SignInButton}
+                />
 
-                {store.authenticated
-                  ? <div>
+                {store.authenticated ? (
+                  <div>
                     <LocationsRow characters={store.characters} vault={store.vault} />
-                    <InventoryGrid 
+                    <InventoryGrid
                       moveItem={actions.moveItem}
                       getItemDetail={actions.getItemDetail}
                       vaultColumns={store.vaultColumns}
@@ -66,13 +71,15 @@ class App extends Component {
                       perksDefinitions={store.perksDefinitions}
                       startInventoryPolling={actions.startInventoryPolling}
                       stopInventoryPolling={actions.stopInventoryPolling}
-                      query={store.query}/>
+                      query={store.query}
+                    />
                   </div>
-                  : <Landing onAuthorize={actions.onAuthorize} SignInButton={SignInButton}/>
-                }
-                <StyledSnackbarContainer messages={store.notifications}/>
+                ) : (
+                  <Landing onAuthorize={actions.onAuthorize} SignInButton={SignInButton} />
+                )}
+                <StyledSnackbarContainer messages={store.notifications} />
               </div>
-            }
+            )}
           </Reducer>
         </div>
       </MuiThemeProvider>
