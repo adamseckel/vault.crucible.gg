@@ -1,4 +1,4 @@
-import {keyframes, css} from 'emotion';
+import { keyframes, css } from 'emotion';
 
 const fadeInKeyframes = keyframes`
   from {
@@ -19,5 +19,5 @@ const fadeInSlow = css`
 
 export default {
   fadeIn,
-  fadeInSlow
-}
+  fadeInSlow,
+};

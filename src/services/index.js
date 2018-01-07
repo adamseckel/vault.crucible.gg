@@ -11,5 +11,5 @@ export {
   ItemService,
   FirebaseService,
   store,
-  ManifestRequestService
+  ManifestRequestService,
 };

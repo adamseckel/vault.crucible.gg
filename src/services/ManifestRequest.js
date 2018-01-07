@@ -1,20 +1,21 @@
 import axios from 'axios';
 
-function handleManifestResponse({data}) {
-  return data.map((entry) => {
-    const data = JSON.parse(entry.json);
-    return [data.hash, data];
-  }).reduce((o, [k, v]) => {
-    o[k] = v;
-    return o
-  }, {});
+function handleManifestResponse({ data }) {
+  return data
+    .map(entry => {
+      const data = JSON.parse(entry.json);
+      return [data.hash, data];
+    })
+    .reduce((o, [k, v]) => {
+      o[k] = v;
+      return o;
+    }, {});
 }
 
 export default function(manifestVersion) {
   const manifestRequest = axios.create({
-    baseURL: `${process.env.PUBLIC_URL}/manifest/${manifestVersion}/`
+    baseURL: `${process.env.PUBLIC_URL}/manifest/${manifestVersion}/`,
   });
-
 
   const service = {
     getStatsDefinitions() {
@@ -26,9 +27,11 @@ export default function(manifestVersion) {
     },
 
     getInventoryItemDefinitions() {
-      return manifestRequest.get('DestinyInventoryItemDefinition.json').then(handleManifestResponse);
+      return manifestRequest
+        .get('DestinyInventoryItemDefinition.json')
+        .then(handleManifestResponse);
     },
-    
+
     getDestinyItemTierTypeDefinitions() {
       return manifestRequest.get('DestinyItemTierTypeDefinition.json').then(handleManifestResponse);
     },
@@ -38,13 +41,15 @@ export default function(manifestVersion) {
     },
 
     getDestinyInventoryBucketDefinitions() {
-      return manifestRequest.get('DestinyInventoryBucketDefinition.json').then(handleManifestResponse);
+      return manifestRequest
+        .get('DestinyInventoryBucketDefinition.json')
+        .then(handleManifestResponse);
     },
 
     getDestinyTalentGridDefinition() {
       return manifestRequest.get('DestinyTalentGridDefinition.json').then(handleManifestResponse);
-    }
+    },
   };
 
   return service;
-};
+}

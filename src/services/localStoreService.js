@@ -9,5 +9,5 @@ export default {
   delete: function(key) {
     localStorage.removeItem(key);
     return Promise.resolve('Deleted');
-  }
+  },
 };

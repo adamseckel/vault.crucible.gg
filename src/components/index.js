@@ -35,5 +35,5 @@ export {
   UserMenu,
   Landing,
   TopBar,
-  TwitterBadge
+  TwitterBadge,
 };
