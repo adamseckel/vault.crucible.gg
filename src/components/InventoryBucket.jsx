@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import muiThemeable from "material-ui/styles/muiThemeable";
-import { ItemIcon } from "./index";
-import { Motion, spring } from "react-motion";
-import _ from "lodash";
-import styled from "react-emotion";
+import React, { Component } from 'react';
+import muiThemeable from 'material-ui/styles/muiThemeable';
+import { ItemIcon } from './index';
+import { Motion, spring } from 'react-motion';
+import _ from 'lodash';
+import styled from 'react-emotion';
 
 const Bucket = styled.div`
-  min-width: ${props => (props.vault ? "none" : "160px")};
-  max-width: ${props => (props.vault ? "none" : "160px")};
+  min-width: ${props => (props.vault ? 'none' : '160px')};
+  max-width: ${props => (props.vault ? 'none' : '160px')};
 `;
 
 const ItemContainer = styled.div`
@@ -21,12 +21,12 @@ const ItemContainer = styled.div`
 
 const springSetting1 = {
   stiffness: 180,
-  damping: 10
+  damping: 10,
 };
 
 const springSetting2 = {
   stiffness: 200,
-  damping: 17
+  damping: 17,
 };
 
 class InventoryBucket extends Component {
@@ -39,17 +39,16 @@ class InventoryBucket extends Component {
 
   componentDidMount = () => {
     this.setState({
-      columns: this.props.characterId === "vault" ? Math.floor(547 / 54) : 3
+      columns: this.props.characterId === 'vault' ? Math.floor(547 / 54) : 3,
     });
   };
 
   returnQuery(item, query) {
-    if (!query || query === "") return true;
-    return ["common", "rare", "legendary", "exotic"].indexOf(query) >= 0
+    if (!query || query === '') return true;
+    return ['common', 'rare', 'legendary', 'exotic'].indexOf(query) >= 0
       ? item.quality.toLowerCase().indexOf(query.toLowerCase()) >= 0
       : item.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
-          (item.itemTypeName &&
-            item.itemTypeName.toLowerCase().indexOf(query.toLowerCase()) >= 0);
+          (item.itemTypeName && item.itemTypeName.toLowerCase().indexOf(query.toLowerCase()) >= 0);
   }
 
   renderDraggableInventoryItems = items => {
@@ -81,28 +80,22 @@ class InventoryBucket extends Component {
                 translateY: y,
                 scale: spring(1.2, springSetting1),
                 boxShadow1: spring(0.156863, springSetting1),
-                boxShadow2: spring(0.227451, springSetting1)
+                boxShadow2: spring(0.227451, springSetting1),
               };
             } else {
-              [x, y] = this.props.layout[visualPosition] || [0, 0];
+              [x, y] = this.props.layout[visualPosition];
               style = {
                 translateX: spring(x, springSetting2),
                 translateY: spring(y, springSetting2),
                 scale: spring(1, springSetting1),
                 boxShadow1: spring(0, springSetting1),
-                boxShadow2: spring(0, springSetting1)
+                boxShadow2: spring(0, springSetting1),
               };
             }
 
             return (
               <Motion style={style} key={key}>
-                {({
-                  translateX,
-                  translateY,
-                  scale,
-                  boxShadow1,
-                  boxShadow2
-                }) => (
+                {({ translateX, translateY, scale, boxShadow1, boxShadow2 }) => (
                   <ItemContainer
                     key={item.itemID}
                     style={{
@@ -110,8 +103,7 @@ class InventoryBucket extends Component {
                       transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`,
                       boxShadow: `0px 3px 10px rgba(0,0,0, ${boxShadow1}), 0px 3px 10px rgba(0,0,0, ${boxShadow2})`,
                       opacity: filtered ? 0.2 : 1,
-                      zIndex:
-                        key === lastPress && isPressed ? 1200 : visualPosition
+                      zIndex: key === lastPress && isPressed ? 1200 : visualPosition,
                     }}
                     onMouseEnter={e =>
                       !this.props.isPressed
@@ -123,9 +115,7 @@ class InventoryBucket extends Component {
                           )
                         : undefined
                     }
-                    onMouseLeave={() =>
-                      this.props.handleItemMouseLeave(item.itemID)
-                    }
+                    onMouseLeave={() => this.props.handleItemMouseLeave(item.itemID)}
                     onMouseDown={e =>
                       this.props.handleMouseDown(
                         key,
@@ -158,13 +148,7 @@ class InventoryBucket extends Component {
 
   render() {
     return (
-      <Bucket
-        vault={this.props.vault}
-        data-flex
-        data-row
-        data-layout="start start"
-        data-wrap
-      >
+      <Bucket vault={this.props.vault} data-flex data-row data-layout="start start" data-wrap>
         {this.renderDraggableInventoryItems(this.props.items)}
       </Bucket>
     );
