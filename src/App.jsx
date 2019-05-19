@@ -1,14 +1,17 @@
-import React, { Component } from 'react';
-import injectTapEventPlugin from 'react-tap-event-plugin';
-import styled from 'react-emotion';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import FlatButton from 'material-ui/FlatButton';
-import { muiThemeDeclaration } from './components/styleguide';
-import { InventoryGrid, SnackbarContainer, LocationsRow, Landing, TopBar } from './components';
-import Reducer from './Reducer';
-
-injectTapEventPlugin();
+import React, { Component } from "react";
+import styled from "react-emotion";
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
+import getMuiTheme from "material-ui/styles/getMuiTheme";
+import FlatButton from "material-ui/FlatButton";
+import { muiThemeDeclaration } from "./components/styleguide";
+import {
+  InventoryGrid,
+  SnackbarContainer,
+  LocationsRow,
+  Landing,
+  TopBar
+} from "./components";
+import Reducer from "./Reducer";
 
 const muiTheme = getMuiTheme(muiThemeDeclaration);
 
@@ -58,7 +61,10 @@ class App extends Component {
 
                 {store.authenticated ? (
                   <div>
-                    <LocationsRow characters={store.characters} vault={store.vault} />
+                    <LocationsRow
+                      characters={store.characters}
+                      vault={store.vault}
+                    />
                     <InventoryGrid
                       moveItem={actions.moveItem}
                       getItemDetail={actions.getItemDetail}
@@ -75,7 +81,10 @@ class App extends Component {
                     />
                   </div>
                 ) : (
-                  <Landing onAuthorize={actions.onAuthorize} SignInButton={SignInButton} />
+                  <Landing
+                    onAuthorize={actions.onAuthorize}
+                    SignInButton={SignInButton}
+                  />
                 )}
                 <StyledSnackbarContainer messages={store.notifications} />
               </div>
