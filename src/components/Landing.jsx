@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'react-emotion';
-import { Column, Row, Text, animations, palette } from './styleguide';
+import React from "react";
+import styled from "react-emotion";
+import { Column, Row, Text, animations, palette } from "./styleguide";
 
 const FakeNativeButton = styled.div`
   border-radius: 100%;
@@ -57,7 +57,7 @@ export default ({ className, style, onAuthorize, SignInButton }) => {
             top: -40px;
             bottom: 0;
           `}
-          size={'max'}
+          size={"max"}
         >
           2
         </Text>
@@ -84,8 +84,8 @@ export default ({ className, style, onAuthorize, SignInButton }) => {
             margin-bottom: 20px;
           `}
         >
-          {' '}
-          Fast, Simple, Gear Management for Destiny 2{' '}
+          {" "}
+          Fast, Simple, Gear Management for Destiny 2{" "}
         </Text>
         <SignInButton
           css={`
@@ -94,7 +94,7 @@ export default ({ className, style, onAuthorize, SignInButton }) => {
             opacity: 0;
           `}
           label="Sign In"
-          onTouchTap={onAuthorize}
+          onClick={onAuthorize}
         />
       </Column>
       <FakeBrowser justify="start" align="stretch" css={``} grow>
@@ -120,11 +120,11 @@ export default ({ className, style, onAuthorize, SignInButton }) => {
           <iframe
             style={{
               border: 0,
-              position: 'absolute',
+              position: "absolute",
               top: 0,
-              left: '-2px',
-              right: '-2px',
-              bottom: 0,
+              left: "-2px",
+              right: "-2px",
+              bottom: 0
             }}
             title="video"
             width="102%"

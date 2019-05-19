@@ -1,8 +1,8 @@
-import React from 'react';
-import FontIcon from 'material-ui/FontIcon';
-import IconButton from 'material-ui/IconButton';
-import styled from 'react-emotion';
-import { Row, Text, palette, animations } from './styleguide';
+import React from "react";
+import FontIcon from "material-ui/FontIcon";
+import IconButton from "material-ui/IconButton";
+import styled from "react-emotion";
+import { Row, Text, palette, animations } from "./styleguide";
 
 const StickyHeader = styled(Row)`
   ${animations.fadeIn};
@@ -37,17 +37,21 @@ export default ({ minimized, nextSortName, onMinimize, handleSort, title }) => {
 
   return (
     <StickyHeader justify="start">
-      <IconButton onTouchTap={onMinimize}>{renderIcon(minimized)}</IconButton>
+      <IconButton onClick={onMinimize}>{renderIcon(minimized)}</IconButton>
       <HeaderRow grow justify="space-between">
         <Text uppercase>{title}</Text>
         <IconButton
           tooltip={`Sort By ${nextSortName}`}
-          onTouchTap={handleSort}
+          onClick={handleSort}
           css={`
             margin-right: -8px !important;
           `}
         >
-          <FontIcon className="material-icons" color={palette.secondaryText} class="material-icons">
+          <FontIcon
+            className="material-icons"
+            color={palette.secondaryText}
+            class="material-icons"
+          >
             sort_by_alpha
           </FontIcon>
         </IconButton>

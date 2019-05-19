@@ -1,13 +1,13 @@
-import React from 'react';
-import { Row } from './styleguide';
-import FloatingActionButton from 'material-ui/FloatingActionButton';
-import twitterSvg from './twitter.svg';
+import React from "react";
+import { Row } from "./styleguide";
+import FloatingActionButton from "material-ui/FloatingActionButton";
+import twitterSvg from "./twitter.svg";
 
 export default props => {
   function tweet() {
     return window.open(
-      'https://twitter.com/intent/tweet?text=@hemlok&hashtags=cruciblegg',
-      '_blank'
+      "https://twitter.com/intent/tweet?text=@hemlok&hashtags=cruciblegg",
+      "_blank"
     );
   }
 
@@ -28,7 +28,7 @@ export default props => {
           `}
           src={twitterSvg}
           alt="Tweet Me"
-          onTouchTap={tweet}
+          onClick={tweet}
         />
       </Row>
     </FloatingActionButton>

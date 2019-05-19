@@ -1,12 +1,12 @@
-import React from 'react';
-import { Row, palette } from './styleguide';
-import styled from 'react-emotion';
-import { SearchBar } from './index';
-import AppBar from 'material-ui/AppBar';
-import FontIcon from 'material-ui/FontIcon';
-import IconButton from 'material-ui/IconButton';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+import React from "react";
+import { Row, palette } from "./styleguide";
+import styled from "react-emotion";
+import { SearchBar } from "./index";
+import AppBar from "material-ui/AppBar";
+import FontIcon from "material-ui/FontIcon";
+import IconButton from "material-ui/IconButton";
+import DropDownMenu from "material-ui/DropDownMenu";
+import MenuItem from "material-ui/MenuItem";
 
 const TopBar = styled(AppBar)`
   border-bottom: 1px solid ${palette.stroke} !important;
@@ -24,9 +24,9 @@ const SearchBarContainer = styled(Row)`
 `;
 
 const accountTypeMap = {
-  1: 'XBOX',
-  2: 'PS4',
-  4: 'BNET',
+  1: "XBOX",
+  2: "PS4",
+  4: "BNET"
 };
 
 const StyledDropdown = styled(DropDownMenu)`
@@ -50,7 +50,7 @@ export default ({
   destinyAccounts,
   selectedAccount,
   handleAccountChange,
-  SignInButton,
+  SignInButton
 }) => {
   function mapAccounts(accounts) {
     return (
@@ -77,7 +77,7 @@ export default ({
       showMenuIconButton={false}
       titleStyle={{
         color: palette.secondaryText,
-        textAlign: 'left',
+        textAlign: "left"
       }}
     >
       <SearchBarContainer>
@@ -98,10 +98,10 @@ export default ({
           <polyline
             points="426.79 261.25 448.23 282.69 229.75 501.16 11.27 282.69 32.08 261.88"
             style={{
-              fill: 'none',
-              stroke: '#000',
+              fill: "none",
+              stroke: "#000",
               strokeMiterlimit: 10,
-              strokeWidth: '8px',
+              strokeWidth: "8px"
             }}
           />
           <polygon points="229.63 56.79 429.95 258.1 457.92 230.13 229.63 0 0 230.04 28.78 258.82 229.63 56.79" />
@@ -126,27 +126,33 @@ export default ({
             `}
           >
             <StyledDropdown
-              underlineStyle={{ border: 'none' }}
+              underlineStyle={{ border: "none" }}
               value={selectedAccount}
               onChange={handleAccountChange}
             >
               {mapAccounts(destinyAccounts)}
             </StyledDropdown>
-            <IconButton onTouchTap={onFeedback} tooltip="Feedback">
-              <FontIcon color={palette.secondaryText} className="material-icons">
-                {' '}
-                help_outline{' '}
+            <IconButton onClick={onFeedback} tooltip="Feedback">
+              <FontIcon
+                color={palette.secondaryText}
+                className="material-icons"
+              >
+                {" "}
+                help_outline{" "}
               </FontIcon>
             </IconButton>
-            <IconButton onTouchTap={onLogout} tooltip="Logout">
-              <FontIcon color={palette.secondaryText} className="material-icons">
-                {' '}
-                exit_to_app{' '}
+            <IconButton onClick={onLogout} tooltip="Logout">
+              <FontIcon
+                color={palette.secondaryText}
+                className="material-icons"
+              >
+                {" "}
+                exit_to_app{" "}
               </FontIcon>
             </IconButton>
           </Row>
         ) : (
-          <SignInButton label="Sign In" onTouchTap={onAuthorize} />
+          <SignInButton label="Sign In" onClick={onAuthorize} />
         )}
       </Row>
     </TopBar>
