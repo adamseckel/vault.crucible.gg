@@ -1,5 +1,5 @@
-import styled from "react-emotion";
-import { palette } from "./index";
+import styled from 'react-emotion';
+import { palette } from './index';
 
 export default styled.hr`
   margin: 10px 0;

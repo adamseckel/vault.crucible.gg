@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import styled from "react-emotion";
-import muiThemeable from "material-ui/styles/muiThemeable";
-import { ItemDetail, InventoryRow } from "./index";
-import { Column } from "./styleguide";
-import _ from "lodash";
+import React, { Component } from 'react';
+import styled from 'react-emotion';
+import muiThemeable from 'material-ui/styles/muiThemeable';
+import { ItemDetail, InventoryRow } from './index';
+import { Column } from './styleguide';
+import _ from 'lodash';
 
 // const otherBuckets = [284967655,  1269569095,   2025709351,  2973005342, 3054419239, 3313201758,  4274335291];
 
@@ -16,7 +16,7 @@ const bucketHashOrder = [
   3551918588,
   14239492,
   20886954,
-  1585787867
+  1585787867,
 ];
 
 const Grid = styled.div`
@@ -28,11 +28,10 @@ const [width, height, cellWidth] = [52, 52, 270];
 
 function calculateLayout(characters, vaultColumns) {
   return Object.keys(characters)
-    .concat(["vault"])
+    .concat(['vault'])
     .map((characterId, index) => {
-      const layout =
-        characterId === "vault" ? [] : [[index * cellWidth + 11, 0]];
-      const columns = characterId === "vault" ? vaultColumns : 3;
+      const layout = characterId === 'vault' ? [] : [[index * cellWidth + 11, 0]];
+      const columns = characterId === 'vault' ? vaultColumns : 3;
       return [
         characterId,
         layout.concat(
@@ -40,14 +39,11 @@ function calculateLayout(characters, vaultColumns) {
             const row = Math.floor(n / columns);
             const col = n % columns;
             return [
-              (characterId === "vault" ? 0 : 100) +
-                index * cellWidth +
-                11 +
-                width * col,
-              height * row
+              (characterId === 'vault' ? 0 : 100) + index * cellWidth + 11 + width * col,
+              height * row,
             ];
           })
-        )
+        ),
       ];
     })
     .reduce((o, [key, val]) => {
@@ -70,7 +66,7 @@ function calculateMouseXY(e, clientXY, cardHeight) {
 
 function calculateCharacterLayout(characters) {
   return Object.keys(characters)
-    .concat(["vault"])
+    .concat(['vault'])
     .map((characterId, index) => {
       return [cellWidth * index, 0];
     });
@@ -84,7 +80,7 @@ class InventoryGrid extends Component {
       justMinimizedRow: undefined,
       minimizedRows: {},
       hiddenRows: {},
-      hoveredItemDetails: {}
+      hoveredItemDetails: {},
     };
   }
 
@@ -103,8 +99,8 @@ class InventoryGrid extends Component {
   toggleRow = bucketKey => {
     this.setState({
       minimizedRows: Object.assign(this.state.minimizedRows, {
-        [bucketKey]: !this.state.minimizedRows[bucketKey]
-      })
+        [bucketKey]: !this.state.minimizedRows[bucketKey],
+      }),
     });
   };
 
@@ -117,7 +113,7 @@ class InventoryGrid extends Component {
 
   onHover = e => {
     this.setState({
-      mouseXY: calculateMouseXY(e, this.props.clientXY, this.state.detailHeight)
+      mouseXY: calculateMouseXY(e, this.props.clientXY, this.state.detailHeight),
     });
   };
 
@@ -125,15 +121,15 @@ class InventoryGrid extends Component {
     this.setState({
       hoveredItemID: undefined,
       hoveredItem: undefined,
-      detailHeight: undefined
+      detailHeight: undefined,
     });
     this.startInventoryPolling();
 
-    window.removeEventListener("mousemove", this.onHover);
+    window.removeEventListener('mousemove', this.onHover);
   };
 
   handleItemHover = (hoveredItemID, characterID, hoveredItem, e) => {
-    window.addEventListener("mousemove", this.onHover);
+    window.addEventListener('mousemove', this.onHover);
     this.stopInventoryPolling();
     const { pageX, pageY, screenY } = e;
 
@@ -143,14 +139,14 @@ class InventoryGrid extends Component {
       lastEvent: {
         pageX,
         pageY,
-        screenY
-      }
+        screenY,
+      },
     });
 
     setImmediate(() => {
       this.setState({
         hoveredItemID,
-        hoveredItem
+        hoveredItem,
       });
     });
   };
@@ -158,20 +154,13 @@ class InventoryGrid extends Component {
   saveDetailHeight = detailHeight => {
     this.setState({
       detailHeight,
-      mouseXY: calculateMouseXY(
-        this.state.lastEvent,
-        this.props.clientXY,
-        detailHeight
-      )
+      mouseXY: calculateMouseXY(this.state.lastEvent, this.props.clientXY, detailHeight),
     });
   };
 
   renderRows = () => {
     if (!this.props.items || !Object.keys(this.props.items).length) return;
-    const layout = calculateLayout(
-      this.props.characters,
-      this.props.vaultColumns
-    );
+    const layout = calculateLayout(this.props.characters, this.props.vaultColumns);
     const characterLayout = calculateCharacterLayout(this.props.characters);
 
     return this.state.rows.map(
@@ -215,9 +204,9 @@ class InventoryGrid extends Component {
               height: 1px;
             `}
             style={{
-              transform: `translate3d(${
-                this.state.mouseXY ? this.state.mouseXY[0] : 0
-              }px, ${this.state.mouseXY[1]}px, 0)`
+              transform: `translate3d(${this.state.mouseXY ? this.state.mouseXY[0] : 0}px, ${
+                this.state.mouseXY[1]
+              }px, 0)`,
             }}
           >
             <ItemDetail
