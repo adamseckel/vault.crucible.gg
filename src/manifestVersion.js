@@ -1,1 +1,1 @@
-export const manifestVersion = '73212.19.04.24.1800-7'
+export const manifestVersion = '61252.17.12.02.0200-19';
