@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import muiThemeable from 'material-ui/styles/muiThemeable';
-import FontIcon from 'material-ui/FontIcon';
-import TextField from 'material-ui/TextField';
-import IconButton from 'material-ui/IconButton';
-import { palette, animations, z, Row } from './styleguide';
-import styled from 'react-emotion';
+import muiThemeable from "material-ui/styles/muiThemeable";
+import FontIcon from "material-ui/FontIcon";
+import TextField from "material-ui/TextField";
+import IconButton from "material-ui/IconButton";
+import { palette, animations, z, Row } from "./styleguide";
+import styled from "react-emotion";
 
 const SearchBox = styled(Row)`
   ${animations.fadeIn};
@@ -32,7 +32,8 @@ const FocusedSearchBoxBg = styled.div`
 
 const SearchIcon = styled(FontIcon)`
   margin: 0 8px !important;
-  color: ${props => (props.focused ? palette.stroke : palette.secondaryText)} !important;
+  color: ${props =>
+    props.focused ? palette.stroke : palette.secondaryText} !important;
   z-index: 3;
 `;
 
@@ -43,10 +44,12 @@ const ClearIcon = styled(FontIcon)`
 const TextBox = styled(TextField)`
   z-index: 3;
   & div {
-    color: ${props => (props.focused ? palette.stroke : palette.secondaryText)} !important;
+    color: ${props =>
+      props.focused ? palette.stroke : palette.secondaryText} !important;
   }
   & input {
-    color: ${props => (props.focused ? palette.stroke : palette.secondaryText)} !important;
+    color: ${props =>
+      props.focused ? palette.stroke : palette.secondaryText} !important;
   }
 `;
 
@@ -60,7 +63,7 @@ class SearchBar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isSearchFocused: false,
+      isSearchFocused: false
     };
   }
 
@@ -70,7 +73,8 @@ class SearchBar extends Component {
 
   blurInput = () => {
     return (
-      (this.props.query || this.props.query === '') && this.setState({ isSearchFocused: false })
+      (this.props.query || this.props.query === "") &&
+      this.setState({ isSearchFocused: false })
     );
   };
 
@@ -78,7 +82,10 @@ class SearchBar extends Component {
     return (
       <SearchBox justify="start" className={this.props.className}>
         <FocusedSearchBoxBg focused={this.state.isSearchFocused} />
-        <SearchIcon className="material-icons" focused={this.state.isSearchFocused}>
+        <SearchIcon
+          className="material-icons"
+          focused={this.state.isSearchFocused}
+        >
           search
         </SearchIcon>
         <TextBox
@@ -93,7 +100,7 @@ class SearchBar extends Component {
         />
         <ClearButton
           focused={this.state.isSearchFocused}
-          onTouchTap={() => this.props.onChange('', '')}
+          onClick={() => this.props.onChange("", "")}
         >
           <ClearIcon className="material-icons">clear</ClearIcon>
         </ClearButton>

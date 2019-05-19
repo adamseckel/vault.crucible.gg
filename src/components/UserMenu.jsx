@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
-import muiThemeable from 'material-ui/styles/muiThemeable';
-import IconButton from 'material-ui/IconButton';
-import FontIcon from 'material-ui/FontIcon';
-import Popover from 'material-ui/Popover';
-import Divider from 'material-ui/Divider';
-import { List, ListItem } from 'material-ui/List';
-import Toggle from 'material-ui/Toggle';
-import { palette, Text } from './styleguide';
+import React, { Component } from "react";
+import muiThemeable from "material-ui/styles/muiThemeable";
+import IconButton from "material-ui/IconButton";
+import FontIcon from "material-ui/FontIcon";
+import Popover from "material-ui/Popover";
+import Divider from "material-ui/Divider";
+import { List, ListItem } from "material-ui/List";
+import Toggle from "material-ui/Toggle";
+import { palette, Text } from "./styleguide";
 
 class SearchBar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      open: false,
+      open: false
     };
   }
 
@@ -21,30 +21,30 @@ class SearchBar extends Component {
 
     this.setState({
       open: true,
-      anchorEl: event.currentTarget,
+      anchorEl: event.currentTarget
     });
   };
 
   handleClose = () => {
     this.setState({
-      open: false,
+      open: false
     });
   };
 
   render() {
     return (
       <div>
-        <IconButton onTouchTap={this.handleOpen}>
+        <IconButton onClick={this.handleOpen}>
           <FontIcon color={palette.secondaryText} className="material-icons">
-            {' '}
-            more_vert{' '}
+            {" "}
+            more_vert{" "}
           </FontIcon>
         </IconButton>
         <Popover
           open={this.state.open}
           anchorEl={this.state.anchorEl}
-          anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-          targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: "right", vertical: "top" }}
+          targetOrigin={{ horizontal: "right", vertical: "top" }}
           onRequestClose={this.handleClose}
           css={`
             min-width: 250px;
@@ -66,20 +66,23 @@ class SearchBar extends Component {
                   color={palette.secondaryText}
                   className="material-icons"
                 >
-                  {' '}
-                  brightness_2{' '}
+                  {" "}
+                  brightness_2{" "}
                 </FontIcon>
               }
-              rightToggle={<Toggle onTouchTap={this.props.onToggleTheme} />}
+              rightToggle={<Toggle onClick={this.props.onToggleTheme} />}
             />
             <Divider />
             <ListItem
               innerDivStyle={{ color: palette.secondaryText }}
-              onTouchTap={this.props.onLogout}
+              onClick={this.props.onLogout}
               leftIcon={
-                <FontIcon color={palette.secondaryText} className="material-icons">
-                  {' '}
-                  exit_to_app{' '}
+                <FontIcon
+                  color={palette.secondaryText}
+                  className="material-icons"
+                >
+                  {" "}
+                  exit_to_app{" "}
                 </FontIcon>
               }
             >
