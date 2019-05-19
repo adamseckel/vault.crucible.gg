@@ -13,9 +13,9 @@ const Bucket = styled.div`
 const ItemContainer = styled.div`
   position: absolute;
   left: 0;
-  userselect: none;
+  user-select: none;
   margin: 0 5px 5px 0;
-  borderradius: 4px;
+  border-radius: 4px;
   transition: opacity 0.2s ease;
 `;
 
