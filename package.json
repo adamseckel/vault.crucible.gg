@@ -6,7 +6,7 @@
     "axios": "0.16.2",
     "emotion": "8.0.6",
     "firebase": "4.5.1",
-    "lodash": "4.17.11",
+    "lodash": "4.17.21",
     "material-ui": "0.19.4",
     "react": "16.8.6",
     "react-dom": "16.8.6",
